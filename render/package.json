@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render Short out/short.mp4"
+    "render": "remotion render Short out/001-38-studios.mp4 && ./finish.sh 001-38-studios"
   },
   "dependencies": {
     "@remotion/cli": "4.0.408",
