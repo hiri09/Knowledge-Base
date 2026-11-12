@@ -20,7 +20,14 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 ## pipeline/agents
 
 - `pipeline/agents/packager.md` — **Agent: Packager** — Runs on Gate 1 survivors. Produces the title and thumbnail concepts **before any script exists.**
+- `pipeline/agents/qc.md` — **Agent: QC** — Runs on the rendered video, before it reaches Himanshu. **Returns written notes. Never re-renders, never rewri
 - `pipeline/agents/researcher.md` — **Agent: Researcher** — Runs once per cycle. Produces story candidates — **never scripts, never prose.**
+- `pipeline/agents/reviewer.md` — **Agent: Reviewer** — Runs after a published piece passes ~500 views. **This agent is why the system gets better instead of just rep
+- `pipeline/agents/scriptwriter.md` — **Agent: Scriptwriter** — Runs on the Gate 2 greenlit concept. **One research pass → every piece of content for that story.**
+
+## pipeline
+
+- `pipeline/voice.md` — **Voice** — **Undecided — pipeline is deliberately voice-agnostic.** Himanshu decides from samples.
 
 ## platforms
 
