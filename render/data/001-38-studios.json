@@ -7,21 +7,30 @@
       "text": "This game sold *a million* copies.",
       "sec": 3,
       "vo": "This game sold a million copies.",
-      "media": "office"
+      "media": "office",
+      "pause": 0.95,
+      "shot": "push",
+      "trans": "cut"
     },
     {
       "type": "line",
       "text": "The studio was bankrupt *90 days* later.",
       "sec": 3,
       "vo": "The studio was bankrupt ninety days later.",
-      "media": "court"
+      "media": "court",
+      "pause": 0.3,
+      "shot": "panR",
+      "trans": "flash"
     },
     {
       "type": "line",
       "text": "In 2010, *Rhode Island* guaranteed a loan.",
       "sec": 3.5,
       "vo": "In twenty ten, Rhode Island guaranteed a loan.",
-      "media": "capitol"
+      "media": "capitol",
+      "pause": 0.55,
+      "shot": "tilt",
+      "trans": "slideUp"
     },
     {
       "type": "number",
@@ -29,25 +38,37 @@
       "label": "Guaranteed by the state",
       "sec": 3,
       "source": "https://en.wikipedia.org/wiki/38_Studios",
-      "vo": "Seventy five million dollars, guaranteed by the state."
+      "vo": "Seventy five million dollars, guaranteed by the state.",
+      "pause": 1.05,
+      "shot": "pull",
+      "trans": "punchIn"
     },
     {
       "type": "line",
       "text": "To a *first-time studio* run by a retired baseball pitcher.",
       "sec": 4.5,
-      "vo": "To a first time studio, run by a retired baseball pitcher."
+      "vo": "To a first time studio, run by a retired baseball pitcher.",
+      "pause": 0.4,
+      "shot": "panL",
+      "trans": "cut"
     },
     {
       "type": "line",
       "text": "Kingdoms of Amalur launched in *February 2012*.",
       "sec": 3.5,
-      "vo": "Kingdoms of Amalur launched in February twenty twelve."
+      "vo": "Kingdoms of Amalur launched in February twenty twelve.",
+      "pause": 0.25,
+      "shot": "push",
+      "trans": "wipe"
     },
     {
       "type": "line",
       "text": "Reviews were warm. It sold over *a million* copies.",
       "sec": 4,
-      "vo": "Reviews were warm. It sold over a million copies."
+      "vo": "Reviews were warm. It sold over a million copies.",
+      "pause": 0.85,
+      "shot": "punch",
+      "trans": "flash"
     },
     {
       "type": "compare",
@@ -57,27 +78,39 @@
       "bValue": 3000000,
       "sec": 5,
       "source": "https://fortune.com/2012/06/15/4-lessons-from-curt-schillings-38-studios-fiasco",
-      "vo": "But it needed three million."
+      "vo": "But it needed three million.",
+      "pause": 0.2,
+      "shot": "pull",
+      "trans": "cut"
     },
     {
       "type": "line",
       "text": "It needed *three million* just to break even.",
       "sec": 3.5,
-      "vo": "Three million, just to break even."
+      "vo": "Three million, just to break even.",
+      "pause": 0.7,
+      "shot": "panR",
+      "trans": "slideUp"
     },
     {
       "type": "line",
       "text": "May 2012. Payroll missed. *Entire staff* laid off.",
       "sec": 4,
       "vo": "May twenty twelve. Payroll missed. The entire staff laid off.",
-      "media": "office"
+      "media": "office",
+      "pause": 0.3,
+      "shot": "tilt",
+      "trans": "punchIn"
     },
     {
       "type": "line",
       "text": "June: *bankruptcy*.",
       "sec": 2.5,
       "vo": "June. Bankruptcy.",
-      "media": "court"
+      "media": "court",
+      "pause": 1.15,
+      "shot": "punch",
+      "trans": "flash"
     },
     {
       "type": "number",
@@ -86,13 +119,19 @@
       "sec": 3.5,
       "crack": true,
       "source": "https://www.gamespot.com/articles/four-year-investigation-into-kingdoms-of-amalur-de/1100-6442246/",
-      "vo": "Twenty eight million dollars, lost by Rhode Island taxpayers."
+      "vo": "Twenty eight million dollars, lost by Rhode Island taxpayers.",
+      "pause": 1.0,
+      "shot": "push",
+      "trans": "cut"
     },
     {
       "type": "line",
       "text": "The game didn't fail. *The math did.*",
       "sec": 3.5,
-      "vo": "The game didn't fail. The math did."
+      "vo": "The game didn't fail. The math did.",
+      "pause": 0.6,
+      "shot": "pull",
+      "trans": "wipe"
     }
   ]
 }

@@ -9,7 +9,7 @@ import json, subprocess, sys, pathlib
 
 VOICE = "Daniel"   # en_GB, the most neutral of the built-ins
 RATE = 170         # ~145 wpm target per pipeline/voice.md
-PAD = 0.45         # breath after each line; also the pause after money figures
+PAD = 0.45         # fallback only; scenes carry their own "pause"
 
 root = pathlib.Path(__file__).parent
 vid = sys.argv[1] if len(sys.argv) > 1 else "001-38-studios"
@@ -28,7 +28,7 @@ for i, sc in enumerate(data["scenes"]):
     aiff, wav = out / f"{i}.aiff", out / f"{i}.wav"
     subprocess.run(["say", "-v", VOICE, "-r", str(RATE), "-o", str(aiff), sc["vo"]], check=True)
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(aiff),
-                    "-af", f"apad=pad_dur={PAD}", "-ar", "48000", "-ac", "2", str(wav)], check=True)
+                    "-af", f"apad=pad_dur={sc.get('pause', PAD)}", "-ar", "48000", "-ac", "2", str(wav)], check=True)
     aiff.unlink()
     d = dur(wav)
     durations.append(round(d, 3))

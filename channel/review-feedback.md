@@ -49,11 +49,15 @@ _(empty)_
 ### Visuals / render
 - **No frame is ever flat black.** Every scene carries a background layer — moving grid, drifting glow, diagonal bars, or a ghosted figure behind the type. An empty ground reads as unfinished, not as minimal. _(2026-11-12)_
 - **Every fetched image is looked at before it ships.** Keyword search returns semantically wrong images — "one hundred dollar bill" returned a scanned congressional bill. No image is better than a wrong one. _(2026-11-12)_
-- **Photographic grounds are graded to the palette, never dropped in raw.** Grayscale, crushed to ~0.32 brightness, duotoned toward the accent, with a top-and-bottom scrim for type. Ungraded stock reads as stock. _(2026-11-12)_
+- **Photographic grounds are graded to the palette, never dropped in raw.** Grayscale, ~0.55 brightness, contrast 1.18, duotoned toward the accent, with a strong top-and-bottom scrim carrying text legibility. Grading darker than this crushes already-dark images to flat black — let the scrim do the work, not the exposure. _(2026-11-12)_
 - **Key words carry the accent colour.** `*word*` in a script line renders red. The eye needs somewhere to land in a block of type. _(2026-11-12)_
 - **Composition must vary.** Never place every element dead centre. Rotate through centre, left, right, top-weighted and bottom-weighted across a video. Text aligns to its own position. _(2026-11-12)_
 
 ### Pacing / edit
+- **Uniformity is what reads as AI.** Identical pauses, identical camera moves and identical cuts are the tell — not the content. Every repeated interval must be broken on purpose. _(2026-11-12)_
+- **Pauses vary per line, 0.2s–1.2s.** Hold long before a reveal, rush through a list. A constant gap after every sentence is the loudest machine signal in a narration. _(2026-11-12)_
+- **Every photo gets a different camera move** — push, pull, pan left, pan right, tilt, snap-punch. The same Ken Burns zoom on every image reads as a template. _(2026-11-12)_
+- **Shots arrive differently.** Rotate cut, flash, slide-up, punch-in, wipe. Never two consecutive scenes entering the same way. _(2026-11-12)_
 - **Never repeat the same entrance animation twice in a row.** Rotate through rise, slide, scale, word-stagger and blur-in. One repeated motion across a whole video reads as a template. _(2026-11-12)_
 - **Numbers count up, they do not appear.** A money figure arriving instantly wastes the payoff; it should resolve on screen. _(2026-11-12)_
 

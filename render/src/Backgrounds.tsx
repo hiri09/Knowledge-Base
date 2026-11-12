@@ -102,12 +102,27 @@ export const Background: React.FC<{kind: BgKind; ghost?: string}> = ({kind, ghos
 
 // Photographic ground. Graded to the channel palette so stock never reads as stock,
 // and always moving — a static photo behind text is still a slide.
-export const Photo: React.FC<{src: string; variant: number}> = ({src, variant}) => {
+export type Shot = 'push' | 'pull' | 'panL' | 'panR' | 'tilt' | 'punch';
+
+// Photographic ground. Graded to the channel palette so stock never reads as stock.
+// Every shot moves differently — an identical camera move on every image is the
+// single loudest "machine made this" tell.
+export const Photo: React.FC<{src: string; shot: Shot}> = ({src, shot}) => {
   const frame = useCurrentFrame();
-  // Ken Burns: each variant pushes/pulls from a different corner so repeats don't read.
-  const zoom = interpolate(frame, [0, 160], variant % 2 ? [1.22, 1.05] : [1.05, 1.24], {extrapolateRight: 'clamp'});
-  const px = interpolate(frame, [0, 160], variant % 3 === 0 ? [-3, 3] : [3, -3], {extrapolateRight: 'clamp'});
-  const py = interpolate(frame, [0, 160], variant % 2 ? [2, -2] : [-2, 2], {extrapolateRight: 'clamp'});
+  const t = (a: number, b: number, end = 150) =>
+    interpolate(frame, [0, end], [a, b], {extrapolateRight: 'clamp'});
+
+  let scale = 1.1, x = 0, y = 0;
+  if (shot === 'push') { scale = t(1.04, 1.26); }
+  else if (shot === 'pull') { scale = t(1.30, 1.06); }
+  else if (shot === 'panR') { scale = 1.32; x = t(-7, 7); }
+  else if (shot === 'panL') { scale = 1.32; x = t(7, -7); }
+  else if (shot === 'tilt') { scale = 1.30; y = t(-6, 6); }
+  else if (shot === 'punch') {
+    // fast snap in, then a slow drift — reads as a cut-in, not a zoom
+    scale = interpolate(frame, [0, 11, 150], [1.55, 1.14, 1.2], {extrapolateRight: 'clamp'});
+    x = t(2, -2);
+  }
 
   return (
     <AbsoluteFill style={{backgroundColor: theme.bg, overflow: 'hidden'}}>
@@ -116,20 +131,48 @@ export const Photo: React.FC<{src: string; variant: number}> = ({src, variant}) 
           backgroundImage: `url(${src})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          transform: `scale(${zoom}) translate(${px}%, ${py}%)`,
-          filter: 'grayscale(1) contrast(1.35) brightness(0.32)',
+          transform: `scale(${scale}) translate(${x}%, ${y}%)`,
+          filter: 'grayscale(1) contrast(1.18) brightness(0.55)',
         }}
       />
-      {/* duotone: lift the shadows toward the channel's red so photos belong to the palette */}
       <AbsoluteFill style={{backgroundColor: theme.accent, opacity: 0.22, mixBlendMode: 'color'}} />
       <AbsoluteFill
         style={{
           background:
-            'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.45) 35%, rgba(0,0,0,0.5) 62%, rgba(0,0,0,0.94) 100%)',
+            'linear-gradient(180deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.38) 58%, rgba(0,0,0,0.96) 100%)',
         }}
       />
       <Grain />
       <Vignette />
+    </AbsoluteFill>
+  );
+};
+
+export type Trans = 'cut' | 'flash' | 'slideUp' | 'punchIn' | 'wipe';
+
+// Scene-entry treatment. Cycled so no two consecutive shots arrive the same way.
+export const Transition: React.FC<{kind: Trans; children: React.ReactNode}> = ({kind, children}) => {
+  const frame = useCurrentFrame();
+  const p = interpolate(frame, [0, 9], [0, 1], {extrapolateRight: 'clamp'});
+
+  const style: React.CSSProperties =
+    kind === 'slideUp' ? {transform: `translateY(${(1 - p) * 100}%)`}
+    : kind === 'punchIn' ? {transform: `scale(${1 + (1 - p) * 0.16})`, opacity: Math.min(1, p * 2)}
+    : kind === 'wipe' ? {clipPath: `inset(0 ${(1 - p) * 100}% 0 0)`}
+    : {};
+
+  return (
+    <AbsoluteFill style={style}>
+      {children}
+      {kind === 'flash' ? (
+        <AbsoluteFill
+          style={{
+            backgroundColor: '#FFFFFF',
+            opacity: interpolate(frame, [0, 2, 7], [0.55, 0.3, 0], {extrapolateRight: 'clamp'}),
+            pointerEvents: 'none',
+          }}
+        />
+      ) : null}
     </AbsoluteFill>
   );
 };

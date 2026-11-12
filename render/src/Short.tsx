@@ -1,13 +1,13 @@
 import React from 'react';
 import {AbsoluteFill, Sequence, Audio, Img, staticFile, useCurrentFrame, interpolate} from 'remotion';
 import {theme, FPS, MIN_NUMBER_SEC} from './theme';
-import {Background, Photo, BgKind} from './Backgrounds';
+import {Background, Photo, Transition, BgKind, Shot, Trans} from './Backgrounds';
 import {Enter, CountUp, ANIMS, POSITIONS, posStyle, accentText} from './motion';
 
 export type Scene =
-  | {type: 'hook' | 'line'; text: string; sec: number; vo?: string; source?: string; media?: string}
-  | {type: 'number'; value: string; label: string; sec: number; vo?: string; source?: string; crack?: boolean; media?: string}
-  | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; vo?: string; source?: string};
+  | {type: 'hook' | 'line'; text: string; sec: number; vo?: string; source?: string; media?: string; shot?: Shot; trans?: Trans}
+  | {type: 'number'; value: string; label: string; sec: number; vo?: string; source?: string; crack?: boolean; media?: string; shot?: Shot; trans?: Trans}
+  | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans};
 
 export type ShortData = {id: string; title: string; scenes: Scene[]};
 export type MediaLock = Record<string, {file: string}>;
@@ -115,9 +115,11 @@ const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: Medi
   const bg = BGS[i % BGS.length];
   const key = 'media' in scene ? (scene as any).media : undefined;
   const photo = key && media?.[key] ? staticFile(media[key].file) : undefined;
+  const shot = ((scene as any).shot ?? 'push') as Shot;
+  const trans = ((scene as any).trans ?? 'cut') as Trans;
   return (
-    <AbsoluteFill>
-      {photo ? <Photo src={photo} variant={i} /> : <Background kind={bg} ghost={ghost} />}
+    <Transition kind={trans}>
+      {photo ? <Photo src={photo} shot={shot} /> : <Background kind={bg} ghost={ghost} />}
       <AbsoluteFill style={{fontFamily: theme.font, display: 'flex', flexDirection: 'column', ...posStyle(pos as any)}}>
         {scene.type === 'compare' ? (
           <Compare scene={scene} />
@@ -127,7 +129,7 @@ const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: Medi
           <Lines scene={scene} anim={anim} />
         )}
       </AbsoluteFill>
-    </AbsoluteFill>
+    </Transition>
   );
 };
 
