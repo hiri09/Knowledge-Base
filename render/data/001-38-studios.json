@@ -1,0 +1,19 @@
+{
+  "id": "001-38-studios",
+  "title": "This Game Sold 1,000,000 Copies And Still Died",
+  "scenes": [
+    {"type": "hook", "text": "This game sold a million copies.", "sec": 3},
+    {"type": "line", "text": "The studio was bankrupt 90 days later.", "sec": 3},
+    {"type": "line", "text": "In 2010, Rhode Island guaranteed a loan.", "sec": 3.5},
+    {"type": "number", "value": "$75M", "label": "Guaranteed by the state", "sec": 3, "source": "https://en.wikipedia.org/wiki/38_Studios"},
+    {"type": "line", "text": "To a first-time studio run by a retired baseball pitcher.", "sec": 4.5},
+    {"type": "line", "text": "Kingdoms of Amalur launched in February 2012.", "sec": 3.5},
+    {"type": "line", "text": "Reviews were warm. It sold over a million copies.", "sec": 4},
+    {"type": "compare", "aLabel": "SOLD", "aValue": 1000000, "bLabel": "NEEDED", "bValue": 3000000, "sec": 5, "source": "https://fortune.com/2012/06/15/4-lessons-from-curt-schillings-38-studios-fiasco"},
+    {"type": "line", "text": "It needed three million just to break even.", "sec": 3.5},
+    {"type": "line", "text": "May 2012: payroll missed. Entire staff laid off.", "sec": 4},
+    {"type": "line", "text": "June: bankruptcy.", "sec": 2.5},
+    {"type": "number", "value": "$28M", "label": "Lost by Rhode Island taxpayers", "sec": 3.5, "crack": true, "source": "https://www.gamespot.com/articles/four-year-investigation-into-kingdoms-of-amalur-de/1100-6442246/"},
+    {"type": "line", "text": "The game didn't fail. The math did.", "sec": 3.5}
+  ]
+}

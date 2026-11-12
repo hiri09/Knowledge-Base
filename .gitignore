@@ -1,0 +1,4 @@
+node_modules/
+render/out/
+render/.remotion/
+voice/*.mp3
