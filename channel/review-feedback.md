@@ -48,6 +48,9 @@ _(empty)_
 
 ### Visuals / render
 - **No frame is ever flat black.** Every scene carries a background layer — moving grid, drifting glow, diagonal bars, or a ghosted figure behind the type. An empty ground reads as unfinished, not as minimal. _(2026-11-12)_
+- **Every fetched image is looked at before it ships.** Keyword search returns semantically wrong images — "one hundred dollar bill" returned a scanned congressional bill. No image is better than a wrong one. _(2026-11-12)_
+- **Photographic grounds are graded to the palette, never dropped in raw.** Grayscale, crushed to ~0.32 brightness, duotoned toward the accent, with a top-and-bottom scrim for type. Ungraded stock reads as stock. _(2026-11-12)_
+- **Key words carry the accent colour.** `*word*` in a script line renders red. The eye needs somewhere to land in a block of type. _(2026-11-12)_
 - **Composition must vary.** Never place every element dead centre. Rotate through centre, left, right, top-weighted and bottom-weighted across a video. Text aligns to its own position. _(2026-11-12)_
 
 ### Pacing / edit

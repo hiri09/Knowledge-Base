@@ -1,0 +1,17 @@
+{
+  "capitol": {
+    "file": "media/capitol.jpg",
+    "license": "public domain",
+    "term": "state capitol dome"
+  },
+  "office": {
+    "file": "media/office.jpg",
+    "license": "public domain",
+    "term": "empty office cubicles"
+  },
+  "court": {
+    "file": "media/court.jpg",
+    "license": "public domain",
+    "term": "legislative chamber"
+  }
+}

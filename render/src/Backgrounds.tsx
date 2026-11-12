@@ -99,3 +99,37 @@ export const Background: React.FC<{kind: BgKind; ghost?: string}> = ({kind, ghos
     </AbsoluteFill>
   );
 };
+
+// Photographic ground. Graded to the channel palette so stock never reads as stock,
+// and always moving — a static photo behind text is still a slide.
+export const Photo: React.FC<{src: string; variant: number}> = ({src, variant}) => {
+  const frame = useCurrentFrame();
+  // Ken Burns: each variant pushes/pulls from a different corner so repeats don't read.
+  const zoom = interpolate(frame, [0, 160], variant % 2 ? [1.22, 1.05] : [1.05, 1.24], {extrapolateRight: 'clamp'});
+  const px = interpolate(frame, [0, 160], variant % 3 === 0 ? [-3, 3] : [3, -3], {extrapolateRight: 'clamp'});
+  const py = interpolate(frame, [0, 160], variant % 2 ? [2, -2] : [-2, 2], {extrapolateRight: 'clamp'});
+
+  return (
+    <AbsoluteFill style={{backgroundColor: theme.bg, overflow: 'hidden'}}>
+      <AbsoluteFill
+        style={{
+          backgroundImage: `url(${src})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          transform: `scale(${zoom}) translate(${px}%, ${py}%)`,
+          filter: 'grayscale(1) contrast(1.35) brightness(0.32)',
+        }}
+      />
+      {/* duotone: lift the shadows toward the channel's red so photos belong to the palette */}
+      <AbsoluteFill style={{backgroundColor: theme.accent, opacity: 0.22, mixBlendMode: 'color'}} />
+      <AbsoluteFill
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.45) 35%, rgba(0,0,0,0.5) 62%, rgba(0,0,0,0.94) 100%)',
+        }}
+      />
+      <Grain />
+      <Vignette />
+    </AbsoluteFill>
+  );
+};

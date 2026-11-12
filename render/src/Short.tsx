@@ -1,15 +1,29 @@
 import React from 'react';
-import {AbsoluteFill, Sequence, Audio, staticFile, useCurrentFrame, interpolate} from 'remotion';
+import {AbsoluteFill, Sequence, Audio, Img, staticFile, useCurrentFrame, interpolate} from 'remotion';
 import {theme, FPS, MIN_NUMBER_SEC} from './theme';
-import {Background, BgKind} from './Backgrounds';
+import {Background, Photo, BgKind} from './Backgrounds';
 import {Enter, CountUp, ANIMS, POSITIONS, posStyle, accentText} from './motion';
 
 export type Scene =
-  | {type: 'hook' | 'line'; text: string; sec: number; vo?: string; source?: string}
-  | {type: 'number'; value: string; label: string; sec: number; vo?: string; source?: string; crack?: boolean}
+  | {type: 'hook' | 'line'; text: string; sec: number; vo?: string; source?: string; media?: string}
+  | {type: 'number'; value: string; label: string; sec: number; vo?: string; source?: string; crack?: boolean; media?: string}
   | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; vo?: string; source?: string};
 
 export type ShortData = {id: string; title: string; scenes: Scene[]};
+export type MediaLock = Record<string, {file: string}>;
+
+// *word* -> accent. The eye needs somewhere to land in a block of type.
+const Marked: React.FC<{text: string}> = ({text}) => (
+  <>
+    {text.split(/(\*[^*]+\*)/g).map((part, i) =>
+      part.startsWith('*') && part.endsWith('*') && part.length > 2 ? (
+        <span key={i} style={{color: theme.accent}}>{part.slice(1, -1)}</span>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    )}
+  </>
+);
 export type AudioData = {track: string; durations: number[]};
 
 const BGS: BgKind[] = ['grid', 'glow', 'bars', 'ghost'];
@@ -25,7 +39,7 @@ const secondsFor = (s: Scene, i: number, audio?: AudioData) => {
 const Lines: React.FC<{scene: Extract<Scene, {type: 'hook' | 'line'}>; anim: any}> = ({scene, anim}) => (
   <Enter
     anim={anim}
-    text={scene.text}
+    text={scene.text.replace(/\*/g, '')}
     style={{
       fontSize: scene.type === 'hook' ? 104 : 84,
       fontWeight: 800,
@@ -35,7 +49,7 @@ const Lines: React.FC<{scene: Extract<Scene, {type: 'hook' | 'line'}>; anim: any
       textShadow: '0 18px 60px rgba(0,0,0,0.65)',
     }}
   >
-    {scene.text}
+    <Marked text={scene.text} />
   </Enter>
 );
 
@@ -95,13 +109,15 @@ const Compare: React.FC<{scene: Extract<Scene, {type: 'compare'}>}> = ({scene}) 
   );
 };
 
-const SceneView: React.FC<{scene: Scene; i: number; ghost?: string}> = ({scene, i, ghost}) => {
+const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: MediaLock}> = ({scene, i, ghost, media}) => {
   const anim = ANIMS[i % ANIMS.length];
   const pos = scene.type === 'compare' ? 'center' : POSITIONS[i % POSITIONS.length];
   const bg = BGS[i % BGS.length];
+  const key = 'media' in scene ? (scene as any).media : undefined;
+  const photo = key && media?.[key] ? staticFile(media[key].file) : undefined;
   return (
     <AbsoluteFill>
-      <Background kind={bg} ghost={ghost} />
+      {photo ? <Photo src={photo} variant={i} /> : <Background kind={bg} ghost={ghost} />}
       <AbsoluteFill style={{fontFamily: theme.font, display: 'flex', flexDirection: 'column', ...posStyle(pos as any)}}>
         {scene.type === 'compare' ? (
           <Compare scene={scene} />
@@ -115,7 +131,7 @@ const SceneView: React.FC<{scene: Scene; i: number; ghost?: string}> = ({scene, 
   );
 };
 
-export const Short: React.FC<{data: ShortData; audio?: AudioData}> = ({data, audio}) => {
+export const Short: React.FC<{data: ShortData; audio?: AudioData; media?: MediaLock}> = ({data, audio, media}) => {
   let at = 0;
   return (
     <AbsoluteFill style={{backgroundColor: theme.bg}}>
@@ -126,7 +142,7 @@ export const Short: React.FC<{data: ShortData; audio?: AudioData}> = ({data, aud
         at += dur;
         return (
           <Sequence key={i} from={from} durationInFrames={dur}>
-            <SceneView scene={scene} i={i} ghost={data.id.includes('38') ? '38' : undefined} />
+            <SceneView scene={scene} i={i} ghost={data.id.includes('38') ? '38' : undefined} media={media} />
           </Sequence>
         );
       })}

@@ -4,21 +4,24 @@
   "scenes": [
     {
       "type": "hook",
-      "text": "This game sold a million copies.",
+      "text": "This game sold *a million* copies.",
       "sec": 3,
-      "vo": "This game sold a million copies."
+      "vo": "This game sold a million copies.",
+      "media": "office"
     },
     {
       "type": "line",
-      "text": "The studio was bankrupt 90 days later.",
+      "text": "The studio was bankrupt *90 days* later.",
       "sec": 3,
-      "vo": "The studio was bankrupt ninety days later."
+      "vo": "The studio was bankrupt ninety days later.",
+      "media": "court"
     },
     {
       "type": "line",
-      "text": "In 2010, Rhode Island guaranteed a loan.",
+      "text": "In 2010, *Rhode Island* guaranteed a loan.",
       "sec": 3.5,
-      "vo": "In twenty ten, Rhode Island guaranteed a loan."
+      "vo": "In twenty ten, Rhode Island guaranteed a loan.",
+      "media": "capitol"
     },
     {
       "type": "number",
@@ -30,19 +33,19 @@
     },
     {
       "type": "line",
-      "text": "To a first-time studio run by a retired baseball pitcher.",
+      "text": "To a *first-time studio* run by a retired baseball pitcher.",
       "sec": 4.5,
       "vo": "To a first time studio, run by a retired baseball pitcher."
     },
     {
       "type": "line",
-      "text": "Kingdoms of Amalur launched in February 2012.",
+      "text": "Kingdoms of Amalur launched in *February 2012*.",
       "sec": 3.5,
       "vo": "Kingdoms of Amalur launched in February twenty twelve."
     },
     {
       "type": "line",
-      "text": "Reviews were warm. It sold over a million copies.",
+      "text": "Reviews were warm. It sold over *a million* copies.",
       "sec": 4,
       "vo": "Reviews were warm. It sold over a million copies."
     },
@@ -58,21 +61,23 @@
     },
     {
       "type": "line",
-      "text": "It needed three million just to break even.",
+      "text": "It needed *three million* just to break even.",
       "sec": 3.5,
       "vo": "Three million, just to break even."
     },
     {
       "type": "line",
-      "text": "May 2012: payroll missed. Entire staff laid off.",
+      "text": "May 2012. Payroll missed. *Entire staff* laid off.",
       "sec": 4,
-      "vo": "May twenty twelve. Payroll missed. The entire staff laid off."
+      "vo": "May twenty twelve. Payroll missed. The entire staff laid off.",
+      "media": "office"
     },
     {
       "type": "line",
-      "text": "June: bankruptcy.",
+      "text": "June: *bankruptcy*.",
       "sec": 2.5,
-      "vo": "June. Bankruptcy."
+      "vo": "June. Bankruptcy.",
+      "media": "court"
     },
     {
       "type": "number",
@@ -85,7 +90,7 @@
     },
     {
       "type": "line",
-      "text": "The game didn't fail. The math did.",
+      "text": "The game didn't fail. *The math did.*",
       "sec": 3.5,
       "vo": "The game didn't fail. The math did."
     }
