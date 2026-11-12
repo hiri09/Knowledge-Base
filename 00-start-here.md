@@ -10,6 +10,7 @@ This knowledge base is Himanshu's external brain. Read this file first, then rou
 | Writing or judging a hook | `principles/attention-and-retention.md` |
 | Publishing to a specific platform | `platforms/<platform>.md` — **always**, in addition to principles |
 | Deciding what this channel is or isn't | `channel/positioning.md` |
+| Running any pipeline stage | `pipeline/README.md` + `pipeline/agents/<your-role>.md` |
 | Background on why the niche was chosen | `channel/youtube-niche-economics.md` |
 
 Then stop reading and start working. Do not read the whole tree.
@@ -25,6 +26,10 @@ platforms/    Platform-specific rules. These CONTRADICT each other on purpose.
               Both are correct, on their own platform, and only there.
 
 channel/      Decisions and research specific to this one channel.
+              Also the machine's memory: idea-bank, upload-log, retention-log.
+
+pipeline/     How videos get made. Stage definitions and agent specs.
+              Process, not knowledge — read only the stage you are running.
 ```
 
 **The hard rule: never apply one platform's rules to another platform.** The same video re-cut for a different platform is a different product, not a copy. If `platforms/youtube.md` and `platforms/instagram.md` disagree, that is the system working, not a bug.
