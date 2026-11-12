@@ -48,6 +48,7 @@ _(empty)_
 
 ### Visuals / render
 - **No frame is ever flat black.** Every scene carries a background layer — moving grid, drifting glow, diagonal bars, or a ghosted figure behind the type. An empty ground reads as unfinished, not as minimal. _(2026-11-12)_
+- **The visual must BE the sentence, not decorate it.** A generic photo behind a specific claim is wallpaper. Prefer a visual generated from the story's own numbers — a unit grid, a timeline, a comparison — because those are relevant by construction and cannot mismatch. Reach for a photo only when the photo is literally the subject. _(2026-11-12)_
 - **Every fetched image is looked at before it ships.** Keyword search returns semantically wrong images — "one hundred dollar bill" returned a scanned congressional bill. No image is better than a wrong one. _(2026-11-12)_
 - **Photographic grounds are graded to the palette, never dropped in raw.** Grayscale, ~0.55 brightness, contrast 1.18, duotoned toward the accent, with a strong top-and-bottom scrim carrying text legibility. Grading darker than this crushes already-dark images to flat black — let the scrim do the work, not the exposure. _(2026-11-12)_
 - **Key words carry the accent colour.** `*word*` in a script line renders red. The eye needs somewhere to land in a block of type. _(2026-11-12)_

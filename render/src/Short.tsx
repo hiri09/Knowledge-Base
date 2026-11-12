@@ -2,11 +2,14 @@ import React from 'react';
 import {AbsoluteFill, Sequence, Audio, Img, staticFile, useCurrentFrame, interpolate} from 'remotion';
 import {theme, FPS, MIN_NUMBER_SEC} from './theme';
 import {Background, Photo, Transition, BgKind, Shot, Trans} from './Backgrounds';
+import {UnitGrid, Timeline} from './DataScenes';
 import {Enter, CountUp, ANIMS, POSITIONS, posStyle, accentText} from './motion';
 
 export type Scene =
   | {type: 'hook' | 'line'; text: string; sec: number; vo?: string; source?: string; media?: string; shot?: Shot; trans?: Trans}
   | {type: 'number'; value: string; label: string; sec: number; vo?: string; source?: string; crack?: boolean; media?: string; shot?: Shot; trans?: Trans}
+  | {type: 'grid'; total: number; filled: number; mode: 'fill' | 'drain'; label: string; sub?: string; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans}
+  | {type: 'timeline'; marks: {at: number; label: string}[]; head: number; caption?: string; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans}
   | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans};
 
 export type ShortData = {id: string; title: string; scenes: Scene[]};
@@ -111,7 +114,8 @@ const Compare: React.FC<{scene: Extract<Scene, {type: 'compare'}>}> = ({scene}) 
 
 const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: MediaLock}> = ({scene, i, ghost, media}) => {
   const anim = ANIMS[i % ANIMS.length];
-  const pos = scene.type === 'compare' ? 'center' : POSITIONS[i % POSITIONS.length];
+  const dataScene = scene.type === 'compare' || scene.type === 'grid' || scene.type === 'timeline';
+  const pos = dataScene ? 'center' : POSITIONS[i % POSITIONS.length];
   const bg = BGS[i % BGS.length];
   const key = 'media' in scene ? (scene as any).media : undefined;
   const photo = key && media?.[key] ? staticFile(media[key].file) : undefined;
@@ -121,7 +125,11 @@ const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: Medi
     <Transition kind={trans}>
       {photo ? <Photo src={photo} shot={shot} /> : <Background kind={bg} ghost={ghost} />}
       <AbsoluteFill style={{fontFamily: theme.font, display: 'flex', flexDirection: 'column', ...posStyle(pos as any)}}>
-        {scene.type === 'compare' ? (
+        {scene.type === 'grid' ? (
+          <UnitGrid total={scene.total} filled={scene.filled} mode={scene.mode} label={scene.label} sub={scene.sub} />
+        ) : scene.type === 'timeline' ? (
+          <Timeline marks={scene.marks} head={scene.head} caption={scene.caption} />
+        ) : scene.type === 'compare' ? (
           <Compare scene={scene} />
         ) : scene.type === 'number' ? (
           <NumberScene scene={scene} anim={anim} />
