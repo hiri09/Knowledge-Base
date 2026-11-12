@@ -11,6 +11,7 @@ This knowledge base is Himanshu's external brain. Read this file first, then rou
 | Publishing to a specific platform | `platforms/<platform>.md` — **always**, in addition to principles |
 | Deciding what this channel is or isn't | `channel/positioning.md` |
 | Running any pipeline stage | `pipeline/README.md` + `pipeline/agents/<your-role>.md` |
+| **Producing anything Himanshu will watch** | `channel/review-feedback.md` — **always, no exceptions** |
 | Background on why the niche was chosen | `channel/youtube-niche-economics.md` |
 
 Then stop reading and start working. Do not read the whole tree.
@@ -41,7 +42,8 @@ Adding a platform later (TikTok, LinkedIn, X) means adding one file to `platform
 1. **Packaging before production.** Title and thumbnail (or hook and cover) are decided before any script is written. An idea that cannot be packaged is killed, not produced.
 2. **Three metrics only** at decision time: CTR, AVD, AVP. Subscribers, likes and comments are downstream noise.
 3. **One variable per iteration.** Change one thing between uploads or you learn nothing.
-4. **Research depth is the moat.** The faceless crackdown killed the version where nobody did any work. Every piece needs something a template could not produce.
+4. **Feedback given once never gets given twice.** `channel/review-feedback.md` is binding on every producing agent. If Himanshu repeats a note, the system failed.
+5. **Research depth is the moat.** The faceless crackdown killed the version where nobody did any work. Every piece needs something a template could not produce.
 
 ## Writing to this KB
 

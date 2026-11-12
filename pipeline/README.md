@@ -24,9 +24,11 @@ WEEKLY — one research pass feeds 8 pieces of content
 5. RENDER          Remotion template + JSON data
                          ↓
 6. QC              checks against principles/attention-and-retention.md
+                   AND channel/review-feedback.md (every standing rule)
                    returns WRITTEN NOTES, never re-renders
                          ↓
    [GATE 3]        HUMAN APPROVES → publish → append to upload-log.md
+                   any generic note he gives → channel/review-feedback.md
                          ↓
         after ~500 views
                          ↓
@@ -63,12 +65,14 @@ Never generate video frames with a model. The visual layer is code.
 | `channel/idea-bank.md` | Researcher | Researcher, Packager |
 | `channel/upload-log.md` | human on publish | Researcher (never repeat a story) |
 | `channel/retention-log.md` | Reviewer | Researcher, Scriptwriter |
+| `channel/review-feedback.md` | whoever takes Himanshu's feedback | **every producing agent** |
 
 Without these the system has no memory and video #50 is no better than video #1.
 
 ## Rules for every agent in this pipeline
 
 - Read `00-start-here.md` and route. Do not read the whole KB.
+- `channel/review-feedback.md` is binding if you produce anything he will watch. Check every rule before handing off.
 - `channel/positioning.md` is binding. An output that violates it is wrong, however good it looks.
 - Every claim needs a verifiable public source. Invented numbers kill this channel on a policy and a credibility level.
 - Target **US/UK audiences**: dollar figures, US/UK spelling, Western reference points. Worth 10–20x RPM.

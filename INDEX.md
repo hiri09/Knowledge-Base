@@ -12,6 +12,7 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 - `channel/idea-bank.md` — **Idea bank** — Every story candidate ever proposed, with its score and verdict. Written by the Researcher.
 - `channel/positioning.md` — **Channel positioning (locked)** — The decision. Everything in `channel/` supports this; everything in `principles/` and `platforms/` is how it g
 - `channel/retention-log.md` — **Retention log** — What the numbers said after publishing. Written by the Reviewer once a piece passes ~500 views.
+- `channel/review-feedback.md` — **Standing feedback (Himanshu's taste rules)** — Generic rules learned from reviewing finished videos. **Binding on every producing agent, every time.**
 - `channel/upload-log.md` — **Upload log** — Everything published. The Researcher reads this to **never repeat a story.**
 - `channel/youtube-growth-research.md` — **YouTube growth research (Nov 2026)** — Raw findings for taking a channel from 0 to monetized and then to a product business. Numbers are India-specif
 - `channel/youtube-niche-economics.md` — **YouTube niche economics (Nov 2026)** — Why the niche choice decides the income more than the view count does.
