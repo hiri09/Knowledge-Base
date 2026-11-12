@@ -14,8 +14,14 @@ import difflib, json, re, subprocess, sys, pathlib
 MODEL = "models/ggml-base.en.bin"
 # Mic at low gain + room tone. highpass kills rumble, afftdn/anlmdn the hiss,
 # speechnorm evens out an untrained read, light compression holds it together.
-CLEAN = ("silenceremove=start_periods=1:start_duration=0:start_threshold=-45dB:detection=peak,"
-         "highpass=f=85,afftdn=nf=-24,anlmdn=s=0.0002,"
+# arnndn is an RNN speech denoiser and is dramatically stronger than afftdn
+# alone: on a low-gain mic it drops the room floor ~37dB (-54 -> -91) while
+# leaving the voice intact. The rest is cleanup and levelling.
+RNNN = "models/sh.rnnn"
+CLEAN = ("highpass=f=90,"
+         "arnndn=m={rnnn},"
+         "afftdn=nf=-30:nt=w,"
+         "anlmdn=s=0.0004,"
          "speechnorm=e=12.5:r=0.0001:l=1,"
          "acompressor=threshold=-20dB:ratio=3:attack=12:release=180")
 
@@ -45,7 +51,7 @@ out = root / "public" / vid
 out.mkdir(parents=True, exist_ok=True)
 clean = out / "_clean.wav"
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(take),
-                "-af", CLEAN, "-ac", "1", "-ar", "16000", str(clean)], check=True)
+                "-af", CLEAN.format(rnnn=str(root / RNNN)), "-ac", "1", "-ar", "16000", str(clean)], check=True)
 
 subprocess.run(["whisper-cli", "-m", str(root / MODEL), "-f", str(clean),
                 "-ml", "1", "--dtw", "base.en", "-oj", "-of", str(out / "_t"), "--no-prints"],
