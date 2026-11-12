@@ -12,8 +12,11 @@ Output is identical to build-audio.py, so the render does not change.
 """
 import json, re, subprocess, sys, pathlib
 
-NOISE = "-34dB"   # anything quieter counts as a gap
-GAP   = "0.42"    # a gap this long means "next line"
+# Threshold is derived from the take itself. A fixed value fails on quiet
+# recordings: a mic at low gain puts speech below -34dB and every line reads
+# as silence. Peak minus 27dB tracks the recording instead of assuming it.
+HEADROOM = 27.0
+GAP = "0.42"
 
 root = pathlib.Path(__file__).parent
 vid  = sys.argv[1]
@@ -35,8 +38,14 @@ norm = out / "_take.wav"
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(take),
                 "-ac", "1", "-ar", "48000", str(norm)], check=True)
 
+vol = subprocess.run(["ffmpeg", "-i", str(norm), "-af", "volumedetect", "-f", "null", "-"],
+                     capture_output=True, text=True).stderr
+peak = float(re.search(r"max_volume: (-?[\d.]+) dB", vol).group(1))
+noise = f"{peak - HEADROOM:.1f}dB"
+print(f"take peak {peak:.1f}dB -> silence threshold {noise}")
+
 log = subprocess.run(
-    ["ffmpeg", "-i", str(norm), "-af", f"silencedetect=noise={NOISE}:d={GAP}", "-f", "null", "-"],
+    ["ffmpeg", "-i", str(norm), "-af", f"silencedetect=noise={noise}:d={GAP}", "-f", "null", "-"],
     capture_output=True, text=True).stderr
 starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", log)]
 ends   = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", log)]
@@ -44,17 +53,43 @@ total  = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "forma
                                "-of", "default=nw=1:nk=1", str(norm)],
                               capture_output=True, text=True).stdout)
 
-# Speech runs between the silences.
+# Speech is the complement of the detected silences. Building it this way
+# handles a take that starts or ends in silence, which the previous
+# walk-the-starts approach got wrong.
+MIN_SEG = 0.35   # shorter than this is a cough, a click, or a breath
+
+sil = []
+for a, b in zip(starts, ends + ([total] if len(ends) < len(starts) else [])):
+    sil.append((a, b))
+sil.sort()
+
 cuts, pos = [], 0.0
-if ends and (not starts or ends[0] < starts[0]):
-    pos = ends[0]                      # leading silence before the first line
-for i, st in enumerate(starts):
-    if st <= pos:
-        continue
-    cuts.append((pos, st))
-    pos = ends[i] if i < len(ends) else st
-if pos < total - 0.15:
+for a, b in sil:
+    if a > pos:
+        cuts.append((pos, a))
+    pos = max(pos, b)
+if pos < total:
     cuts.append((pos, total))
+
+dropped = [c for c in cuts if c[1] - c[0] < MIN_SEG]
+cuts = [c for c in cuts if c[1] - c[0] >= MIN_SEG]
+if dropped:
+    print(f"dropped {len(dropped)} blips under {MIN_SEG}s")
+
+# People make a noise before they start reading — a chair, a breath, "okay".
+# A lead-in is separated from the real run by an abnormally long gap, so trim
+# extras from the ends by gap size rather than guessing.
+while len(cuts) > len(scenes) and len(cuts) > 2:
+    gaps = [cuts[i + 1][0] - cuts[i][1] for i in range(len(cuts) - 1)]
+    med = sorted(gaps)[len(gaps) // 2]
+    if gaps[0] > med * 2 and gaps[0] >= gaps[-1]:
+        print(f"dropped lead-in at {cuts[0][0]:.2f}s ({gaps[0]:.1f}s gap before the run)")
+        cuts.pop(0)
+    elif gaps[-1] > med * 2:
+        print(f"dropped trailing blip at {cuts[-1][0]:.2f}s")
+        cuts.pop()
+    else:
+        break
 
 if len(cuts) != len(scenes):
     print(f"Found {len(cuts)} spoken segments but the script has {len(scenes)} lines.")
