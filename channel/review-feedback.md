@@ -47,10 +47,12 @@ _(empty)_
 _(empty)_
 
 ### Visuals / render
-_(empty)_
+- **No frame is ever flat black.** Every scene carries a background layer — moving grid, drifting glow, diagonal bars, or a ghosted figure behind the type. An empty ground reads as unfinished, not as minimal. _(2026-11-12)_
+- **Composition must vary.** Never place every element dead centre. Rotate through centre, left, right, top-weighted and bottom-weighted across a video. Text aligns to its own position. _(2026-11-12)_
 
 ### Pacing / edit
-_(empty)_
+- **Never repeat the same entrance animation twice in a row.** Rotate through rise, slide, scale, word-stagger and blur-in. One repeated motion across a whole video reads as a template. _(2026-11-12)_
+- **Numbers count up, they do not appear.** A money figure arriving instantly wastes the payoff; it should resolve on screen. _(2026-11-12)_
 
 ### Packaging — titles & thumbnails
 _(empty)_

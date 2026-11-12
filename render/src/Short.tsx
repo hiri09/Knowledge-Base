@@ -1,145 +1,132 @@
 import React from 'react';
-import {AbsoluteFill, Sequence, useCurrentFrame, interpolate, spring, useVideoConfig} from 'remotion';
-import {theme, FPS, MAX_SCENE_SEC, MIN_NUMBER_SEC} from './theme';
+import {AbsoluteFill, Sequence, Audio, staticFile, useCurrentFrame, interpolate} from 'remotion';
+import {theme, FPS, MIN_NUMBER_SEC} from './theme';
+import {Background, BgKind} from './Backgrounds';
+import {Enter, CountUp, ANIMS, POSITIONS, posStyle, accentText} from './motion';
 
 export type Scene =
-  | {type: 'hook' | 'line'; text: string; sec: number; source?: string}
-  | {type: 'number'; value: string; label: string; sec: number; source?: string; crack?: boolean}
-  | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; source?: string};
+  | {type: 'hook' | 'line'; text: string; sec: number; vo?: string; source?: string}
+  | {type: 'number'; value: string; label: string; sec: number; vo?: string; source?: string; crack?: boolean}
+  | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; vo?: string; source?: string};
 
 export type ShortData = {id: string; title: string; scenes: Scene[]};
+export type AudioData = {track: string; durations: number[]};
 
-// Every scene is clamped to the pattern-interrupt window. Code enforces the rule,
-// so a careless script can't quietly produce a 9-second static shot.
-const clamp = (s: Scene) => {
-  const min = s.type === 'number' ? MIN_NUMBER_SEC : 0.8;
-  return Math.max(min, Math.min(s.sec, MAX_SCENE_SEC));
+const BGS: BgKind[] = ['grid', 'glow', 'bars', 'ghost'];
+
+// Scene length now comes from the narration itself, so picture and voice cannot drift.
+// The old hard caps stay as a floor only.
+const secondsFor = (s: Scene, i: number, audio?: AudioData) => {
+  const fromAudio = audio?.durations[i];
+  const min = s.type === 'number' ? MIN_NUMBER_SEC : 0.9;
+  return Math.max(min, fromAudio ?? s.sec);
 };
 
-const Rise: React.FC<{children: React.ReactNode; delay?: number}> = ({children, delay = 0}) => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const s = spring({frame: frame - delay, fps, config: {damping: 200}});
-  return (
-    <div style={{transform: `translateY(${interpolate(s, [0, 1], [40, 0])}px)`, opacity: s}}>
-      {children}
-    </div>
-  );
-};
-
-const Frame: React.FC<{children: React.ReactNode}> = ({children}) => (
-  <AbsoluteFill
+const Lines: React.FC<{scene: Extract<Scene, {type: 'hook' | 'line'}>; anim: any}> = ({scene, anim}) => (
+  <Enter
+    anim={anim}
+    text={scene.text}
     style={{
-      backgroundColor: theme.bg,
-      fontFamily: theme.font,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 90,
-      textAlign: 'center',
+      fontSize: scene.type === 'hook' ? 104 : 84,
+      fontWeight: 800,
+      color: theme.text,
+      lineHeight: 1.08,
+      letterSpacing: -2,
+      textShadow: '0 18px 60px rgba(0,0,0,0.65)',
     }}
   >
-    {children}
-  </AbsoluteFill>
+    {scene.text}
+  </Enter>
 );
 
-const SceneView: React.FC<{scene: Scene}> = ({scene}) => {
+const NumberScene: React.FC<{scene: Extract<Scene, {type: 'number'}>; anim: any}> = ({scene, anim}) => {
   const frame = useCurrentFrame();
-
-  if (scene.type === 'hook' || scene.type === 'line') {
-    return (
-      <Frame>
-        <Rise>
-          <div
-            style={{
-              fontSize: scene.type === 'hook' ? 108 : 86,
-              fontWeight: 800,
-              color: theme.text,
-              lineHeight: 1.08,
-              letterSpacing: -2,
-            }}
-          >
-            {scene.text}
-          </div>
-        </Rise>
-      </Frame>
-    );
-  }
-
-  if (scene.type === 'number') {
-    // The number is the only saturated element in the frame — the label stays muted.
-    const crackWidth = interpolate(frame, [8, 26], [0, 100], {extrapolateRight: 'clamp'});
-    return (
-      <Frame>
-        <Rise>
-          <div style={{position: 'relative'}}>
-            <div style={{fontSize: 190, fontWeight: 900, color: theme.accent, letterSpacing: -6}}>
-              {scene.value}
-            </div>
-            {scene.crack ? (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: 0,
-                  height: 6,
-                  width: `${crackWidth}%`,
-                  backgroundColor: theme.bg,
-                  transform: 'rotate(-2deg)',
-                }}
-              />
-            ) : null}
-          </div>
-        </Rise>
-        <Rise delay={6}>
-          <div style={{fontSize: 52, fontWeight: 600, color: theme.muted, marginTop: 28}}>
-            {scene.label}
-          </div>
-        </Rise>
-      </Frame>
-    );
-  }
-
-  // compare: the bar that matters is accent, the other is muted. Contrast carries the meaning.
-  const max = Math.max(scene.aValue, scene.bValue);
-  const grow = interpolate(frame, [4, 24], [0, 1], {extrapolateRight: 'clamp'});
-  const Bar: React.FC<{label: string; value: number; accent: boolean}> = ({label, value, accent}) => (
-    <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20}}>
-      <div style={{fontSize: 56, fontWeight: 800, color: accent ? theme.accent : theme.muted}}>
-        {value.toLocaleString()}
-      </div>
-      <div
-        style={{
-          width: 180,
-          height: (value / max) * 620 * grow,
-          backgroundColor: accent ? theme.accent : '#2A2A2E',
-          borderRadius: 8,
-        }}
-      />
-      <div style={{fontSize: 38, color: theme.muted, fontWeight: 600}}>{label}</div>
-    </div>
-  );
-
+  const crack = interpolate(frame, [10, 30], [0, 100], {extrapolateRight: 'clamp'});
   return (
-    <Frame>
-      <div style={{display: 'flex', alignItems: 'flex-end', gap: 70, width: '100%', height: 820}}>
-        <Bar label={scene.aLabel} value={scene.aValue} accent={false} />
-        <Bar label={scene.bLabel} value={scene.bValue} accent />
-      </div>
-    </Frame>
+    <>
+      <Enter anim={anim}>
+        <div style={{position: 'relative'}}>
+          <CountUp value={scene.value} style={{fontSize: 196, ...accentText, textShadow: `0 0 90px ${theme.accent}55`}} />
+          {scene.crack ? (
+            <div
+              style={{
+                position: 'absolute', top: '52%', left: 0, height: 7,
+                width: `${crack}%`, backgroundColor: theme.bg, transform: 'rotate(-2.5deg)',
+              }}
+            />
+          ) : null}
+        </div>
+      </Enter>
+      <div style={{fontSize: 50, fontWeight: 600, color: theme.muted, marginTop: 26}}>{scene.label}</div>
+    </>
   );
 };
 
-export const Short: React.FC<{data: ShortData}> = ({data}) => {
+const Compare: React.FC<{scene: Extract<Scene, {type: 'compare'}>}> = ({scene}) => {
+  const frame = useCurrentFrame();
+  const max = Math.max(scene.aValue, scene.bValue);
+  const grow = interpolate(frame, [4, 28], [0, 1], {extrapolateRight: 'clamp'});
+  const Bar: React.FC<{label: string; value: number; accent: boolean; delay: number}> = ({label, value, accent, delay}) => {
+    const g = interpolate(frame, [4 + delay, 28 + delay], [0, 1], {extrapolateRight: 'clamp', extrapolateLeft: 'clamp'});
+    return (
+      <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18}}>
+        <CountUp
+          value={String(value)}
+          style={{fontSize: 54, fontWeight: 800, color: accent ? theme.accent : theme.muted}}
+        />
+        <div
+          style={{
+            width: 190,
+            height: (value / max) * 600 * g,
+            backgroundColor: accent ? theme.accent : '#2A2A2E',
+            borderRadius: 10,
+            boxShadow: accent ? `0 0 70px ${theme.accent}44` : undefined,
+          }}
+        />
+        <div style={{fontSize: 36, color: theme.muted, fontWeight: 700, letterSpacing: 2}}>{label}</div>
+      </div>
+    );
+  };
+  return (
+    <div style={{display: 'flex', alignItems: 'flex-end', gap: 70, width: '100%', height: 790, opacity: grow > 0 ? 1 : 0}}>
+      <Bar label={scene.aLabel} value={scene.aValue} accent={false} delay={0} />
+      <Bar label={scene.bLabel} value={scene.bValue} accent delay={8} />
+    </div>
+  );
+};
+
+const SceneView: React.FC<{scene: Scene; i: number; ghost?: string}> = ({scene, i, ghost}) => {
+  const anim = ANIMS[i % ANIMS.length];
+  const pos = scene.type === 'compare' ? 'center' : POSITIONS[i % POSITIONS.length];
+  const bg = BGS[i % BGS.length];
+  return (
+    <AbsoluteFill>
+      <Background kind={bg} ghost={ghost} />
+      <AbsoluteFill style={{fontFamily: theme.font, display: 'flex', flexDirection: 'column', ...posStyle(pos as any)}}>
+        {scene.type === 'compare' ? (
+          <Compare scene={scene} />
+        ) : scene.type === 'number' ? (
+          <NumberScene scene={scene} anim={anim} />
+        ) : (
+          <Lines scene={scene} anim={anim} />
+        )}
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+export const Short: React.FC<{data: ShortData; audio?: AudioData}> = ({data, audio}) => {
   let at = 0;
   return (
     <AbsoluteFill style={{backgroundColor: theme.bg}}>
+      {audio ? <Audio src={staticFile(audio.track)} /> : null}
       {data.scenes.map((scene, i) => {
-        const dur = Math.round(clamp(scene) * FPS);
+        const dur = Math.round(secondsFor(scene, i, audio) * FPS);
         const from = at;
         at += dur;
         return (
           <Sequence key={i} from={from} durationInFrames={dur}>
-            <SceneView scene={scene} />
+            <SceneView scene={scene} i={i} ghost={data.id.includes('38') ? '38' : undefined} />
           </Sequence>
         );
       })}
@@ -147,5 +134,5 @@ export const Short: React.FC<{data: ShortData}> = ({data}) => {
   );
 };
 
-export const durationOf = (data: ShortData) =>
-  data.scenes.reduce((n, s) => n + Math.round(clamp(s) * FPS), 0);
+export const durationOf = (data: ShortData, audio?: AudioData) =>
+  data.scenes.reduce((n, s, i) => n + Math.round(secondsFor(s, i, audio) * FPS), 0);
