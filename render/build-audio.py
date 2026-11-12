@@ -34,10 +34,16 @@ for i, sc in enumerate(data["scenes"]):
     durations.append(round(d, 3))
     parts.append(wav)
 
+# Normalise to -16 LUFS. Raw `say` output sits around -23 dB mean, which is
+# well below what every other video in a Shorts feed is mastered to, so it
+# reads as "no sound" next to them even when it is technically audible.
+NORM = "loudnorm=I=-16:TP=-1.5:LRA=11"
+
 concat = out / "list.txt"
 concat.write_text("\n".join(f"file '{p.name}'" for p in parts))
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0",
-                "-i", str(concat), "-c", "copy", str(out / "vo.wav")], check=True)
+                "-i", str(concat), "-af", NORM, "-ar", "48000", "-ac", "2",
+                str(out / "vo.wav")], check=True)
 concat.unlink()
 for p in parts: p.unlink()
 
