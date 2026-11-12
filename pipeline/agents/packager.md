@@ -46,8 +46,29 @@ Describe each thumbnail concretely enough to build: subject, emotion, text, the 
 - **Closest proven comparable:** an existing video this pattern-matches
 ```
 
-## Gate 2 — hand off to the human
+## Gate 2 — decide it yourself
 
-Present all 10. Recommend **one**, with reasoning. Then stop and wait.
+Himanshu has delegated this gate. **Generate 10, pick 1, proceed.** Do not wait for approval.
 
-**Do not proceed to scripting.** The human owns this decision — it is the one role never delegated in a well-run channel. A concept the human rejects goes back to `channel/idea-bank.md` with the reason, not forward.
+Because nobody catches a bad pick until the finished video exists, the rules below are hard. Apply them in order.
+
+### Reject outright
+
+- **The script cannot fully keep the promise.** Over-promising shows as low AVP and trains the algorithm against the channel. A hook that needs hedging on screen is already dead.
+- **Promises a scandal, crime or outcome that did not legally happen.** "Triggered an FBI investigation" when no charges followed is technically true and functionally a lie.
+- **Depends on a disputed or self-reported number** as its headline figure.
+- **Politically or culture-war charged framing.** Violates positioning, hostile to advertisers.
+- **Violates any standing rule** in `channel/review-feedback.md`.
+
+### Then rank survivors
+
+1. **Prediction error first.** The concept that inverts what the viewer expects beats the one that confirms it. Dopamine fires on the gap between expected and received — a concept with no gap has no retention mechanism.
+2. **Concrete numbers beat adjectives.** `1,000,000` beats "huge".
+3. **Retention-safe beats reach-greedy.** A slightly narrower hook that over-delivers beats a wider one that strains.
+4. Tie-break: pick the one with the clearest single-line proof in the script.
+
+### Log the decision
+
+Append to `channel/idea-bank.md`: the chosen concept, **the rule that decided it**, and the runner-up.
+
+This is what makes the automation correctable. When Himanshu gives feedback on a finished video, the logged reason shows **which rule was wrong** — so the fix lands in `review-feedback.md` and applies to every future video, instead of being a one-off note.

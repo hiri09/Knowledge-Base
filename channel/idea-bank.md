@@ -95,3 +95,16 @@ Every story candidate ever proposed, with its score and verdict. Written by the 
 - **Status:** KILLED (this cycle only)
 - **Scores:** demand 4/5 · pain 5/5 · fit 5/5 · angle 5/5 — 19/20
 - **Verdict reason:** **killed on incompleteness, not score.** Projected $245–250M loss makes it the biggest of 2026 and almost nobody has covered it — a real freshness edge. But the numbers are still projections and the story has no ending yet. Publishing on projections risks being wrong on the record, which is fatal early. **Re-propose once final figures land.**
+
+---
+
+## Gate 2 — 2026-11-12
+
+### 38 Studios — GREENLIT
+- **Status:** GREENLIT → video 001
+- **Title:** This Game Sold 1,000,000 Copies And Still Died
+- **Thumbnail:** silhouetted figure, head down, on muted grey newsprint · `1,000,000` in saturated red, cracked down the middle · text `STILL BANKRUPT`
+- **Promise:** success was not enough to save it
+- **Rule that decided it:** *prediction error first.* Every viewer expects "bad game kills studio". The truth inverts that, and the gap is the retention mechanism. The proof is one line — 3M needed to break even, 1M sold — so the script keeps the promise with no hedging.
+- **Runner-up:** "The Video Game That Cost A US State $28 Million" — broader reach with non-gamers, but confirms expectations rather than inverting them. Hold as an A/B candidate for a later Short.
+- **Rejected on hard rules:** "Triggered An FBI Investigation" (promises a crime that produced no charges) · "He Lost $50,000,000 Of His Own Money" (headline figure is self-reported, not audited)

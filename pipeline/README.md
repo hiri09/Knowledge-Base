@@ -14,8 +14,8 @@ WEEKLY — one research pass feeds 8 pieces of content
                          ↓
 2. PACKAGER        10 title + thumbnail concepts
                          ↓
-   [GATE 2] ★      HUMAN PICKS ONE (2 minutes)    → 1 greenlit
-                         ↓                           highest-leverage gate
+   [GATE 2]        AGENT PICKS ONE by hard rules  → 1 greenlit
+                         ↓                           decision + reason logged
 3. SCRIPTWRITER    deep research on THAT story only
                    1 long-form + 6-8 shorts + 5 hook variants each
                          ↓
@@ -43,10 +43,12 @@ WEEKLY — one research pass feeds 8 pieces of content
 | Gate | Who decides | Costs | Kills |
 |---|---|---|---|
 | 1 — Scoring | agent, automatic | nothing | ~70% of ideas |
-| 2 — Packaging | **human** | 2 minutes | everything that can't be sold in a title |
-| 3 — Final approval | **human** | 5 minutes | almost nothing (by here it's earned) |
+| 2 — Packaging | agent, by hard rules | nothing | everything that can't be sold in a title |
+| 3 — Final approval | **human** | 5 minutes | the only human gate |
 
-Gate 2 is the one that matters. *"An idea that fails packaging goes back to the bank rather than forward to production."* The creator owns title and thumbnail in every well-run channel — this is the role that is never delegated.
+**Gate 2 is automated by Himanshu's choice.** Standard practice is that the creator owns title and thumbnail — it is the cheapest place to kill a bad idea. Delegating it means a wrong pick is not caught until the finished video exists, so `pipeline/agents/packager.md` carries hard reject rules to compensate, and **every Gate 2 decision is logged with the rule that decided it.**
+
+That log is the correction mechanism. Feedback at Gate 3 traces back to the rule that produced the mistake, and the fix goes into `channel/review-feedback.md` where it binds every future video. The system converges on his taste instead of needing his attention.
 
 ## Token economy
 

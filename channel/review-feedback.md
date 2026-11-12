@@ -36,6 +36,8 @@ If it can't be generalised, it isn't a rule. Fix the video and move on.
 
 The point: **feedback given once never has to be given again.** If Himanshu repeats himself, this file failed.
 
+**This file carries extra weight now.** Gate 2 is automated, so Gate 3 is the only point where human taste enters the system. Every generic note he gives at final review is the sole training signal the pipeline gets. Capture all of it.
+
 ## Rules
 
 ### Script / writing
