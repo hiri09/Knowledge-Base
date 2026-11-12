@@ -1,6 +1,8 @@
 # Voice
 
-**Undecided — pipeline is deliberately voice-agnostic.** Himanshu decides from samples.
+**Current: macOS `say` (Daniel, en_GB).** Himanshu's own voice and cloning are both
+deferred — "skip my voice for now" (2026-11-13). The tooling for both is built and
+working; switching is one command, not a rebuild.
 
 The render takes an audio file and a word-timing JSON. Nothing downstream cares how the audio was produced, so swapping is a config change, not a rebuild.
 

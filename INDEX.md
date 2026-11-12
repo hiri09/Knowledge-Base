@@ -34,7 +34,7 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 
 ## pipeline
 
-- `pipeline/voice.md` — **Voice** — **Undecided — pipeline is deliberately voice-agnostic.** Himanshu decides from samples.
+- `pipeline/voice.md` — **Voice** — **Current: macOS `say` (Daniel, en_GB).** Himanshu's own voice and cloning are both
 
 ## platforms
 
