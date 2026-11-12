@@ -20,6 +20,7 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 
 ## channel
 
+- `channel/status.md` — **Where things stand (2026-11-13)** — Read this first when picking the work back up.
 - `channel/upload-log.md` — **Upload log** — Everything published. The Researcher reads this to **never repeat a story.**
 - `channel/youtube-growth-research.md` — **YouTube growth research (Nov 2026)** — Raw findings for taking a channel from 0 to monetized and then to a product business. Numbers are India-specif
 - `channel/youtube-niche-economics.md` — **YouTube niche economics (Nov 2026)** — Why the niche choice decides the income more than the view count does.
