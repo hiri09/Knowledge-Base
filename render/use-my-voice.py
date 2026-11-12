@@ -1,123 +1,149 @@
 #!/usr/bin/env python3
-"""Turn one continuous recording into per-scene narration.
+"""Turn one continuous recording into per-scene narration, aligned by content.
 
-You read the whole script in a single take, pausing ~1s between lines.
-ffmpeg's silencedetect finds those gaps and cuts the take into scene clips,
-so nothing has to be edited by hand.
+Reads the take, denoises it, transcribes it with word-level timestamps, then
+aligns the transcript against the script. Lines map to scenes by WHAT WAS SAID,
+not by where the pauses fell — pause-guessing merges lines whenever someone
+runs two sentences together, and every scene after that lands on the wrong shot.
 
-  python3 use-my-voice.py 001-38-studios --script      # print what to read
-  python3 use-my-voice.py 001-38-studios take1.m4a     # slice the take
-
-Output is identical to build-audio.py, so the render does not change.
+  python3 use-my-voice.py 001-38-studios --script     # print what to read
+  python3 use-my-voice.py 001-38-studios take1.wav    # clean, align, slice
 """
-import json, re, subprocess, sys, pathlib
+import difflib, json, re, subprocess, sys, pathlib
 
-# Threshold is derived from the take itself. A fixed value fails on quiet
-# recordings: a mic at low gain puts speech below -34dB and every line reads
-# as silence. Peak minus 27dB tracks the recording instead of assuming it.
-HEADROOM = 27.0
-GAP = "0.42"
+MODEL = "models/ggml-base.en.bin"
+# Mic at low gain + room tone. highpass kills rumble, afftdn/anlmdn the hiss,
+# speechnorm evens out an untrained read, light compression holds it together.
+CLEAN = ("silenceremove=start_periods=1:start_duration=0:start_threshold=-45dB:detection=peak,"
+         "highpass=f=85,afftdn=nf=-24,anlmdn=s=0.0002,"
+         "speechnorm=e=12.5:r=0.0001:l=1,"
+         "acompressor=threshold=-20dB:ratio=3:attack=12:release=180")
 
 root = pathlib.Path(__file__).parent
-vid  = sys.argv[1]
+vid = sys.argv[1]
 data = json.loads((root / "data" / f"{vid}.json").read_text())
 scenes = data["scenes"]
 
 if len(sys.argv) > 2 and sys.argv[2] == "--script":
-    print(f"\nRead these {len(scenes)} lines. Pause ~1 second between each.\n")
+    print(f"\nRead these {len(scenes)} lines.\n")
     for i, s in enumerate(scenes, 1):
         print(f"{i:2}. {s['vo']}")
-    print("\nRecord with Voice Memos, or:")
-    print("  ffmpeg -f avfoundation -i ':0' -ac 1 -ar 48000 take1.wav   (ctrl-C to stop)\n")
+    print("\nPauses no longer matter — alignment is by transcript.\n")
     raise SystemExit
 
+NUM = {"zero":"0","one":"1","two":"2","three":"3","four":"4","five":"5","six":"6","seven":"7",
+       "eight":"8","nine":"9","ten":"10","eleven":"11","twelve":"12","twenty":"20","thirty":"30",
+       "fifty":"50","seventy":"70","hundred":"100","thousand":"1000","million":"million"}
+
+def norm(t):
+    t = t.lower().replace("$", " ")
+    t = re.sub(r"[^a-z0-9\s]", " ", t)
+    return [NUM.get(w, w) for w in t.split()]
+
 take = pathlib.Path(sys.argv[2])
-out  = root / "public" / vid
+out = root / "public" / vid
 out.mkdir(parents=True, exist_ok=True)
-norm = out / "_take.wav"
+clean = out / "_clean.wav"
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(take),
-                "-ac", "1", "-ar", "48000", str(norm)], check=True)
+                "-af", CLEAN, "-ac", "1", "-ar", "16000", str(clean)], check=True)
 
-vol = subprocess.run(["ffmpeg", "-i", str(norm), "-af", "volumedetect", "-f", "null", "-"],
-                     capture_output=True, text=True).stderr
-peak = float(re.search(r"max_volume: (-?[\d.]+) dB", vol).group(1))
-noise = f"{peak - HEADROOM:.1f}dB"
-print(f"take peak {peak:.1f}dB -> silence threshold {noise}")
+subprocess.run(["whisper-cli", "-m", str(root / MODEL), "-f", str(clean),
+                "-ml", "1", "--dtw", "base.en", "-oj", "-of", str(out / "_t"), "--no-prints"],
+               check=True, capture_output=True)
+toks = json.loads((out / "_t.json").read_text())["transcription"]
 
-log = subprocess.run(
-    ["ffmpeg", "-i", str(norm), "-af", f"silencedetect=noise={noise}:d={GAP}", "-f", "null", "-"],
-    capture_output=True, text=True).stderr
-starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", log)]
-ends   = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", log)]
-total  = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
-                               "-of", "default=nw=1:nk=1", str(norm)],
-                              capture_output=True, text=True).stdout)
+def ts(o):
+    return o["offsets"]["from"] / 1000.0, o["offsets"]["to"] / 1000.0
 
-# Speech is the complement of the detected silences. Building it this way
-# handles a take that starts or ends in silence, which the previous
-# walk-the-starts approach got wrong.
-MIN_SEG = 0.35   # shorter than this is a cough, a click, or a breath
+words = []
+for t in toks:
+    w = norm(t["text"])
+    if w:
+        a, b = ts(t)
+        words.append((w[0], a, b))
 
-sil = []
-for a, b in zip(starts, ends + ([total] if len(ends) < len(starts) else [])):
-    sil.append((a, b))
-sil.sort()
+flat, owner = [], []
+for i, sc in enumerate(scenes):
+    for w in norm(sc["vo"]):
+        flat.append(w); owner.append(i)
 
-cuts, pos = [], 0.0
-for a, b in sil:
-    if a > pos:
-        cuts.append((pos, a))
-    pos = max(pos, b)
-if pos < total:
-    cuts.append((pos, total))
+sm = difflib.SequenceMatcher(None, flat, [w for w, _, _ in words], autojunk=False)
 
-dropped = [c for c in cuts if c[1] - c[0] < MIN_SEG]
-cuts = [c for c in cuts if c[1] - c[0] >= MIN_SEG]
-if dropped:
-    print(f"dropped {len(dropped)} blips under {MIN_SEG}s")
+# Collect every transcript index each line matched, then keep only that line's
+# longest contiguous run. A single stray match — a filler word, a cough Whisper
+# heard as "the" — would otherwise drag a line's start back across the whole take.
+hits = {}
+for a, b, n in sm.get_matching_blocks():
+    for k in range(n):
+        hits.setdefault(owner[a + k], []).append(b + k)
 
-# People make a noise before they start reading — a chair, a breath, "okay".
-# A lead-in is separated from the real run by an abnormally long gap, so trim
-# extras from the ends by gap size rather than guessing.
-while len(cuts) > len(scenes) and len(cuts) > 2:
-    gaps = [cuts[i + 1][0] - cuts[i][1] for i in range(len(cuts) - 1)]
-    med = sorted(gaps)[len(gaps) // 2]
-    if gaps[0] > med * 2 and gaps[0] >= gaps[-1]:
-        print(f"dropped lead-in at {cuts[0][0]:.2f}s ({gaps[0]:.1f}s gap before the run)")
-        cuts.pop(0)
-    elif gaps[-1] > med * 2:
-        print(f"dropped trailing blip at {cuts[-1][0]:.2f}s")
-        cuts.pop()
-    else:
-        break
+span = {}
+for i, idxs in hits.items():
+    idxs = sorted(set(idxs))
+    best = run = [idxs[0]]
+    for prev, cur in zip(idxs, idxs[1:]):
+        run = run + [cur] if cur - prev <= 2 else [cur]
+        if len(run) > len(best):
+            best = run
+    span[i] = (words[best[0]][1], words[best[-1]][2])
 
-if len(cuts) != len(scenes):
-    print(f"Found {len(cuts)} spoken segments but the script has {len(scenes)} lines.")
-    print("Re-record leaving a clear ~1s gap between lines, or adjust NOISE/GAP at the top.")
-    for i, (a, b) in enumerate(cuts, 1):
-        print(f"  {i:2}. {a:6.2f} -> {b:6.2f}  ({b-a:.2f}s)")
+# Whisper back-fills a segment's first words across any silence preceding it,
+# so a line after a long gap can appear to start seconds before it was spoken.
+# The END of a line is reliable; the start is not. Rebuild an implausible start
+# from the line's own word count — real speech runs ~0.33s/word.
+PER_WORD, MAX_PER_WORD, MIN_PER_WORD = 0.33, 0.62, 0.22
+for i, sc in enumerate(scenes):
+    if i not in span:
+        continue
+    a, b = span[i]
+    n = max(1, len(norm(sc["vo"])))
+    if (b - a) / n > MAX_PER_WORD:
+        a2 = max(0.0, b - n * PER_WORD)
+        print(f"   line {i+1}: start {a:.2f} -> {a2:.2f} (was {(b-a)/n:.2f}s/word)")
+        span[i] = (a2, b)
+    elif (b - a) / n < MIN_PER_WORD:
+        # The run matched only part of the line; the tail got cut. Give it back
+        # whatever room exists before the next line actually starts.
+        ceiling = span[i + 1][0] - 0.05 if i + 1 in span else b + n * PER_WORD
+        b2 = min(a + n * PER_WORD, ceiling)
+        if b2 > b:
+            print(f"   line {i+1}: end {b:.2f} -> {b2:.2f} (was {(b-a)/n:.2f}s/word)")
+            span[i] = (a, b2)
+
+missing = [i for i in range(len(scenes)) if i not in span]
+if missing:
+    print(f"could not align lines: {[m + 1 for m in missing]}")
+    print("re-read those lines, or check the transcript in", out / "_t.json")
     raise SystemExit(1)
 
+total = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                              "-of", "default=nw=1:nk=1", str(clean)],
+                             capture_output=True, text=True).stdout)
+
 parts, durations = [], []
-for i, ((a, b), sc) in enumerate(zip(cuts, scenes)):
+for i, sc in enumerate(scenes):
+    a, b = span[i]
+    nxt = span[i + 1][0] if i + 1 < len(scenes) else total
+    b = min(b + 0.18, nxt - 0.02, total)          # let the word finish, never bleed into the next line
+    a = max(0.0, a - 0.10)
     seg = out / f"{i}.wav"
-    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(norm),
-                    "-ss", f"{max(0, a - 0.08):.3f}", "-to", f"{min(total, b + 0.06):.3f}",
-                    "-af", f"apad=pad_dur={sc.get('pause', 0.45)},loudnorm=I=-16:TP=-1.5:LRA=11",
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(clean),
+                    "-ss", f"{a:.3f}", "-to", f"{b:.3f}",
+                    "-af", f"apad=pad_dur={sc.get('pause', 0.4)},loudnorm=I=-16:TP=-1.5:LRA=11",
                     "-ar", "48000", "-ac", "2", str(seg)], check=True)
     d = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                               "-of", "default=nw=1:nk=1", str(seg)],
                              capture_output=True, text=True).stdout)
     durations.append(round(d, 3)); parts.append(seg)
+    print(f"{i+1:2}. {a:6.2f}-{b:6.2f} ({d:4.1f}s)  {sc['vo'][:52]}")
 
 lst = out / "list.txt"
 lst.write_text("\n".join(f"file '{p.name}'" for p in parts))
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0",
                 "-i", str(lst), "-c", "copy", str(out / "vo.wav")], check=True)
-lst.unlink(); norm.unlink()
+lst.unlink(); clean.unlink()
 for p in parts: p.unlink()
 
 (root / "data" / f"{vid}.audio.json").write_text(
     json.dumps({"track": f"{vid}/vo.wav", "durations": durations}, indent=2))
-print(f"your voice: {sum(durations):.1f}s across {len(durations)} scenes")
-print("now run:  npm run render")
+print(f"\naligned: {sum(durations):.1f}s across {len(durations)} scenes")
