@@ -227,6 +227,38 @@ def test_a_probe_that_did_not_run_yields_unknown_not_zero():
     assert m["shots"][0]["luma_spread"] is None
 
 
+# ---------------------------------------------------------------- task 4
+
+def test_verbatim_caption_scores_total_overlap():
+    sh = [{"i": 0, "screen_text": "Reviews were warm. It sold over a million copies.",
+           "vo": "Reviews were warm. It sold over a million copies."}]
+    assert critique.information_gain(sh)["per_shot"][0]["overlap"] == 1.0
+
+
+def test_a_screen_that_adds_information_scores_low():
+    sh = [{"i": 0, "screen_text": "$75M guaranteed by the state",
+           "vo": "In twenty ten, Rhode Island guaranteed a loan."}]
+    assert critique.information_gain(sh)["per_shot"][0]["overlap"] < 0.5
+
+
+def test_accent_markup_does_not_inflate_novelty():
+    sh = [{"i": 0, "screen_text": "In 2010, Rhode Island guaranteed a loan.",
+           "vo": "In twenty ten, Rhode Island guaranteed a loan."}]
+    assert critique.information_gain(sh)["per_shot"][0]["overlap"] > 0.5
+
+
+def test_a_silent_visual_beat_is_excluded_not_divided_by_zero():
+    sh = [{"i": 0, "screen_text": "90 DAYS", "vo": ""}]
+    assert critique.information_gain(sh)["per_shot"][0]["overlap"] is None
+
+
+def test_novel_shots_counts_only_those_below_the_gate():
+    sh = [{"i": 0, "screen_text": "a b c d", "vo": "a b c d"},
+          {"i": 1, "screen_text": "$75M", "vo": "the state signed"},
+          {"i": 2, "screen_text": "450 jobs", "vo": "nobody was hired"}]
+    assert critique.information_gain(sh)["novel_shots"] == 2
+
+
 # ---------------------------------------------------------------- runner
 
 def main():

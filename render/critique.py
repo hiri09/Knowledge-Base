@@ -171,6 +171,31 @@ def shots(data, audio):
     return {"ran": bool(scenes), "shots": out, "drift": drift}
 
 
+def _tokens(s):
+    return set(re.findall(r"[a-z0-9$]+", _strip(s).lower()))
+
+
+def information_gain(shot_list):
+    """How much of the screen is just a caption of the narration.
+
+    overlap = share of on-screen words the voice also says. 1.0 means the
+    viewer is reading along; there is nothing to look at. Numerals against
+    spelled-out numbers deliberately do not match — a screen showing "$75M"
+    while the voice says "seventy five million" is giving the eye its own job.
+    """
+    per = []
+    for s in shot_list:
+        screen, vo = _tokens(s.get("screen_text")), _tokens(s.get("vo"))
+        overlap = (len(screen & vo) / len(screen)) if screen and vo else None
+        per.append({"i": s["i"], "overlap": overlap})
+    scored = [p["overlap"] for p in per if p["overlap"] is not None]
+    return {
+        "per_shot": per,
+        "worst": max(scored) if scored else None,
+        "novel_shots": sum(1 for o in scored if o < GATES["overlap_max"]),
+    }
+
+
 def visual_metrics(shot_list, freeze, lum):
     """Per-shot motion and ground, plus whole-video repetition tallies.
 
