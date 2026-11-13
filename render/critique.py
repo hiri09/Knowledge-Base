@@ -107,6 +107,7 @@ GATES = {
     "pause_stdev_min": 0.25,
     "wps_spread_min": 0.15,
     "money_pause_min": 0.5,
+    "pitch_spread_min": 12.0,  # Hz between line medians. flat read ~1, directed ~47
 }
 
 
@@ -176,6 +177,67 @@ def shots(data, audio):
         t += hold
 
     return {"ran": bool(scenes), "shots": out, "drift": drift}
+
+
+def _dur(path):
+    rc, out, _ = _run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                       "-of", "default=nw=1:nk=1", str(path)])
+    try:
+        return float(out.strip())
+    except ValueError:
+        return 0.0
+
+
+def _f0(samples, sr, lo=60, hi=320):
+    """Median voiced pitch of one window, by autocorrelation. stdlib only.
+
+    Crude, and good enough: the question is whether lines differ from each
+    other, not what the absolute pitch is.
+    """
+    out = []
+    win, hop = int(sr * 0.04), int(sr * 0.04)
+    for s in range(0, len(samples) - win, hop):
+        w = samples[s:s + win]
+        if sum(x * x for x in w) / win < 2e5:      # silence
+            continue
+        best, lag_at = 0, None
+        for lag in range(sr // hi, sr // lo):
+            c = sum(w[i] * w[i + lag] for i in range(0, win - lag, 4))
+            if c > best:
+                best, lag_at = c, lag
+        if lag_at:
+            out.append(sr / lag_at)
+    out.sort()
+    return out[len(out) // 2] if out else None
+
+
+def pitch_by_shot(wav, shot_list, sr=8000):
+    """{ran, medians, spread} — does the read change pitch line to line?
+
+    One voice held across fifty seconds is what "sounds AI" means. `say`
+    takes [[pbas N]], so this is a thing the Director can actually direct,
+    and therefore a thing worth measuring.
+    """
+    # Raw PCM on stdout, so this cannot go through _run's text decoding.
+    try:
+        p = subprocess.run(["ffmpeg", "-v", "error", "-i", str(wav), "-ac", "1",
+                            "-ar", str(sr), "-f", "s16le", "-"],
+                           capture_output=True, timeout=300)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return {"ran": False, "medians": [], "spread": None}
+    if p.returncode != 0 or not p.stdout:
+        return {"ran": False, "medians": [], "spread": None}
+    import array
+    pcm = array.array("h")
+    pcm.frombytes(p.stdout[:len(p.stdout) // 2 * 2])
+
+    medians = []
+    for s in shot_list:
+        a, b = int(s["start"] * sr), int(s["end"] * sr)
+        medians.append(_f0(pcm[a:b], sr) if b > a else None)
+    live = [m for m in medians if m]
+    return {"ran": True, "medians": medians,
+            "spread": statistics.pstdev(live) if len(live) > 1 else 0.0}
 
 
 def cut_drift(shot_list, cut_result):
@@ -390,7 +452,8 @@ def evaluate(metrics):
                          GATES["novel_shots_min"], None, "too few shots add anything"))
 
     audio = metrics.get("audio", {})
-    for key, gate in (("pause_stdev", "pause_stdev"), ("wps_spread", "wps_spread")):
+    for key, gate in (("pause_stdev", "pause_stdev"), ("wps_spread", "wps_spread"),
+                      ("pitch_spread", "pitch_spread")):
         v, limit = audio.get(key), GATES[f"{key}_min"]
         if v is None:
             out.append(_fail(gate, None, limit, None, "not measured"))
@@ -447,7 +510,9 @@ def measure(root, vid):
     vm = visual_metrics(st["shots"], freezes(str(mp4)), luma(str(mp4)))
     metrics = {"id": vid, "duration": info["duration"], **vm,
                "info": information_gain(st["shots"]),
-               "audio": audio_metrics(st["shots"], data),
+               "audio": {**audio_metrics(st["shots"], data),
+                         "pitch_spread": pitch_by_shot(
+                             root / "public" / vid / "vo.wav", st["shots"])["spread"]},
                "drift": st["drift"] + cut_drift(st["shots"], cuts(str(mp4)))}
     return metrics, 0
 

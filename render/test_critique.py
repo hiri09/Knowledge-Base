@@ -344,7 +344,8 @@ def _metrics(**over):
          "ground_coverage": 0.9, "template_counts": {}, "bg_counts": {},
          "consecutive_repeats": [],
          "info": {"per_shot": [], "worst": 0.2, "novel_shots": 3},
-         "audio": {"pause_stdev": 0.4, "wps_spread": 0.3, "money_pauses": []},
+         "audio": {"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
+                   "money_pauses": []},
          "drift": []}
     m.update(over)
     return m
@@ -380,12 +381,12 @@ def test_a_template_used_three_times_fails_the_repetition_gate():
 
 
 def test_uniform_pauses_fail_the_audio_gate():
-    m = _metrics(audio={"pause_stdev": 0.02, "wps_spread": 0.3, "money_pauses": []})
+    m = _metrics(audio={"pause_stdev": 0.02, "wps_spread": 0.3, "pitch_spread": 30.0, "money_pauses": []})
     assert any(f["gate"] == "pause_stdev" for f in critique.evaluate(m))
 
 
 def test_a_money_figure_with_no_pause_after_it_fails():
-    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3,
+    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
                         "money_pauses": [{"i": 3, "pause": 0.2}]})
     assert any(f["gate"] == "money_pause" and f["shot"] == 3 for f in critique.evaluate(m))
 
@@ -418,6 +419,55 @@ def test_a_render_with_no_audio_exits_two():
         '{"id":"s","scenes":[{"type":"line","text":"a","vo":"a","sec":1,"pause":0}]}')
     (root / "data" / "s.audio.json").write_text('{"durations":[1.0]}')
     assert critique.main(["s", "--root", str(root)]) == 2
+
+
+# ------------------------------------------------------------ pitch (vo)
+
+def _say(name, *lines):
+    """Build a narration wav from `say`, one clip per line, concatenated."""
+    parts = []
+    for i, text in enumerate(lines):
+        a, w = _D / f"{name}{i}.aiff", _D / f"{name}{i}.wav"
+        subprocess.run(["say", "-v", "Daniel", "-o", str(a), text], check=True)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(a),
+                        "-ar", "22050", "-ac", "1", str(w)], check=True)
+        parts.append(w)
+    lst = _D / f"{name}.txt"
+    lst.write_text("\n".join(f"file '{p.name}'" for p in parts))
+    out = _D / f"{name}.wav"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0",
+                    "-i", str(lst), str(out)], check=True)
+    return str(out), [critique._dur(p) for p in parts]
+
+
+def _shots_for(durs):
+    t, out = 0.0, []
+    for i, d in enumerate(durs):
+        out.append({"i": i, "start": t, "end": t + d})
+        t += d
+    return out
+
+
+def test_a_flat_read_has_almost_no_pitch_spread():
+    line = "The studio was bankrupt ninety days later."
+    wav, durs = _say("flat", line, line, line)
+    r = critique.pitch_by_shot(wav, _shots_for(durs))
+    assert r["ran"] is True
+    assert r["spread"] < 8, r
+
+
+def test_a_directed_read_has_real_pitch_spread():
+    # the same words, performed differently — this is what [[pbas]] buys
+    wav, durs = _say("directed",
+                     "[[pbas 30]] The studio was bankrupt ninety days later.",
+                     "[[pbas 55]] The studio was bankrupt ninety days later.",
+                     "[[pbas 42]] The studio was bankrupt ninety days later.")
+    r = critique.pitch_by_shot(wav, _shots_for(durs))
+    assert r["spread"] > 15, r
+
+
+def test_pitch_on_a_missing_file_reports_it_did_not_run():
+    assert critique.pitch_by_shot("/nonexistent.wav", [])["ran"] is False
 
 
 # ---------------------------------------------------------------- runner
