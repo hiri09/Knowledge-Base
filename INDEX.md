@@ -35,6 +35,14 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 
 ## pipeline
 
+- `pipeline/editorial-loop.md` — **The editorial loop — design** — How a Short goes from script to something worth watching, using four roles that
+
+## pipeline/plans
+
+- `pipeline/plans/2026-11-13-editorial-loop.md` — **Editorial Loop Implementation Plan** — > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or su
+
+## pipeline
+
 - `pipeline/voice.md` — **Voice** — **Current: macOS `say` (Daniel, en_GB).** Himanshu's own voice and cloning are both
 
 ## platforms
