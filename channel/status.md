@@ -16,10 +16,10 @@ Read this first when picking the work back up.
 
 1. **Visuals still not appealing enough.** Biggest complaint across three rounds. Data scenes helped; it is still largely type on a ground.
 2. **Voice reads as AI.** macOS `say` is flat. Cloning options priced in `pipeline/voice.md`; deferred.
-3. **No thumbnail.** Packaging is ~70% of CTR — this is the largest single gap.
+3. ~~No thumbnail.~~ **Built for 002** — `render/out/002-thumb-vertical.png` (Shorts) and `-wide.png` (search/channel). Composition `Thumb` / `ThumbWide` in `src/Thumbnail.tsx`, so every future video gets one by editing data, not design. _(2026-11-13)_
 4. **No music or sound design.** Silence between lines is audible.
 5. **Only 3 public-domain images.** Wikimedia keyword search returns semantically wrong results. A free Pexels key unlocks proper imagery and video b-roll.
-6. **No YouTube channel exists yet.**
+6. ~~No YouTube channel exists yet.~~ **Channel exists** — `UCbHYNyOKA1RAM5CCIbiUrAg` _(2026-11-13)_
 
 ## Next, in order
 

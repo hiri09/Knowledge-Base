@@ -8,7 +8,8 @@
     "bake:kids": "node bake-kids.mjs",
     "render:kids": "remotion render KidsShort out/kids-001.mp4 --gl=angle --concurrency=2 && ./finish-kids.sh kids-001",
     "render:comedy": "remotion render KidsComedy out/kids-002.mp4 --gl=angle --concurrency=2 && ./finish-kids.sh kids-002",
-    "voice": "ID=$(node -p \"require('./data/current.json').id\") && python3 build-audio.py $ID && python3 build-score.py $ID"
+    "voice": "ID=$(node -p \"require('./data/current.json').id\") && python3 build-audio.py $ID && python3 build-score.py $ID",
+    "thumb:comedy": "remotion still KidsComedyThumb out/kids-002-thumb.png --gl=angle"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",
