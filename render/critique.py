@@ -101,7 +101,7 @@ def freezes(path, noise=0.003, dur=1.0):
 # Values from pipeline/editorial-loop.md. The Senior Editor cannot waive
 # these; only Himanshu can.
 GATES = {
-    "hold": {"HOOK": 1.2, "EXPLAIN": 2.5, "REVEAL": 4.0, "CLOSE": 4.0, None: 4.0},
+    "hold": {"HOOK": 1.6, "EXPLAIN": 3.2, "REVEAL": 4.5, "CLOSE": 5.0, None: 4.5},
     "freeze_max": 1.0,        # seconds a shot may sit motionless
     "luma_spread_min": 10.0,  # YHIGH-YLOW: a visible ground, not flat dark
     "ground_coverage_min": 0.5,
@@ -112,6 +112,8 @@ GATES = {
     "pause_stdev_min": 0.25,
     "wps_spread_min": 0.15,
     "money_pause_min": 0.5,
+    "avg_hold_min": 2.2,      # a new idea every <2.2s reads as frantic
+    "closing_hold_min": 2.5,  # the last shot has to be allowed to land
     "pitch_spread_min": 12.0,  # Hz between line medians. flat read ~1, directed ~47
 }
 
@@ -432,6 +434,18 @@ def evaluate(metrics):
                 out.append(_fail(gate, None, limit, i, "not measured"))
             elif worse(v, limit):
                 out.append(_fail(gate, round(v, 2), limit, i))
+
+    holds = [s["hold"] for s in metrics["shots"] if s.get("hold")]
+    if holds:
+        avg = sum(holds) / len(holds)
+        if avg < GATES["avg_hold_min"]:
+            out.append(_fail("avg_hold", round(avg, 2), GATES["avg_hold_min"], None,
+                             "a new idea arrives faster than it can land"))
+        last = metrics["shots"][-1]
+        if (last.get("hold") or 0) < GATES["closing_hold_min"]:
+            out.append(_fail("closing_hold", round(last.get("hold") or 0, 2),
+                             GATES["closing_hold_min"], last["i"],
+                             "the video stops dead instead of ending"))
 
     if metrics["ground_coverage"] < GATES["ground_coverage_min"]:
         out.append(_fail("ground_coverage", round(metrics["ground_coverage"], 2),

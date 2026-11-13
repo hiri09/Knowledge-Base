@@ -156,11 +156,29 @@ const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: Medi
   );
 };
 
+// A Short that cuts to black on its last frame reads as the file ending, not
+// as the story ending. 20 frames of settle costs two thirds of a second.
+const FadeOut: React.FC<{total: number}> = ({total}) => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: theme.bg,
+        opacity: interpolate(frame, [total - 20, total - 1], [0, 1], {
+          extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
+        }),
+        pointerEvents: 'none',
+      }}
+    />
+  );
+};
+
 export const Short: React.FC<{data: ShortData; audio?: AudioData; media?: MediaLock}> = ({data, audio, media}) => {
   let at = 0;
   return (
     <AbsoluteFill style={{backgroundColor: theme.bg}}>
       {audio ? <Audio src={staticFile(audio.track)} /> : null}
+      {(() => null)()}
       {data.scenes.map((scene, i) => {
         const dur = Math.round(secondsFor(scene, i, audio) * FPS);
         const from = at;
@@ -171,6 +189,7 @@ export const Short: React.FC<{data: ShortData; audio?: AudioData; media?: MediaL
           </Sequence>
         );
       })}
+          <FadeOut total={data.scenes.reduce((a, sc, j) => a + Math.round(secondsFor(sc, j, audio) * FPS), 0)} />
     </AbsoluteFill>
   );
 };

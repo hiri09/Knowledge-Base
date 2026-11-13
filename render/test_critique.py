@@ -198,9 +198,9 @@ NO_LUMA = {"ran": True, "samples": []}
 
 
 def test_hold_gate_per_beat_class():
-    assert critique.GATES["hold"]["HOOK"] == 1.2
-    assert critique.GATES["hold"]["EXPLAIN"] == 2.5
-    assert critique.GATES["hold"]["REVEAL"] == 4.0
+    assert critique.GATES["hold"]["HOOK"] == 1.6
+    assert critique.GATES["hold"]["EXPLAIN"] == 3.2
+    assert critique.GATES["hold"]["REVEAL"] == 4.5
 
 
 def test_frozen_shot_is_attributed_to_the_right_shot():
@@ -339,7 +339,7 @@ def test_wps_spread_detects_one_flat_pace_throughout():
 
 def _metrics(**over):
     m = {"id": "t", "duration": 10.0,
-         "shots": [{"i": 0, "beat": "EXPLAIN", "type": "line", "hold": 2.0,
+         "shots": [{"i": 0, "beat": "EXPLAIN", "type": "line", "hold": 2.7,
                     "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}],
          "ground_coverage": 0.9, "template_counts": {}, "bg_counts": {},
          "consecutive_repeats": [],
@@ -355,10 +355,11 @@ def test_a_long_explain_hold_fails_its_gate():
     m = _metrics(shots=[{"i": 7, "beat": "EXPLAIN", "type": "line", "hold": 4.2,
                          "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}])
     assert any(f["gate"] == "hold" and f["shot"] == 7 for f in critique.evaluate(m))
+    assert any(f["limit"] == 3.2 for f in critique.evaluate(m) if f["gate"] == "hold")
 
 
 def test_a_reveal_may_hold_longer_than_an_explain():
-    m = _metrics(shots=[{"i": 3, "beat": "REVEAL", "type": "number", "hold": 3.5,
+    m = _metrics(shots=[{"i": 3, "beat": "REVEAL", "type": "number", "hold": 4.2,
                          "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}])
     assert not any(f["gate"] == "hold" for f in critique.evaluate(m))
 
@@ -399,7 +400,7 @@ def test_report_names_the_shot_and_the_limit():
     m = _metrics(shots=[{"i": 7, "beat": "EXPLAIN", "type": "line", "hold": 4.2,
                          "luma_spread": 3.0, "frozen_for": 3.8, "ground": None}])
     out = critique.report(m, critique.evaluate(m))
-    assert "SHOT 7" in out and "REJECT" in out and "2.5" in out
+    assert "SHOT 7" in out and "REJECT" in out and "3.2" in out
 
 
 def test_report_says_pass_when_nothing_failed():
@@ -419,6 +420,39 @@ def test_a_render_with_no_audio_exits_two():
         '{"id":"s","scenes":[{"type":"line","text":"a","vo":"a","sec":1,"pause":0}]}')
     (root / "data" / "s.audio.json").write_text('{"durations":[1.0]}')
     assert critique.main(["s", "--root", str(root)]) == 2
+
+
+def test_a_dense_cut_rate_fails_even_when_every_shot_is_legal():
+    # Each shot can clear its own hold limit and the video still reads as
+    # frantic, because a new IDEA every 1.9s is not the same thing as a new
+    # SHOT every 1.9s. Harris cuts that fast between angles on one idea.
+    m = _metrics(shots=[{"i": i, "beat": "EXPLAIN", "type": "line", "hold": 1.9,
+                         "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}
+                        for i in range(20)])
+    assert any(f["gate"] == "avg_hold" for f in critique.evaluate(m))
+
+
+def test_a_comfortable_cut_rate_passes():
+    m = _metrics(shots=[{"i": i, "beat": "EXPLAIN", "type": "line", "hold": 2.7,
+                         "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}
+                        for i in range(14)])
+    assert not any(f["gate"] == "avg_hold" for f in critique.evaluate(m))
+
+
+def test_a_video_that_stops_dead_on_its_last_line_fails():
+    m = _metrics(shots=[{"i": 0, "beat": "EXPLAIN", "type": "line", "hold": 2.6,
+                         "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"},
+                        {"i": 1, "beat": "CLOSE", "type": "line", "hold": 1.9,
+                         "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}])
+    assert any(f["gate"] == "closing_hold" for f in critique.evaluate(m))
+
+
+def test_a_closing_shot_that_is_allowed_to_land_passes():
+    m = _metrics(shots=[{"i": 0, "beat": "EXPLAIN", "type": "line", "hold": 2.6,
+                         "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"},
+                        {"i": 1, "beat": "CLOSE", "type": "line", "hold": 3.0,
+                         "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}])
+    assert not any(f["gate"] == "closing_hold" for f in critique.evaluate(m))
 
 
 # ------------------------------------------------------------ pitch (vo)

@@ -7,10 +7,10 @@
       "beat": "HOOK",
       "sec": 2,
       "vo": "A million copies.",
-      "pause": 0.0,
+      "pause": 0.15,
       "perform": {
         "pitch": 0,
-        "rate": 185
+        "rate": 180
       },
       "total": 48,
       "filled": 48,
@@ -24,7 +24,7 @@
     {
       "type": "line",
       "beat": "HOOK",
-      "sec": 0.9,
+      "sec": 1.0,
       "vo": "",
       "pause": 0,
       "text": "*BANKRUPT*",
@@ -39,10 +39,10 @@
       "beat": "EXPLAIN",
       "sec": 2,
       "vo": "Ninety days later.",
-      "pause": 0.9,
+      "pause": 1.0,
       "perform": {
         "pitch": -10,
-        "rate": 150
+        "rate": 148
       },
       "marks": [
         {
@@ -63,12 +63,12 @@
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 2,
-      "vo": "This was a state budget.",
+      "sec": 3,
+      "vo": "This was a state budget, not a venture fund.",
       "pause": 0.35,
       "perform": {
         "pitch": -4,
-        "rate": 170
+        "rate": 166
       },
       "text": "*RHODE ISLAND*",
       "media": "statehouse",
@@ -80,29 +80,12 @@
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 2,
-      "vo": "Not a venture fund.",
-      "pause": 0.55,
-      "perform": {
-        "pitch": -2,
-        "rate": 164
-      },
-      "text": "THE *SMALLEST STATE*",
-      "media": "providence",
-      "shot": "tilt",
-      "anim": "slideL",
-      "pos": "top",
-      "trans": "cut"
-    },
-    {
-      "type": "line",
-      "beat": "EXPLAIN",
-      "sec": 2.4,
-      "vo": "It guaranteed a loan.",
-      "pause": 0.45,
+      "sec": 2.6,
+      "vo": "In twenty ten, it guaranteed a loan.",
+      "pause": 0.5,
       "perform": {
         "pitch": 2,
-        "rate": 174
+        "rate": 170
       },
       "text": "*2010*",
       "media": "court",
@@ -119,7 +102,7 @@
       "pause": 1.3,
       "perform": {
         "pitch": -8,
-        "rate": 152,
+        "rate": 150,
         "lead": 200
       },
       "value": "$75M",
@@ -134,57 +117,41 @@
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 2,
-      "vo": "To a first-time studio.",
-      "pause": 0.3,
+      "sec": 3.2,
+      "vo": "A first-time studio, run by a baseball pitcher.",
+      "pause": 0.05,
       "perform": {
-        "pitch": 0,
-        "rate": 176
+        "pitch": 1,
+        "rate": 184
       },
       "text": "ZERO *SHIPPED GAMES*",
-      "bg": "bars",
-      "anim": "stagger",
-      "pos": "right",
+      "media": "f_office",
+      "shot": "panL",
+      "anim": "slideR",
+      "pos": "bottom",
       "trans": "cut"
     },
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 2.4,
-      "vo": "Run by a retired baseball pitcher.",
-      "pause": 0.3,
-      "perform": {
-        "pitch": 3,
-        "rate": 168
-      },
-      "text": "*38 STUDIOS*",
-      "media": "f_office",
-      "shot": "panL",
-      "anim": "slideR",
-      "pos": "bottom",
-      "trans": "slideUp"
-    },
-    {
-      "type": "line",
-      "beat": "EXPLAIN",
-      "sec": 0.8,
+      "sec": 1.0,
       "vo": "",
       "pause": 0,
       "text": "*FEBRUARY 2012*",
       "bg": "ghost",
       "anim": "blur",
-      "pos": "center",
+      "pos": "top",
       "trans": "flash"
     },
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 1.6,
-      "vo": "The game launched.",
-      "pause": 0.35,
+      "sec": 2.6,
+      "vo": "The game launched. Reviews were warm.",
+      "pause": 0.5,
       "perform": {
-        "pitch": 1,
-        "rate": 176
+        "pitch": 3,
+        "rate": 172
       },
       "text": "KINGDOMS OF *AMALUR*",
       "media": "empty",
@@ -194,30 +161,14 @@
       "trans": "cut"
     },
     {
-      "type": "line",
-      "beat": "EXPLAIN",
-      "sec": 1.6,
-      "vo": "Reviews were warm.",
-      "pause": 0.3,
-      "perform": {
-        "pitch": 4,
-        "rate": 172
-      },
-      "text": "IT *WORKED*",
-      "bg": "glow",
-      "anim": "slideL",
-      "pos": "left",
-      "trans": "cut"
-    },
-    {
       "type": "grid",
       "beat": "EXPLAIN",
       "sec": 2.4,
       "vo": "It sold over a million copies.",
-      "pause": 0.45,
+      "pause": 0.9,
       "perform": {
         "pitch": 2,
-        "rate": 170
+        "rate": 168
       },
       "total": 48,
       "filled": 48,
@@ -226,17 +177,17 @@
       "sub": "copies sold",
       "bg": "bars",
       "shot": "push",
-      "trans": "punchIn"
+      "trans": "slideUp"
     },
     {
       "type": "compare",
       "beat": "REVEAL",
-      "sec": 2.2,
-      "vo": "It needed three million.",
-      "pause": 1.35,
+      "sec": 3,
+      "vo": "It needed three million just to break even.",
+      "pause": 1.4,
       "perform": {
         "pitch": -9,
-        "rate": 150,
+        "rate": 148,
         "lead": 250
       },
       "aLabel": "SOLD",
@@ -245,46 +196,29 @@
       "bValue": 3000000,
       "source": "https://fortune.com/2012/06/15/4-lessons-from-curt-schillings-38-studios-fiasco",
       "bg": "grid",
-      "trans": "cut"
+      "trans": "punchIn"
     },
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 1.6,
-      "vo": "Just to break even.",
-      "pause": 0.5,
-      "perform": {
-        "pitch": -6,
-        "rate": 158
-      },
-      "text": "2,000,000 *SHORT*",
-      "media": "treasury",
-      "shot": "panR",
-      "anim": "scale",
-      "pos": "bottom",
-      "trans": "cut"
-    },
-    {
-      "type": "line",
-      "beat": "EXPLAIN",
-      "sec": 0.7,
+      "sec": 0.9,
       "vo": "",
       "pause": 0,
       "text": "*MAY 2012*",
-      "bg": "grid",
+      "bg": "ghost",
       "anim": "rise",
-      "pos": "center",
+      "pos": "bottom",
       "trans": "flash"
     },
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 1.6,
+      "sec": 2,
       "vo": "Payroll was missed.",
-      "pause": 0.35,
+      "pause": 0.5,
       "perform": {
         "pitch": -4,
-        "rate": 164
+        "rate": 160
       },
       "text": "*450 JOBS* PROMISED",
       "media": "f_office",
@@ -296,12 +230,12 @@
     {
       "type": "grid",
       "beat": "EXPLAIN",
-      "sec": 2.2,
+      "sec": 2.4,
       "vo": "The entire staff was laid off.",
-      "pause": 0.35,
+      "pause": 0.9,
       "perform": {
         "pitch": -7,
-        "rate": 156
+        "rate": 154
       },
       "total": 48,
       "filled": 0,
@@ -310,34 +244,34 @@
       "sub": "May 2012",
       "bg": "glow",
       "shot": "pull",
-      "trans": "slideUp"
+      "trans": "cut"
     },
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 1.8,
+      "sec": 2,
       "vo": "In June, bankruptcy.",
-      "pause": 0.5,
+      "pause": 1.0,
       "perform": {
         "pitch": -11,
-        "rate": 148
+        "rate": 146
       },
       "text": "*JUNE 2012*",
       "media": "court",
       "shot": "push",
       "anim": "rise",
       "pos": "right",
-      "trans": "cut"
+      "trans": "punchIn"
     },
     {
       "type": "number",
       "beat": "REVEAL",
       "sec": 2.2,
       "vo": "Twenty eight million dollars.",
-      "pause": 1.25,
+      "pause": 1.3,
       "perform": {
         "pitch": -10,
-        "rate": 150,
+        "rate": 148,
         "lead": 300
       },
       "value": "$28M",
@@ -353,12 +287,12 @@
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 2.4,
+      "sec": 2.6,
       "vo": "Paid by people who never played it.",
-      "pause": 0.45,
+      "pause": 0.9,
       "perform": {
         "pitch": -5,
-        "rate": 160
+        "rate": 158
       },
       "text": "THE *TAXPAYERS*",
       "media": "providence",
@@ -370,34 +304,47 @@
     {
       "type": "line",
       "beat": "CLOSE",
-      "sec": 1.6,
+      "sec": 2.2,
       "vo": "The game didn't fail.",
-      "pause": 0.5,
+      "pause": 0.7,
       "perform": {
         "pitch": 0,
-        "rate": 166
+        "rate": 164
       },
       "text": "1,000,000 *BUYERS*",
       "media": "empty",
       "shot": "push",
       "anim": "slideL",
       "pos": "top",
-      "trans": "punchIn"
+      "trans": "cut"
     },
     {
       "type": "line",
       "beat": "CLOSE",
-      "sec": 2,
+      "sec": 2.4,
       "vo": "The math did.",
-      "pause": 1.0,
+      "pause": 1.2,
       "perform": {
         "pitch": -12,
-        "rate": 140,
+        "rate": 138,
         "lead": 250
       },
       "text": "3M *NEEDED* · 1M *SOLD*",
       "bg": "bars",
       "anim": "scale",
+      "pos": "center",
+      "trans": "punchIn"
+    },
+    {
+      "type": "line",
+      "beat": "CLOSE",
+      "sec": 3.2,
+      "vo": "",
+      "pause": 0,
+      "text": "*THE MATH DID*",
+      "media": "statehouse",
+      "shot": "pull",
+      "anim": "rise",
       "pos": "center",
       "trans": "cut"
     }

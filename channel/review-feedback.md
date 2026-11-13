@@ -55,6 +55,11 @@ _(empty)_
 - **A scene may be silent.** Tying every shot's length to its own sentence makes a one-second beat impossible without two-word sentences. A picture beat with no narration is how a cut lands on its own. _(2026-11-13)_
 
 ### Visuals / render
+- **Never grade to black.** A near-black base (`#0B0B0C`) gives every frame a void to sit on, and the whole video reads as dark rather than as graded. The base is a charcoal with a blue cast, shadows are lifted, and blacks never crush to zero. _(2026-11-13)_
+- **Split-tone, do not duotone.** One flat accent wash over every photograph made eight different grounds arrive the same colour. Cool multiplied into the shadows, warm soft-lit into the highlights, accent at 0.05 — each photograph stays recognisably itself. _(2026-11-13)_
+- **A procedural background gets the same grade as a photographic one**, or the video alternates between graded shots and flat dark shots and reads as uneven. _(2026-11-13)_
+- **Type never sits on top of the ghost numeral.** Centre both and they fight; the numeral is the ground, so the type clears it. _(2026-11-13)_
+
 - **No frame is ever flat black.** Every scene carries a background layer — moving grid, drifting glow, diagonal bars, or a ghosted figure behind the type. An empty ground reads as unfinished, not as minimal. → gate: `luma_spread ≥ 10` (YHIGH−YLOW per shot) _(2026-11-12)_
 - **The visual must BE the sentence, not decorate it.** A generic photo behind a specific claim is wallpaper. Prefer a visual generated from the story's own numbers — a unit grid, a timeline, a comparison — because those are relevant by construction and cannot mismatch. Reach for a photo only when the photo is literally the subject. → gate: `information_gain` — screen text ≤ 50% token overlap with the spoken line _(2026-11-12)_
 - **Every fetched image is looked at before it ships.** Keyword search returns semantically wrong images — "one hundred dollar bill" returned a scanned congressional bill. No image is better than a wrong one. → enforced by the Senior Editor on frames, not by a reader _(2026-11-12)_
@@ -69,6 +74,9 @@ _(empty)_
 - **Check what a fetched image depicts, not just whether it matches.** A search for US banknotes returned officers handling seized evidence. The 38 Studios investigation closed with no charges — shipping that frame would have implied a crime the script explicitly avoids. _(2026-11-13)_
 
 ### Pacing / edit
+- **Cut rate is not idea rate.** The reference channels cut every 1–2s, but those are several angles on ONE idea. A new *idea* every 1.9s reads as frantic however legal each shot is. Average hold stays at or above 2.2s. _(2026-11-13)_ → gate: `avg_hold ≥ 2.2s`
+- **A Short has to land, not stop.** Ending on the last spoken word reads as the file running out. The closing shot holds ≥2.5s, silent, and the picture settles out rather than cutting to black. _(2026-11-13)_ → gate: `closing_hold ≥ 2.5s`
+
 - **Uniformity is what reads as AI.** Identical pauses, identical camera moves and identical cuts are the tell — not the content. Every repeated interval must be broken on purpose. → gates: `pause_stdev ≥ 0.25`, `wps_spread ≥ 0.15`, no consecutive repeats _(2026-11-12)_
 - **Pauses vary per line, 0.2s–1.2s.** Hold long before a reveal, rush through a list. A constant gap after every sentence is the loudest machine signal in a narration. → gate: `pause_stdev ≥ 0.25s` _(2026-11-12)_
 - **Every photo gets a different camera move** — push, pull, pan left, pan right, tilt, snap-punch. The same Ken Burns zoom on every image reads as a template. → gate: no `anim` twice in a row _(2026-11-12)_

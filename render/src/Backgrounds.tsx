@@ -21,7 +21,7 @@ const Grain: React.FC = () => (
 const Vignette: React.FC = () => (
   <AbsoluteFill
     style={{
-      background: 'radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%)',
+      background: 'radial-gradient(ellipse at center, transparent 52%, rgba(6,8,12,0.42) 100%)',
       pointerEvents: 'none',
     }}
   />
@@ -95,9 +95,21 @@ export const Background: React.FC<{kind: BgKind; ghost?: string}> = ({kind, ghos
     );
   };
 
+  // A procedural ground gets the same tonal treatment a photographic one does,
+  // or the video alternates between graded shots and flat dark shots and reads
+  // as uneven. Shape first, then the pattern, then the split-tone.
+  const drift = interpolate(Math.sin(frame / 90), [-1, 1], [38, 62]);
   return (
     <AbsoluteFill style={{backgroundColor: theme.bg}}>
+      <AbsoluteFill
+        style={{
+          background:
+            `radial-gradient(130% 85% at ${drift}% 18%, ${theme.bgLift} 0%, ${theme.bg} 58%),` +
+            `radial-gradient(90% 60% at ${100 - drift}% 100%, ${theme.shadow}CC 0%, transparent 70%)`,
+        }}
+      />
       {inner()}
+      <AbsoluteFill style={{backgroundColor: theme.highlight, opacity: 0.07, mixBlendMode: 'soft-light'}} />
       <Grain />
       <Vignette />
     </AbsoluteFill>
@@ -135,7 +147,7 @@ export const Photo: React.FC<{src: string; shot: Shot; clipFrames?: number}> = (
       <AbsoluteFill
         style={{
           transform: `scale(${scale}) translate(${x}%, ${y}%)`,
-          filter: 'grayscale(1) contrast(1.22) brightness(0.72)',
+          filter: 'grayscale(0.88) contrast(1.06) brightness(0.98) saturate(0.9)',
           ...(isFootage(src)
             ? {}
             : {backgroundImage: `url(${src})`, backgroundSize: 'cover', backgroundPosition: 'center'}),
@@ -150,11 +162,14 @@ export const Photo: React.FC<{src: string; shot: Shot; clipFrames?: number}> = (
           </Loop>
         ) : null}
       </AbsoluteFill>
-      <AbsoluteFill style={{backgroundColor: theme.accent, opacity: 0.09, mixBlendMode: 'color'}} />
+      <AbsoluteFill style={{backgroundColor: theme.shadow, opacity: 0.42, mixBlendMode: 'multiply'}} />
+      <AbsoluteFill style={{backgroundColor: theme.highlight, opacity: 0.1, mixBlendMode: 'soft-light'}} />
+      <AbsoluteFill style={{backgroundColor: theme.bgLift, opacity: 0.3, mixBlendMode: 'lighten'}} />
+      <AbsoluteFill style={{backgroundColor: theme.accent, opacity: 0.05, mixBlendMode: 'color'}} />
       <AbsoluteFill
         style={{
           background:
-            'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.22) 32%, rgba(0,0,0,0.32) 60%, rgba(0,0,0,0.94) 100%)',
+            `linear-gradient(180deg, ${theme.bg}F2 0%, ${theme.bg}33 34%, ${theme.bg}4D 60%, ${theme.bg}F7 100%)`,
         }}
       />
       <Grain />
