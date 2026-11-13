@@ -100,7 +100,8 @@ const Scene: React.FC = () => {
   // ---- YELLOW ----------------------------------------------------------
   const yellowIn = frame > T.yellowIn - 24;
   const yellowPose: Pose = {
-    x: kf(frame, [[T.yellowIn - 24, 5.2], [T.yellowIn, 1.6], [T.shove, 0.55], [T.yellowStomp, 0.55]]),
+    x: kf(frame, [[T.yellowIn - 24, 5.2], // clear of the die at x=0.78: at 0.55 the two meshes intersected
+      [T.yellowIn, 1.6], [T.shove, -0.2], [T.yellowStomp, -0.2]]),
     z: kf(frame, [[T.yellowIn, TILE_Z[0]], [T.yellowGo, TILE_Z[0]], [T.yellowGo + 34, TILE_Z[4]]]),
     y: Math.max(0, arc(frame, T.yellowStomp, 16, 1.7) +
       [0, 1, 2].reduce((a, i) => a + arc(frame, T.yellowGo + i * 11, 11, 0.8), 0)),
@@ -133,8 +134,10 @@ const Scene: React.FC = () => {
     Math.max(0, arc(frame, T.dieUp, 46, 2.3)) +
     Math.max(0, arc(frame, T.pat, 18, 0.7));
   const dieX = kf(frame, [
-    [0, 0.8], [T.slam, 0.8], [T.settle1, 1.55],
-    [T.yellowStomp, 1.55], [T.settle6, 1.0],
+    // kept inside the rails: at x=1.55 the die rested half behind the right
+    // rail and the number it landed on — the whole beat — was not readable
+    [0, 0.78], [T.slam, 0.78], [T.settle1, 0.78],
+    [T.yellowStomp, 0.78], [T.settle6, 0.78],
     [T.dieUp, 1.0], [T.bonk, blueX + 0.1], [T.settleWin, blueX + 1.5],
     [T.pat, blueX + 1.5], [T.pat + 18, blueX + 1.05],
   ]);
