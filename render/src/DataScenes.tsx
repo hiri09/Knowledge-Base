@@ -48,20 +48,37 @@ export const Timeline: React.FC<{
   const frame = useCurrentFrame();
   const p = interpolate(frame, [4, 38], [0, head], {extrapolateRight: 'clamp', extrapolateLeft: 'clamp'});
 
+  // The track spans the marks, not the container. Drawn full-width, it ran
+  // past the last dot into empty space whenever the last mark sat short of 1.
+  const first = Math.min(...marks.map((m) => m.at));
+  const last = Math.max(...marks.map((m) => m.at));
+  const span = last - first || 1;
+  const filled = Math.max(0, Math.min(1, (p - first) / span)) * span;
+
   return (
     <div style={{width: 820, display: 'flex', flexDirection: 'column', gap: 70}}>
-      <div style={{position: 'relative', height: 8, backgroundColor: '#26262A', borderRadius: 4}}>
+      <div style={{position: 'relative', height: 8}}>
         <div
           style={{
-            position: 'absolute', left: 0, top: 0, height: 8,
-            width: `${p * 100}%`, backgroundColor: theme.accent, borderRadius: 4,
+            position: 'absolute', left: `${first * 100}%`, right: `${(1 - last) * 100}%`,
+            top: 0, height: 8, backgroundColor: '#26262A', borderRadius: 4,
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute', left: `${first * 100}%`, top: 0, height: 8,
+            width: `${filled * 100}%`, backgroundColor: theme.accent, borderRadius: 4,
             boxShadow: `0 0 28px ${theme.accent}`,
           }}
         />
         {marks.map((m, i) => {
           const reached = p >= m.at - 0.01;
           return (
-            <div key={i} style={{position: 'absolute', left: `${m.at * 100}%`, top: -13, transform: 'translateX(-50%)'}}>
+            // The wrapper is the width of the DOT, not the label. Sized by the
+            // label, translateX(-50%) centred the text and shoved the dot left
+            // by half the label — a different amount per mark — which is what
+            // made the track look like it overran the last dot.
+            <div key={i} style={{position: 'absolute', left: `${m.at * 100}%`, top: -13, width: 34, transform: 'translateX(-50%)'}}>
               <div
                 style={{
                   width: 34, height: 34, borderRadius: 17,
@@ -71,8 +88,9 @@ export const Timeline: React.FC<{
               />
               <div
                 style={{
-                  marginTop: 22, fontSize: 32, fontWeight: 700, whiteSpace: 'nowrap',
-                  color: reached ? theme.text : theme.muted, transform: 'translateX(-50%)', marginLeft: 17,
+                  position: 'absolute', top: 56, left: '50%', transform: 'translateX(-50%)',
+                  fontSize: 32, fontWeight: 700, whiteSpace: 'nowrap',
+                  color: reached ? theme.text : theme.muted,
                 }}
               >
                 {m.label}
