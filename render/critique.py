@@ -19,6 +19,7 @@ ponytail: ffmpeg filters do all the measuring. No numpy, no OpenCV.
 """
 import json
 import re
+import statistics
 import subprocess
 
 # ---------------------------------------------------------------- probes
@@ -169,6 +170,37 @@ def shots(data, audio):
         t += hold + s.get("pause", 0.0)
 
     return {"ran": bool(scenes), "shots": out, "drift": drift}
+
+
+MONEY = re.compile(r"\$[\d.,]+\s?[MBK]?", re.I)
+
+
+def audio_metrics(shot_list, data):
+    """Pause and pace. Uniformity is the machine tell, so spread is the metric.
+
+    A constant gap after every sentence and one speaking rate throughout are
+    what "it sounds AI" actually means — not the timbre.
+    """
+    scenes = data.get("scenes", [])
+    pauses = [s.get("pause", 0.0) for s in scenes]
+    wps = [(len(s["vo"].split()) / s["hold"]) if s.get("vo") and s.get("hold") else None
+           for s in shot_list]
+    live = [w for w in wps if w]
+    spread = ((max(live) - min(live)) / (sum(live) / len(live))) if live else None
+
+    money = []
+    for s in shot_list:
+        if MONEY.search(s.get("screen_text", "") or "") or MONEY.search(s.get("vo", "") or ""):
+            i = s["i"]
+            money.append({"i": i, "pause": pauses[i] if i < len(pauses) else 0.0})
+
+    return {
+        "pauses": pauses,
+        "pause_stdev": statistics.pstdev(pauses) if len(pauses) > 1 else None,
+        "wps": wps,
+        "wps_spread": spread,
+        "money_pauses": money,
+    }
 
 
 def _tokens(s):

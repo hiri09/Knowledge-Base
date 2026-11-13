@@ -259,6 +259,38 @@ def test_novel_shots_counts_only_those_below_the_gate():
     assert critique.information_gain(sh)["novel_shots"] == 2
 
 
+# ---------------------------------------------------------------- task 5
+
+def test_uniform_pauses_produce_near_zero_stdev():
+    sh = [{"i": i, "vo": "a b c", "hold": 2.0, "screen_text": ""} for i in range(4)]
+    data = {"scenes": [{"pause": 0.5} for _ in range(4)]}
+    assert critique.audio_metrics(sh, data)["pause_stdev"] < 0.05
+
+
+def test_varied_pauses_clear_the_gate():
+    sh = [{"i": i, "vo": "a b c", "hold": 2.0, "screen_text": ""} for i in range(4)]
+    data = {"scenes": [{"pause": p} for p in (0.2, 1.1, 0.4, 0.9)]}
+    assert critique.audio_metrics(sh, data)["pause_stdev"] >= 0.25
+
+
+def test_money_figure_pause_is_reported():
+    sh = [{"i": 0, "vo": "Seventy five million dollars", "screen_text": "$75M", "hold": 3.0}]
+    data = {"scenes": [{"pause": 0.2}]}
+    assert critique.audio_metrics(sh, data)["money_pauses"][0]["pause"] == 0.2
+
+
+def test_a_scene_with_no_narration_does_not_divide_by_zero():
+    sh = [{"i": 0, "vo": "", "hold": 2.0, "screen_text": ""}]
+    assert critique.audio_metrics(sh, {"scenes": [{"pause": 0.3}]})["wps"][0] is None
+
+
+def test_wps_spread_detects_one_flat_pace_throughout():
+    sh = [{"i": i, "vo": "one two three four", "hold": 2.0, "screen_text": ""}
+          for i in range(4)]
+    data = {"scenes": [{"pause": 0.5} for _ in range(4)]}
+    assert critique.audio_metrics(sh, data)["wps_spread"] == 0.0
+
+
 # ---------------------------------------------------------------- runner
 
 def main():
