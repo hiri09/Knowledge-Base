@@ -91,6 +91,24 @@ def freezes(path, noise=0.003, dur=1.0):
     return {"ran": ran, "spans": spans}
 
 
+# ----------------------------------------------------------------- gates
+# Values from pipeline/editorial-loop.md. The Senior Editor cannot waive
+# these; only Himanshu can.
+GATES = {
+    "hold": {"HOOK": 1.2, "EXPLAIN": 2.5, "REVEAL": 4.0, "CLOSE": 4.0, None: 4.0},
+    "freeze_max": 1.0,        # seconds a shot may sit motionless
+    "luma_spread_min": 10.0,  # YHIGH-YLOW: a visible ground, not flat dark
+    "ground_coverage_min": 0.5,
+    "template_max": 2,        # times one scene template may appear
+    "bg_max": 3,
+    "overlap_max": 0.5,       # on-screen text vs the spoken line
+    "novel_shots_min": 2,
+    "pause_stdev_min": 0.25,
+    "wps_spread_min": 0.15,
+    "money_pause_min": 0.5,
+}
+
+
 def _strip(s):
     """Drop the *accent* markup the renderer reads, keeping the words."""
     return (s or "").replace("*", "").strip()
@@ -151,6 +169,53 @@ def shots(data, audio):
         t += hold + s.get("pause", 0.0)
 
     return {"ran": bool(scenes), "shots": out, "drift": drift}
+
+
+def visual_metrics(shot_list, freeze, lum):
+    """Per-shot motion and ground, plus whole-video repetition tallies.
+
+    An unmeasured value is None, never 0 — evaluate() fails None as
+    "not measured" so a broken probe can never score as a clean video.
+    """
+    per = []
+    for s in shot_list:
+        start, end = s["start"], s["end"]
+        if freeze.get("ran"):
+            frozen = sum(max(0.0, min(end, b) - max(start, a))
+                         for a, b in freeze.get("spans", []))
+        else:
+            frozen = None
+        if lum.get("ran"):
+            window = [x for x in lum.get("samples", []) if start <= x[0] < end]
+            spread = (sum(x[2] - x[1] for x in window) / len(window)) if window else None
+        else:
+            spread = None
+        per.append({**s, "frozen_for": frozen, "luma_spread": spread})
+
+    runtime = max((s["end"] for s in shot_list), default=0.0)
+    grounded = sum(s["end"] - s["start"] for s in shot_list if s.get("ground"))
+
+    repeats = []
+    for dim in ("bg", "anim", "type"):
+        for a, b in zip(shot_list, shot_list[1:]):
+            if a.get(dim) is not None and a.get(dim) == b.get(dim):
+                repeats.append({"dim": dim, "i": b["i"], "value": b[dim]})
+
+    def tally(dim):
+        counts = {}
+        for s in shot_list:
+            v = s.get(dim)
+            if v is not None:
+                counts[v] = counts.get(v, 0) + 1
+        return counts
+
+    return {
+        "shots": per,
+        "ground_coverage": (grounded / runtime) if runtime else 0.0,
+        "template_counts": tally("type"),
+        "bg_counts": tally("bg"),
+        "consecutive_repeats": repeats,
+    }
 
 
 def luma(path, fps=2):

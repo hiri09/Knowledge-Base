@@ -159,6 +159,74 @@ def test_ground_comes_from_the_media_slug():
     assert critique.shots(data, {"durations": [1.0]})["shots"][0]["ground"] == "capitol"
 
 
+# ---------------------------------------------------------------- task 3
+
+NO_FREEZE = {"ran": True, "spans": []}
+NO_LUMA = {"ran": True, "samples": []}
+
+
+def test_hold_gate_per_beat_class():
+    assert critique.GATES["hold"]["HOOK"] == 1.2
+    assert critique.GATES["hold"]["EXPLAIN"] == 2.5
+    assert critique.GATES["hold"]["REVEAL"] == 4.0
+
+
+def test_frozen_shot_is_attributed_to_the_right_shot():
+    sh = [{"i": 0, "start": 0.0, "end": 2.0}, {"i": 1, "start": 2.0, "end": 6.0}]
+    m = critique.visual_metrics(sh, {"ran": True, "spans": [(2.4, 5.8)]}, NO_LUMA)
+    assert m["shots"][0]["frozen_for"] == 0
+    assert m["shots"][1]["frozen_for"] > 3.0
+
+
+def test_luma_spread_is_windowed_to_the_shot():
+    sh = [{"i": 0, "start": 0.0, "end": 1.0}, {"i": 1, "start": 1.0, "end": 2.0}]
+    lm = {"ran": True, "samples": [(0.0, 22, 25, 29), (0.5, 22, 25, 29),
+                                   (1.0, 19, 72, 40), (1.5, 19, 70, 40)]}
+    m = critique.visual_metrics(sh, NO_FREEZE, lm)
+    assert m["shots"][0]["luma_spread"] == 3      # the frames he circled
+    assert m["shots"][1]["luma_spread"] > 50      # the statehouse photo
+
+
+def test_ground_coverage_is_runtime_weighted_not_shot_counted():
+    sh = [{"i": 0, "start": 0, "end": 10, "ground": "capitol"},
+          {"i": 1, "start": 10, "end": 12, "ground": None},
+          {"i": 2, "start": 12, "end": 14, "ground": None}]
+    assert critique.visual_metrics(sh, NO_FREEZE, NO_LUMA)["ground_coverage"] > 0.5
+
+
+def test_consecutive_background_repeat_is_flagged():
+    sh = [{"i": 0, "bg": "glow", "start": 0, "end": 1},
+          {"i": 1, "bg": "glow", "start": 1, "end": 2}]
+    m = critique.visual_metrics(sh, NO_FREEZE, NO_LUMA)
+    assert any(r["dim"] == "bg" for r in m["consecutive_repeats"])
+
+
+def test_consecutive_entrance_animation_is_flagged():
+    sh = [{"i": 0, "anim": "rise", "start": 0, "end": 1},
+          {"i": 1, "anim": "rise", "start": 1, "end": 2}]
+    m = critique.visual_metrics(sh, NO_FREEZE, NO_LUMA)
+    assert any(r["dim"] == "anim" for r in m["consecutive_repeats"])
+
+
+def test_a_template_used_three_times_is_tallied():
+    sh = [{"i": i, "type": "timeline", "start": i, "end": i + 1} for i in range(3)]
+    assert critique.visual_metrics(sh, NO_FREEZE, NO_LUMA)["template_counts"]["timeline"] == 3
+
+
+def test_alternating_backgrounds_are_not_flagged():
+    sh = [{"i": 0, "bg": "glow", "start": 0, "end": 1},
+          {"i": 1, "bg": "bars", "start": 1, "end": 2},
+          {"i": 2, "bg": "glow", "start": 2, "end": 3}]
+    assert critique.visual_metrics(sh, NO_FREEZE, NO_LUMA)["consecutive_repeats"] == []
+
+
+def test_a_probe_that_did_not_run_yields_unknown_not_zero():
+    sh = [{"i": 0, "start": 0, "end": 4}]
+    m = critique.visual_metrics(sh, {"ran": False, "spans": []}, {"ran": False, "samples": []})
+    assert m["shots"][0]["frozen_for"] is None
+    assert m["shots"][0]["luma_spread"] is None
+
+
 # ---------------------------------------------------------------- runner
 
 def main():
