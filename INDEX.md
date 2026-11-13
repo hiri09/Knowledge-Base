@@ -3,6 +3,11 @@
 Auto-generated. **Agents: read `00-start-here.md` first.**
 
 
+## .superpowers/sdd/2026-11-13-editorial-loop
+
+- `.superpowers/sdd/2026-11-13-editorial-loop/progress.md` — **SDD ledger — plan: /Users/himanshukumar/.claude/knowledge-base/pipeline/plans/2026-11-13-editorial-loop.md** — Pre-flight: probes(T1) -> visual_metrics(T3): T1 returns {ran,...}, T3 consumes it — matches.
+- `.superpowers/sdd/2026-11-13-editorial-loop/task-1-brief.md` — **.superpowers/sdd/2026-11-13-editorial-loop/task-1-brief.md** — Four functions that shell out to ffmpeg and parse stderr. Every one reports whether it actually ran.
+
 ## (root)
 
 - `00-start-here.md` — **Start here (agent entry point)** — This knowledge base is Himanshu's external brain. Read this file first, then route.
@@ -27,11 +32,15 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 
 ## pipeline/agents
 
+- `pipeline/agents/assistant-director.md` — **Agent: Assistant Director** — Turns a script into something buildable. **Proposes; the Director disposes.**
+- `pipeline/agents/director.md` — **Agent: Director** — Owns the story as experienced. **Signs the direction sheet; nothing is built until it is signed.**
+- `pipeline/agents/editor.md` — **Agent: Editor** — Owns the frame. **Builds to the spec, reports what is impossible, never redesigns.**
 - `pipeline/agents/packager.md` — **Agent: Packager** — Runs on Gate 1 survivors. Produces the title and thumbnail concepts **before any script exists.**
 - `pipeline/agents/qc.md` — **Agent: QC** — Runs on the rendered video, before it reaches Himanshu. **Returns written notes. Never re-renders, never rewri
 - `pipeline/agents/researcher.md` — **Agent: Researcher** — Runs once per cycle. Produces story candidates — **never scripts, never prose.**
 - `pipeline/agents/reviewer.md` — **Agent: Reviewer** — Runs after a published piece passes ~500 views. **This agent is why the system gets better instead of just rep
 - `pipeline/agents/scriptwriter.md` — **Agent: Scriptwriter** — Runs on the Gate 2 greenlit concept. **One research pass → every piece of content for that story.**
+- `pipeline/agents/senior-editor.md` — **Agent: Senior Editor** — Decides whether a cut is good enough to show a human. **Has the veto, every round.**
 
 ## pipeline
 
