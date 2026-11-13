@@ -93,6 +93,72 @@ def test_luma_on_missing_file_reports_it_did_not_run():
     assert critique.luma("/nonexistent.mp4")["ran"] is False
 
 
+# ---------------------------------------------------------------- task 2
+
+def test_shots_uses_audio_durations_not_sec():
+    data = {"scenes": [{"type": "line", "text": "a", "sec": 3, "vo": "a", "pause": 0.5}]}
+    assert critique.shots(data, {"durations": [4.4]})["shots"][0]["hold"] == 4.4
+
+
+def test_shots_applies_the_number_floor():
+    # mirrors MIN_NUMBER_SEC in src/theme.ts — a money figure is never flashed
+    data = {"scenes": [{"type": "number", "value": "$75M", "label": "x",
+                        "sec": 3, "vo": "x", "pause": 0}]}
+    assert critique.shots(data, {"durations": [1.0]})["shots"][0]["hold"] == 2.0
+
+
+def test_start_times_accumulate_holds_and_pauses():
+    data = {"scenes": [
+        {"type": "line", "text": "a", "vo": "a", "pause": 0.5, "sec": 1},
+        {"type": "line", "text": "b", "vo": "b", "pause": 0.0, "sec": 1},
+    ]}
+    s = critique.shots(data, {"durations": [2.0, 3.0]})["shots"]
+    assert s[0]["start"] == 0.0
+    assert s[1]["start"] == 2.5
+    assert s[1]["end"] == 5.5
+
+
+def test_scene_count_mismatch_is_drift_not_a_crash():
+    data = {"scenes": [{"type": "line", "text": "a", "vo": "a", "sec": 1, "pause": 0}]}
+    r = critique.shots(data, {"durations": [1.0, 2.0]})
+    assert r["shots"]
+    assert any("count" in d for d in r["drift"]), r["drift"]
+
+
+def test_screen_text_strips_accent_markers():
+    data = {"scenes": [{"type": "line", "text": "In 2010, *Rhode Island* guaranteed a loan.",
+                        "vo": "x", "sec": 1, "pause": 0}]}
+    assert "*" not in critique.shots(data, {"durations": [1.0]})["shots"][0]["screen_text"]
+
+
+def test_screen_text_is_read_per_scene_type():
+    data = {"scenes": [
+        {"type": "number", "value": "$75M", "label": "Guaranteed by the state",
+         "vo": "x", "sec": 1, "pause": 0},
+        {"type": "timeline", "caption": "90 DAYS", "marks": [], "head": 1,
+         "vo": "x", "sec": 1, "pause": 0},
+        {"type": "grid", "label": "COPIES SOLD", "sub": "Amalur, 2012",
+         "total": 1, "filled": 1, "mode": "fill", "vo": "x", "sec": 1, "pause": 0},
+    ]}
+    s = critique.shots(data, {"durations": [1.0, 1.0, 1.0]})["shots"]
+    assert "$75M" in s[0]["screen_text"] and "Guaranteed" in s[0]["screen_text"]
+    assert s[1]["screen_text"] == "90 DAYS"
+    assert "COPIES SOLD" in s[2]["screen_text"]
+
+
+def test_an_unknown_scene_type_is_drift_not_an_exception():
+    data = {"scenes": [{"type": "hologram", "vo": "x", "sec": 1, "pause": 0}]}
+    r = critique.shots(data, {"durations": [1.0]})
+    assert r["shots"][0]["screen_text"] == ""
+    assert any("hologram" in d for d in r["drift"])
+
+
+def test_ground_comes_from_the_media_slug():
+    data = {"scenes": [{"type": "line", "text": "a", "vo": "a", "sec": 1,
+                        "pause": 0, "media": "capitol"}]}
+    assert critique.shots(data, {"durations": [1.0]})["shots"][0]["ground"] == "capitol"
+
+
 # ---------------------------------------------------------------- runner
 
 def main():

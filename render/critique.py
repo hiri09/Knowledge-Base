@@ -91,6 +91,68 @@ def freezes(path, noise=0.003, dur=1.0):
     return {"ran": ran, "spans": spans}
 
 
+def _strip(s):
+    """Drop the *accent* markup the renderer reads, keeping the words."""
+    return (s or "").replace("*", "").strip()
+
+
+# On-screen copy, per scene type. Mirrors what Short.tsx actually draws.
+_SCREEN = {
+    "hook": lambda s: s.get("text", ""),
+    "line": lambda s: s.get("text", ""),
+    "number": lambda s: f"{s.get('value', '')} {s.get('label', '')}",
+    "grid": lambda s: f"{s.get('label', '')} {s.get('sub', '')}",
+    "timeline": lambda s: s.get("caption", ""),
+    "compare": lambda s: f"{s.get('aLabel', '')} {s.get('bLabel', '')}",
+}
+
+MIN_NUMBER_SEC = 2.0  # mirrors src/theme.ts
+MIN_SEC = 0.9         # mirrors secondsFor() in src/Short.tsx
+
+
+def shots(data, audio):
+    """{ran, shots, drift} — what was meant to be on screen, and when.
+
+    Durations come from the narration, exactly as Short.tsx does it: `sec` in
+    the data file is only a floor. Picture and voice cannot drift because the
+    picture is cut to the voice.
+    """
+    scenes = data.get("scenes", [])
+    durations = (audio or {}).get("durations", [])
+    drift = []
+    if len(durations) != len(scenes):
+        drift.append(f"scene count {len(scenes)} != narration count {len(durations)}")
+
+    out = []
+    t = 0.0
+    for i, s in enumerate(scenes):
+        kind = s.get("type")
+        if kind not in _SCREEN:
+            drift.append(f"scene {i}: unknown type {kind!r}")
+        floor = MIN_NUMBER_SEC if kind == "number" else MIN_SEC
+        spoken = durations[i] if i < len(durations) else None
+        hold = max(floor, spoken if spoken is not None else s.get("sec", floor))
+        screen = _strip(_SCREEN.get(kind, lambda _s: "")(s))
+        out.append({
+            "i": i,
+            "type": kind,
+            "beat": s.get("beat"),
+            "bg": s.get("bg"),
+            "anim": s.get("anim"),
+            "pos": s.get("pos"),
+            "start": round(t, 3),
+            "end": round(t + hold, 3),
+            "hold": hold,
+            "vo": s.get("vo", ""),
+            "screen_text": screen,
+            "ground": s.get("media"),
+            "source": s.get("source"),
+        })
+        t += hold + s.get("pause", 0.0)
+
+    return {"ran": bool(scenes), "shots": out, "drift": drift}
+
+
 def luma(path, fps=2):
     """{ran, samples} of (t, ylow, yhigh, yavg).
 
