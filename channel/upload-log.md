@@ -11,10 +11,14 @@ Appended by hand (or by the publish step) immediately on upload — an unlogged 
 - **Story:** 38 Studios, Gate 2 greenlit 2026-11-12. Second Short from that research pass.
 - **Platform / format:** YouTube Short, 52s
 - **URL:** _(fill on upload)_
-- **Title used:** A Baseball Player Got A US State To Bet $75,000,000 On A Video Game
+- **Title used:** A US State Bet $75,000,000 On One Video Game  (44 chars)
+  - Working title was 67 chars and truncated on mobile, against the packager's own <60 rule.
+  - A/B alternates held: "Rhode Island Bet $75 Million On A Video Game" · "A US State Lost $28,000,000 On One Video Game"
+  - **Did not lead with Curt Schilling's name**, though `packager.md` says lead with a famous name. `positioning.md` forbids politically charged framing and he is a polarising US figure; leading with him imports that into the comments on upload one. He is still named on screen, which is factual.
 - **Hook used:** variant 1 — "A retired baseball pitcher got a state to guarantee his loan."
   (001 led with the sales number; this leads with the character, held back as the A/B)
-- **Thumbnail:** none — shipped without one, deliberately
+- **Thumbnail:** `render/out/002-thumb-vertical.png` (1080x1920, Shorts shelf) + `-wide.png` (1280x720, search/channel). `$75,000,000` in accent red, fractured, on a desaturated Rhode Island state seal.
+  - **No face**, against the packager's "one readable emotion on a face" rule. The only real faces available are the developers in the archive interview, and placing one beside a failure headline implies responsibility the script never asserts. CTR cost accepted knowingly.
 - **Sibling pieces:** `001-38-studios` (built, not published)
 - **File:** `render/out/002-the-pitcher-final.mp4`
 
