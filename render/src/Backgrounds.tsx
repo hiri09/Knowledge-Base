@@ -125,13 +125,21 @@ export type Shot = 'push' | 'pull' | 'panL' | 'panR' | 'tilt' | 'punch';
 // single loudest "machine made this" tell.
 export const isFootage = (src: string) => /\.(mp4|webm|mov)(\?|$)/i.test(src);
 
-export const Photo: React.FC<{src: string; shot: Shot; clipFrames?: number}> = ({src, shot, clipFrames = 120}) => {
+export const Photo: React.FC<{src: string; shot: Shot; clipFrames?: number; dim?: number}> = ({src, shot, clipFrames = 120, dim = 1}) => {
   const frame = useCurrentFrame();
   const t = (a: number, b: number, end = 150) =>
     interpolate(frame, [0, end], [a, b], {extrapolateRight: 'clamp'});
 
+  // Footage arrives already composed at 1080x1920 (a sharp 16:9 band over a
+  // blurred fill), so a photo-sized ken burns would crop the band away. It
+  // also moves on its own, which is the thing the move was compensating for.
+  const vid = isFootage(src);
   let scale = 1.1, x = 0, y = 0;
-  if (shot === 'push') { scale = t(1.04, 1.26); }
+  if (vid) {
+    scale = shot === 'pull' ? t(1.06, 1.0) : t(1.0, 1.06);
+    x = shot === 'panL' ? t(1.2, -1.2) : shot === 'panR' ? t(-1.2, 1.2) : 0;
+    y = shot === 'tilt' ? t(-1.0, 1.0) : 0;
+  } else if (shot === 'push') { scale = t(1.04, 1.26); }
   else if (shot === 'pull') { scale = t(1.30, 1.06); }
   else if (shot === 'panR') { scale = 1.32; x = t(-7, 7); }
   else if (shot === 'panL') { scale = 1.32; x = t(7, -7); }
@@ -147,7 +155,12 @@ export const Photo: React.FC<{src: string; shot: Shot; clipFrames?: number}> = (
       <AbsoluteFill
         style={{
           transform: `scale(${scale}) translate(${x}%, ${y}%)`,
-          filter: 'grayscale(0.88) contrast(1.06) brightness(0.98) saturate(0.9)',
+          // Archive stills get the archival grade. Footage does not: it was
+          // added for colour and life, and desaturating it to match the
+          // stills throws away the only reason it is here.
+          filter: vid
+            ? 'grayscale(0.2) contrast(1.05) brightness(1.0) saturate(1.1)'
+            : `grayscale(0.88) contrast(1.06) brightness(${0.98 * dim}) saturate(0.9)`,
           ...(isFootage(src)
             ? {}
             : {backgroundImage: `url(${src})`, backgroundSize: 'cover', backgroundPosition: 'center'}),
@@ -162,14 +175,17 @@ export const Photo: React.FC<{src: string; shot: Shot; clipFrames?: number}> = (
           </Loop>
         ) : null}
       </AbsoluteFill>
-      <AbsoluteFill style={{backgroundColor: theme.shadow, opacity: 0.42, mixBlendMode: 'multiply'}} />
-      <AbsoluteFill style={{backgroundColor: theme.highlight, opacity: 0.1, mixBlendMode: 'soft-light'}} />
-      <AbsoluteFill style={{backgroundColor: theme.bgLift, opacity: 0.3, mixBlendMode: 'lighten'}} />
-      <AbsoluteFill style={{backgroundColor: theme.accent, opacity: 0.05, mixBlendMode: 'color'}} />
+      <AbsoluteFill style={{backgroundColor: theme.shadow, opacity: vid ? 0.2 : 0.42, mixBlendMode: 'multiply'}} />
+      <AbsoluteFill style={{backgroundColor: theme.highlight, opacity: vid ? 0.05 : 0.1, mixBlendMode: 'soft-light'}} />
+      <AbsoluteFill style={{backgroundColor: theme.bgLift, opacity: vid ? 0.12 : 0.3, mixBlendMode: 'lighten'}} />
+      {vid ? null : (
+        <AbsoluteFill style={{backgroundColor: theme.accent, opacity: 0.05, mixBlendMode: 'color'}} />
+      )}
       <AbsoluteFill
         style={{
-          background:
-            `linear-gradient(180deg, ${theme.bg}F2 0%, ${theme.bg}33 34%, ${theme.bg}4D 60%, ${theme.bg}F7 100%)`,
+          background: vid
+            ? `linear-gradient(180deg, ${theme.bg}D9 0%, ${theme.bg}14 30%, ${theme.bg}26 62%, ${theme.bg}E6 100%)`
+            : `linear-gradient(180deg, ${theme.bg}F2 0%, ${theme.bg}33 34%, ${theme.bg}4D 60%, ${theme.bg}F7 100%)`,
         }}
       />
       <Grain />
@@ -197,8 +213,10 @@ export const Transition: React.FC<{kind: Trans; children: React.ReactNode}> = ({
       {kind === 'flash' ? (
         <AbsoluteFill
           style={{
-            backgroundColor: '#FFFFFF',
-            opacity: interpolate(frame, [0, 2, 7], [0.55, 0.3, 0], {extrapolateRight: 'clamp'}),
+            // 0.55 white blew the frame out to near-flat grey for two frames,
+            // which reads as a render glitch rather than as a cut.
+            backgroundColor: theme.text,
+            opacity: interpolate(frame, [0, 2, 6], [0.26, 0.12, 0], {extrapolateRight: 'clamp'}),
             pointerEvents: 'none',
           }}
         />

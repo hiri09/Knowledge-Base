@@ -1,0 +1,52 @@
+{
+  "g_combat": {
+    "file": "media/g_combat.mp4",
+    "license": "game footage, commentary use",
+    "term": "archive.org KingdomsOfAmalur-ReckoningfinalBoss"
+  },
+  "g_world": {
+    "file": "media/g_world.mp4",
+    "license": "game footage, commentary use",
+    "term": "archive.org g4tv.com-video55998"
+  },
+  "g_fight": {
+    "file": "media/g_fight.mp4",
+    "license": "game footage, commentary use",
+    "term": "archive.org g4tv.com-video55998"
+  },
+  "dev": {
+    "file": "media/dev.mp4",
+    "license": "game footage, commentary use",
+    "term": "archive.org tweakers004602"
+  },
+  "studio": {
+    "file": "media/studio.mp4",
+    "license": "game footage, commentary use",
+    "term": "archive.org tweakers004602"
+  },
+  "statehouse": {
+    "file": "media/statehouse.jpg",
+    "license": "public domain",
+    "term": "Category:Rhode Island State House"
+  },
+  "providence": {
+    "file": "media/providence.jpg",
+    "license": "cc0",
+    "term": "Category:Providence, Rhode Island"
+  },
+  "treasury": {
+    "file": "media/treasury.jpg",
+    "license": "public domain",
+    "term": "Category:United States Department of the Treasury"
+  },
+  "court": {
+    "file": "media/court.jpg",
+    "license": "public domain",
+    "term": "Category:Courtrooms in the United States"
+  },
+  "empty": {
+    "file": "media/empty.jpg",
+    "license": "public domain",
+    "term": "Category:Empty rooms"
+  }
+}

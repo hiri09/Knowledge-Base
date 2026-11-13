@@ -4,16 +4,23 @@
   "version": "1.0.0",
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render Short out/001-38-studios.mp4 && ./finish.sh 001-38-studios"
+    "render": "ID=$(node -p \"require('./data/current.json').id\") && remotion render Short out/$ID.mp4 && ./finish.sh $ID",
+    "bake:kids": "node bake-kids.mjs",
+    "render:kids": "remotion render KidsShort out/kids-001.mp4 --gl=angle --concurrency=2 && ./finish-kids.sh kids-001"
   },
   "dependencies": {
+    "@react-three/fiber": "^9.8.2",
     "@remotion/cli": "4.0.408",
+    "@remotion/three": "^4.0.408",
+    "cannon-es": "^0.20.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "remotion": "4.0.408"
+    "remotion": "4.0.408",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@types/react": "19.2.2",
+    "@types/three": "^0.187.0",
     "typescript": "5.9.3"
   }
 }

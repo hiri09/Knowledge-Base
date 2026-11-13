@@ -77,14 +77,34 @@ export const Enter: React.FC<{anim: Anim; children: React.ReactNode; text?: stri
 };
 
 // Rule: numbers count up, they do not appear.
-export const CountUp: React.FC<{value: string; style?: React.CSSProperties}> = ({value, style}) => {
+// `at` is the frame the key word is spoken, from whisper alignment. A number
+// that resolves before the voice reaches it is the single loudest desync in a
+// narrated Short, and keying to the shot boundary guaranteed it.
+export const CountUp: React.FC<{value: string; style?: React.CSSProperties; at?: number}> = ({
+  value,
+  style,
+  at = 2,
+}) => {
   const frame = useCurrentFrame();
   const m = value.match(/^(\D*)([\d,]+)(.*)$/);
   if (!m) return <div style={style}>{value}</div>;
   const [, pre, digits, suf] = m;
   const target = Number(digits.replace(/,/g, ''));
-  const n = Math.round(interpolate(frame, [2, 26], [0, target], {extrapolateRight: 'clamp', extrapolateLeft: 'clamp'}));
+  // starts as the word starts, resolves just after it finishes
+  const n = Math.round(
+    interpolate(frame, [at - 3, at + 11], [0, target], {
+      extrapolateRight: 'clamp',
+      extrapolateLeft: 'clamp',
+    })
+  );
   return <div style={style}>{pre}{n.toLocaleString()}{suf}</div>;
+};
+
+// A word turns accent-coloured at the moment it is spoken, rather than being
+// pre-highlighted before the viewer has heard it.
+export const useKeyHit = (at?: number) => {
+  const frame = useCurrentFrame();
+  return at === undefined ? true : frame >= at;
 };
 
 export const accentText = {color: theme.accent, fontWeight: 900, letterSpacing: -6};

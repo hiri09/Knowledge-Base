@@ -20,18 +20,42 @@ export type ShortData = {id: string; title: string; scenes: Scene[]};
 export type MediaLock = Record<string, {file: string}>;
 
 // *word* -> accent. The eye needs somewhere to land in a block of type.
-const Marked: React.FC<{text: string}> = ({text}) => (
-  <>
-    {text.split(/(\*[^*]+\*)/g).map((part, i) =>
-      part.startsWith('*') && part.endsWith('*') && part.length > 2 ? (
-        <span key={i} style={{color: theme.accent}}>{part.slice(1, -1)}</span>
-      ) : (
-        <span key={i}>{part}</span>
-      )
-    )}
-  </>
-);
-export type AudioData = {track: string; durations: number[]};
+// The accent word turns red AT the moment its word is spoken, not before the
+// viewer has heard it. This is what makes the whole video read as synced
+// rather than just the two shots that carry a number.
+const Marked: React.FC<{text: string; at?: number}> = ({text, at}) => {
+  const frame = useCurrentFrame();
+  const hit = at === undefined || frame >= at;
+  return (
+    <>
+      {text.split(/(\*[^*]+\*)/g).map((part, i) =>
+        part.startsWith('*') && part.endsWith('*') && part.length > 2 ? (
+          <span
+            key={i}
+            style={{
+              color: hit ? theme.accent : theme.text,
+              transition: 'none',
+              textShadow: hit ? `0 0 46px ${theme.accent}66` : 'none',
+            }}
+          >
+            {part.slice(1, -1)}
+          </span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+};
+export type AudioData = {
+  track: string;
+  durations: number[];
+  // The frame-accurate moment each scene's key word is spoken, from whisper
+  // DTW alignment. A number that resolves before the voice reaches it is the
+  // loudest desync there is, and keying to the shot boundary guaranteed it.
+  keyAt?: (number | null)[];
+  words?: [string, number, number][][];
+};
 
 const BGS: BgKind[] = ['grid', 'glow', 'bars', 'ghost'];
 
@@ -43,7 +67,7 @@ const secondsFor = (s: Scene, i: number, audio?: AudioData) => {
   return Math.max(min, fromAudio ?? s.sec);
 };
 
-const Lines: React.FC<{scene: Extract<Scene, {type: 'hook' | 'line'}>; anim: any}> = ({scene, anim}) => (
+const Lines: React.FC<{scene: Extract<Scene, {type: 'hook' | 'line'}>; anim: any; keyFrame?: number}> = ({scene, anim, keyFrame}) => (
   <Enter
     anim={anim}
     text={scene.text.replace(/\*/g, '')}
@@ -56,18 +80,39 @@ const Lines: React.FC<{scene: Extract<Scene, {type: 'hook' | 'line'}>; anim: any
       textShadow: '0 18px 60px rgba(0,0,0,0.65)',
     }}
   >
-    <Marked text={scene.text} />
+    <Marked text={scene.text} at={keyFrame} />
   </Enter>
 );
 
-const NumberScene: React.FC<{scene: Extract<Scene, {type: 'number'}>; anim: any}> = ({scene, anim}) => {
+const NumberScene: React.FC<{scene: Extract<Scene, {type: 'number'}>; anim: any; keyFrame?: number}> = ({
+  scene,
+  anim,
+  keyFrame,
+}) => {
   const frame = useCurrentFrame();
-  const crack = interpolate(frame, [10, 30], [0, 100], {extrapolateRight: 'clamp'});
+  const at = keyFrame ?? 2;
+  // the crack follows the number, so it tears open as the figure lands
+  const crack = interpolate(frame, [at + 8, at + 28], [0, 100], {extrapolateRight: 'clamp', extrapolateLeft: 'clamp'});
   return (
     <>
       <Enter anim={anim}>
-        <div style={{position: 'relative'}}>
-          <CountUp value={scene.value} style={{fontSize: 196, ...accentText, textShadow: `0 0 90px ${theme.accent}55`}} />
+        <div
+          style={{
+            position: 'relative',
+            // The figure is not on screen before it is spoken. Rendering it
+            // early meant the shot sat on "$0M" for two seconds, which reads
+            // as a wrong number rather than as a number arriving.
+            opacity: interpolate(frame, [at - 5, at - 1], [0, 1], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            }),
+            transform: `scale(${interpolate(frame, [at - 5, at + 4], [1.18, 1], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            })})`,
+          }}
+        >
+          <CountUp value={scene.value} at={at} style={{fontSize: 196, ...accentText, textShadow: `0 0 90px ${theme.accent}55`}} />
           {scene.crack ? (
             <div
               style={{
@@ -123,7 +168,7 @@ const Compare: React.FC<{scene: Extract<Scene, {type: 'compare'}>}> = ({scene}) 
   );
 };
 
-const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: MediaLock}> = ({scene, i, ghost, media}) => {
+const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: MediaLock; keyFrame?: number}> = ({scene, i, ghost, media, keyFrame}) => {
   // A scene chooses its own look. The index fallbacks below are a floor for
   // unmigrated data, never a design: cycling by i is what made every fourth
   // shot identical, which reads as machine-made however good each shot is.
@@ -138,7 +183,7 @@ const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: Medi
   const trans = ((scene as any).trans ?? 'cut') as Trans;
   return (
     <Transition kind={trans}>
-      {photo ? <Photo src={photo} shot={shot} /> : <Background kind={bg} ghost={ghost} />}
+      {photo ? <Photo src={photo} shot={shot} dim={(scene as any).dim} /> : <Background kind={bg} ghost={ghost} />}
       <AbsoluteFill style={{fontFamily: theme.font, display: 'flex', flexDirection: 'column', ...posStyle(pos as any)}}>
         {scene.type === 'grid' ? (
           <UnitGrid total={scene.total} filled={scene.filled} mode={scene.mode} label={scene.label} sub={scene.sub} />
@@ -147,9 +192,9 @@ const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: Medi
         ) : scene.type === 'compare' ? (
           <Compare scene={scene} />
         ) : scene.type === 'number' ? (
-          <NumberScene scene={scene} anim={anim} />
+          <NumberScene scene={scene} anim={anim} keyFrame={keyFrame} />
         ) : (
-          <Lines scene={scene} anim={anim} />
+          <Lines scene={scene} anim={anim} keyFrame={keyFrame} />
         )}
       </AbsoluteFill>
     </Transition>
@@ -178,14 +223,21 @@ export const Short: React.FC<{data: ShortData; audio?: AudioData; media?: MediaL
   return (
     <AbsoluteFill style={{backgroundColor: theme.bg}}>
       {audio ? <Audio src={staticFile(audio.track)} /> : null}
-      {(() => null)()}
       {data.scenes.map((scene, i) => {
         const dur = Math.round(secondsFor(scene, i, audio) * FPS);
         const from = at;
         at += dur;
         return (
           <Sequence key={i} from={from} durationInFrames={dur}>
-            <SceneView scene={scene} i={i} ghost={data.id.includes('38') ? '38' : undefined} media={media} />
+            <SceneView
+              scene={scene}
+              i={i}
+              ghost={data.id.includes('38') || data.id.includes('pitcher') ? '38' : undefined}
+              media={media}
+              keyFrame={
+                audio?.keyAt?.[i] != null ? Math.round((audio.keyAt[i] as number) * FPS) : undefined
+              }
+            />
           </Sequence>
         );
       })}

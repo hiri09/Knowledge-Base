@@ -311,7 +311,9 @@ def audio_metrics(shot_list, data):
     what "it sounds AI" actually means — not the timbre.
     """
     scenes = data.get("scenes", [])
-    pauses = [s.get("pause", 0.0) for s in scenes]
+    # `tail` is the word-aligned schema's gap after the last spoken word;
+    # `pause` is the older fixed-padding field. Either is "the breath".
+    pauses = [s.get("tail", s.get("pause", 0.0)) for s in scenes]
     wps = [(len(s["vo"].split()) / s["hold"]) if s.get("vo") and s.get("hold") else None
            for s in shot_list]
     live = [w for w in wps if w]

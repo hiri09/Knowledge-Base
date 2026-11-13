@@ -1,5 +1,14 @@
 # Voice
 
+**Word-level alignment is the spine.** `whisper-cli -ml 1 --dtw base.en` over
+each clip returns every word with a timestamp in about a second, and that is
+what the picture is cut to. A scene ends a `tail` after its last word, and its
+`keyAt` is the moment its key word is spoken. Spoken numbers come back as
+digits ("seventy five million" -> `75`), and whisper mishears too ("June" came
+back as "Jul"), so key resolution falls back to the figure's digits and then to
+the word's position in the written line.
+
+
 **Current: macOS `say` (Daniel, en_GB).** Himanshu's own voice and cloning are both
 deferred — "skip my voice for now" (2026-11-13). The tooling for both is built and
 working; switching is one command, not a rebuild.

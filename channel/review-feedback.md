@@ -66,6 +66,25 @@ _(empty)_
 - **A scene may be silent.** Tying every shot's length to its own sentence makes a one-second beat impossible without two-word sentences. A picture beat with no narration is how a cut lands on its own. _(2026-11-13)_
 
 ### Visuals / render
+- **Visual events key to the WORD, not the shot boundary.** Whisper DTW
+  (`whisper-cli -ml 1 --dtw base.en`) gives word-level timings in about a
+  second. A number counts up on its figure, an accent word turns red as it is
+  spoken. Keying to the boundary guaranteed the number resolved before the
+  voice reached it. _(2026-11-13)_
+- **A figure is not on screen before it is spoken.** Rendering it early meant
+  two seconds of "$0M", which reads as a wrong number, not as animation.
+  _(2026-11-13)_
+- **Footage keeps its colour; stills take the archival grade.** Desaturating
+  footage to match the stills throws away the only reason the footage is there.
+  _(2026-11-13)_
+- **A light-toned ground needs darkening, not lifting.** The 1891 engraving
+  went near-white under the grade built for dark photographs. One explicit
+  `dim` per scene beats one global guess. _(2026-11-13)_
+- **Every fetched clip is checked for burned-in text.** The combat footage
+  carried Italian subtitles three seconds in — invisible in a thumbnail,
+  obvious on screen. _(2026-11-13)_
+- **A flash transition tops out around 0.26 opacity.** At 0.55 it blew the
+  frame to flat grey for two frames and read as a render glitch. _(2026-11-13)_
 - **Never grade to black.** A near-black base (`#0B0B0C`) gives every frame a void to sit on, and the whole video reads as dark rather than as graded. The base is a charcoal with a blue cast, shadows are lifted, and blacks never crush to zero. _(2026-11-13)_
 - **Split-tone, do not duotone.** One flat accent wash over every photograph made eight different grounds arrive the same colour. Cool multiplied into the shadows, warm soft-lit into the highlights, accent at 0.05 — each photograph stays recognisably itself. _(2026-11-13)_
 - **A procedural background gets the same grade as a photographic one**, or the video alternates between graded shots and flat dark shots and reads as uneven. _(2026-11-13)_
@@ -85,6 +104,14 @@ _(empty)_
 - **Check what a fetched image depicts, not just whether it matches.** A search for US banknotes returned officers handling seized evidence. The 38 Studios investigation closed with no charges — shipping that frame would have implied a crime the script explicitly avoids. _(2026-11-13)_
 
 ### Pacing / edit
+- **A scene's length is derived from its words, never padded to a guess.** The
+  shot ends a short `tail` after its own last spoken word. Padding made pacing
+  and sync the same knob — every fix for "too fast" bought silence and made the
+  cut read as unsynced. Measured on 001: 20-40% of every shot was dead air.
+  _(2026-11-13)_
+- **Breathing is a shot, not a suffix.** A silent beat with its own picture and
+  its own duration is how a Short breathes. Padding a spoken shot is not.
+  _(2026-11-13)_
 - **A whole-video average hides a frantic stretch.** The mean hold passed at
   2.50s while the opening three shots ran at 1.54s. Pace is checked in runs of
   three, not as one number. _(2026-11-13)_ → gate: `local_pace ≥ 1.9s` over any 3 consecutive shots

@@ -311,6 +311,20 @@ def test_uniform_pauses_produce_near_zero_stdev():
     assert critique.audio_metrics(sh, data)["pause_stdev"] < 0.05
 
 
+def test_the_gap_after_a_line_is_read_from_tail_when_there_is_no_pause():
+    # Word-aligned scenes end a `tail` after their last word; `pause` is the
+    # older padding field. The gate measures whichever the scene carries.
+    sh = [{"i": i, "vo": "a b c", "hold": 2.0, "screen_text": ""} for i in range(4)]
+    data = {"scenes": [{"tail": t} for t in (0.3, 0.95, 0.4, 0.8)]}
+    assert critique.audio_metrics(sh, data)["pause_stdev"] >= 0.25
+
+
+def test_a_money_figure_with_no_tail_after_it_fails():
+    sh = [{"i": 0, "vo": "twenty eight million", "screen_text": "$28M", "hold": 3.0}]
+    data = {"scenes": [{"tail": 0.2}]}
+    assert critique.audio_metrics(sh, data)["money_pauses"][0]["pause"] == 0.2
+
+
 def test_varied_pauses_clear_the_gate():
     sh = [{"i": i, "vo": "a b c", "hold": 2.0, "screen_text": ""} for i in range(4)]
     data = {"scenes": [{"pause": p} for p in (0.2, 1.1, 0.4, 0.9)]}
