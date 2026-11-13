@@ -107,15 +107,18 @@ def test_shots_applies_the_number_floor():
     assert critique.shots(data, {"durations": [1.0]})["shots"][0]["hold"] == 2.0
 
 
-def test_start_times_accumulate_holds_and_pauses():
+def test_pauses_are_not_added_twice():
+    # build-audio.py appends each scene's pause to its own clip with
+    # apad=pad_dur, so durations[i] already contains it. Adding it again
+    # pushes every later shot past the end of the video.
     data = {"scenes": [
         {"type": "line", "text": "a", "vo": "a", "pause": 0.5, "sec": 1},
         {"type": "line", "text": "b", "vo": "b", "pause": 0.0, "sec": 1},
     ]}
     s = critique.shots(data, {"durations": [2.0, 3.0]})["shots"]
     assert s[0]["start"] == 0.0
-    assert s[1]["start"] == 2.5
-    assert s[1]["end"] == 5.5
+    assert s[1]["start"] == 2.0
+    assert s[1]["end"] == 5.0
 
 
 def test_scene_count_mismatch_is_drift_not_a_crash():
@@ -289,6 +292,91 @@ def test_wps_spread_detects_one_flat_pace_throughout():
           for i in range(4)]
     data = {"scenes": [{"pause": 0.5} for _ in range(4)]}
     assert critique.audio_metrics(sh, data)["wps_spread"] == 0.0
+
+
+# ---------------------------------------------------------------- task 6
+
+def _metrics(**over):
+    m = {"id": "t", "duration": 10.0,
+         "shots": [{"i": 0, "beat": "EXPLAIN", "type": "line", "hold": 2.0,
+                    "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}],
+         "ground_coverage": 0.9, "template_counts": {}, "bg_counts": {},
+         "consecutive_repeats": [],
+         "info": {"per_shot": [], "worst": 0.2, "novel_shots": 3},
+         "audio": {"pause_stdev": 0.4, "wps_spread": 0.3, "money_pauses": []},
+         "drift": []}
+    m.update(over)
+    return m
+
+
+def test_a_long_explain_hold_fails_its_gate():
+    m = _metrics(shots=[{"i": 7, "beat": "EXPLAIN", "type": "line", "hold": 4.2,
+                         "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}])
+    assert any(f["gate"] == "hold" and f["shot"] == 7 for f in critique.evaluate(m))
+
+
+def test_a_reveal_may_hold_longer_than_an_explain():
+    m = _metrics(shots=[{"i": 3, "beat": "REVEAL", "type": "number", "hold": 3.5,
+                         "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}])
+    assert not any(f["gate"] == "hold" for f in critique.evaluate(m))
+
+
+def test_a_flat_dark_shot_fails_the_spread_gate():
+    m = _metrics(shots=[{"i": 2, "beat": "EXPLAIN", "type": "line", "hold": 2.0,
+                         "luma_spread": 3.0, "frozen_for": 0.0, "ground": None}])
+    assert any(f["gate"] == "luma_spread" and f["shot"] == 2 for f in critique.evaluate(m))
+
+
+def test_an_unmeasured_metric_fails_rather_than_passes():
+    m = _metrics(shots=[{"i": 0, "beat": "EXPLAIN", "type": "line", "hold": 2.0,
+                         "luma_spread": None, "frozen_for": None, "ground": "x"}])
+    assert any(f["reason"] == "not measured" for f in critique.evaluate(m))
+
+
+def test_a_template_used_three_times_fails_the_repetition_gate():
+    assert any(f["gate"] == "repetition"
+               for f in critique.evaluate(_metrics(template_counts={"timeline": 3})))
+
+
+def test_uniform_pauses_fail_the_audio_gate():
+    m = _metrics(audio={"pause_stdev": 0.02, "wps_spread": 0.3, "money_pauses": []})
+    assert any(f["gate"] == "pause_stdev" for f in critique.evaluate(m))
+
+
+def test_a_money_figure_with_no_pause_after_it_fails():
+    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3,
+                        "money_pauses": [{"i": 3, "pause": 0.2}]})
+    assert any(f["gate"] == "money_pause" and f["shot"] == 3 for f in critique.evaluate(m))
+
+
+def test_a_clean_video_produces_no_failures():
+    assert critique.evaluate(_metrics()) == []
+
+
+def test_report_names_the_shot_and_the_limit():
+    m = _metrics(shots=[{"i": 7, "beat": "EXPLAIN", "type": "line", "hold": 4.2,
+                         "luma_spread": 3.0, "frozen_for": 3.8, "ground": None}])
+    out = critique.report(m, critique.evaluate(m))
+    assert "SHOT 7" in out and "REJECT" in out and "2.5" in out
+
+
+def test_report_says_pass_when_nothing_failed():
+    assert "PASS" in critique.report(_metrics(), [])
+
+
+def test_missing_render_exits_two():
+    assert critique.main(["nonexistent-id", "--root", str(_D)]) == 2
+
+
+def test_a_render_with_no_audio_exits_two():
+    root = _D / "silentroot"
+    (root / "out").mkdir(parents=True, exist_ok=True)
+    (root / "data").mkdir(parents=True, exist_ok=True)
+    subprocess.run(["cp", CLIP_SILENT, str(root / "out" / "s-final.mp4")], check=True)
+    (root / "data" / "s.json").write_text(
+        '{"id":"s","scenes":[{"type":"line","text":"a","vo":"a","sec":1,"pause":0}]}')
+    (root / "data" / "s.audio.json").write_text('{"durations":[1.0]}')
+    assert critique.main(["s", "--root", str(root)]) == 2
 
 
 # ---------------------------------------------------------------- runner

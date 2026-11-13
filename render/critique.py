@@ -167,7 +167,8 @@ def shots(data, audio):
             "ground": s.get("media"),
             "source": s.get("source"),
         })
-        t += hold + s.get("pause", 0.0)
+        # No pause added: build-audio.py already padded each clip with it.
+        t += hold
 
     return {"ran": bool(scenes), "shots": out, "drift": drift}
 
@@ -304,3 +305,145 @@ def luma(path, fps=2):
         if cur.get("t") is not None and "YLOW" in cur:
             samples.append((cur["t"], cur["YLOW"], cur["YHIGH"], cur["YAVG"]))
     return {"ran": ran, "samples": samples}
+
+
+# ------------------------------------------------------------ evaluation
+
+def _fail(gate, got, limit, shot=None, reason=None):
+    return {"gate": gate, "shot": shot, "got": got, "limit": limit,
+            "reason": reason or f"{got} vs limit {limit}"}
+
+
+def evaluate(metrics):
+    """Hard gates only. Taste is the Senior Editor's job, not this function's.
+
+    None means the probe did not run, and that fails. Absence of evidence is
+    never evidence of absence here.
+    """
+    out = []
+    for s in metrics["shots"]:
+        i = s["i"]
+        limit = GATES["hold"].get(s.get("beat"), GATES["hold"][None])
+        if s["hold"] > limit:
+            out.append(_fail("hold", round(s["hold"], 2), limit, i))
+        for key, gate, worse in (
+            ("frozen_for", "freeze", lambda v, L: v >= L),
+            ("luma_spread", "luma_spread", lambda v, L: v < L),
+        ):
+            limit = GATES["freeze_max"] if gate == "freeze" else GATES["luma_spread_min"]
+            v = s.get(key)
+            if v is None:
+                out.append(_fail(gate, None, limit, i, "not measured"))
+            elif worse(v, limit):
+                out.append(_fail(gate, round(v, 2), limit, i))
+
+    if metrics["ground_coverage"] < GATES["ground_coverage_min"]:
+        out.append(_fail("ground_coverage", round(metrics["ground_coverage"], 2),
+                         GATES["ground_coverage_min"]))
+
+    for kind, n in metrics.get("template_counts", {}).items():
+        if n > GATES["template_max"]:
+            out.append(_fail("repetition", f"{kind} x{n}", GATES["template_max"]))
+    for bg, n in metrics.get("bg_counts", {}).items():
+        if n > GATES["bg_max"]:
+            out.append(_fail("repetition", f"bg {bg} x{n}", GATES["bg_max"]))
+    for r in metrics.get("consecutive_repeats", []):
+        out.append(_fail("repetition", f"{r['dim']} {r['value']} twice in a row",
+                         "never", r["i"]))
+
+    info = metrics.get("info", {})
+    for p in info.get("per_shot", []):
+        if p["overlap"] is not None and p["overlap"] > GATES["overlap_max"]:
+            out.append(_fail("information_gain", round(p["overlap"], 2),
+                             GATES["overlap_max"], p["i"]))
+    if info.get("novel_shots", 0) < GATES["novel_shots_min"]:
+        out.append(_fail("information_gain", info.get("novel_shots", 0),
+                         GATES["novel_shots_min"], None, "too few shots add anything"))
+
+    audio = metrics.get("audio", {})
+    for key, gate in (("pause_stdev", "pause_stdev"), ("wps_spread", "wps_spread")):
+        v, limit = audio.get(key), GATES[f"{key}_min"]
+        if v is None:
+            out.append(_fail(gate, None, limit, None, "not measured"))
+        elif v < limit:
+            out.append(_fail(gate, round(v, 3), limit))
+    for m in audio.get("money_pauses", []):
+        if m["pause"] < GATES["money_pause_min"]:
+            out.append(_fail("money_pause", m["pause"], GATES["money_pause_min"], m["i"]))
+
+    for d in metrics.get("drift", []):
+        out.append(_fail("drift", d, "none", None, d))
+    return out
+
+
+def report(metrics, failures):
+    """The per-shot table the Senior Editor reads. Numbers, not adjectives."""
+    by_shot = {}
+    for f in failures:
+        by_shot.setdefault(f["shot"], []).append(f)
+
+    lines = [f"{metrics['id']}  —  {metrics['duration']:.1f}s, {len(metrics['shots'])} shots",
+             ""]
+    for s in metrics["shots"]:
+        bad = by_shot.get(s["i"], [])
+        head = f"SHOT {s['i']}  {(s.get('beat') or '?'):<7} {s.get('type', ''):<9}"
+        lines.append(f"{head} {'REJECT' if bad else 'ok'}")
+        if bad:
+            for f in bad:
+                lines.append(f"    {f['gate']:<17} {str(f['got']):<10} limit {f['limit']}")
+    video = by_shot.get(None, [])
+    if video:
+        lines += ["", "WHOLE VIDEO"]
+        for f in video:
+            lines.append(f"    {f['gate']:<17} {str(f['got']):<10} limit {f['limit']}")
+    lines += ["", f"{'FAIL — ' + str(len(failures)) + ' gate failures' if failures else 'PASS — all gates clear'}"]
+    return "\n".join(lines)
+
+
+# ------------------------------------------------------------------ main
+
+def measure(root, vid):
+    """Everything, merged. Returns (metrics, exit_code_if_invalid)."""
+    import pathlib
+    root = pathlib.Path(root)
+    mp4 = root / "out" / f"{vid}-final.mp4"
+    info = probe(str(mp4))
+    if not info["ran"] or info["duration"] <= 0 or not info["has_audio"]:
+        return None, 2
+    data = json.loads((root / "data" / f"{vid}.json").read_text())
+    audio_path = root / "data" / f"{vid}.audio.json"
+    audio = json.loads(audio_path.read_text()) if audio_path.exists() else {}
+
+    st = shots(data, audio)
+    vm = visual_metrics(st["shots"], freezes(str(mp4)), luma(str(mp4)))
+    metrics = {"id": vid, "duration": info["duration"], **vm,
+               "info": information_gain(st["shots"]),
+               "audio": audio_metrics(st["shots"], data),
+               "drift": st["drift"]}
+    return metrics, 0
+
+
+def main(argv):
+    import argparse
+    import pathlib
+    ap = argparse.ArgumentParser()
+    ap.add_argument("id")
+    ap.add_argument("--json", action="store_true")
+    ap.add_argument("--root", default=str(pathlib.Path(__file__).parent))
+    a = ap.parse_args(argv)
+
+    metrics, bad = measure(a.root, a.id)
+    if bad:
+        print(f"{a.id}: no usable render — missing, empty, or silent. score 0")
+        return 2
+
+    failures = evaluate(metrics)
+    (pathlib.Path(a.root) / "out" / f"{a.id}.metrics.json").write_text(
+        json.dumps({"metrics": metrics, "failures": failures}, indent=2))
+    print(json.dumps(failures, indent=2) if a.json else report(metrics, failures))
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    import sys
+    raise SystemExit(main(sys.argv[1:]))
