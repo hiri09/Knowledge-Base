@@ -1,5 +1,11 @@
 {
-  "capitol": "state capitol building dome",
-  "office": "empty office cubicles",
-  "court": "courtroom interior"
+  "statehouse": "Category:Rhode Island State House",
+  "providence": "Category:Providence, Rhode Island",
+  "treasury": "Category:United States Department of the Treasury",
+  "court": "Category:Courtrooms in the United States",
+  "empty": "Category:Empty rooms",
+  "crowd": "Category:Unemployment",
+  "paper": "Category:Newspapers of the United States",
+  "capitol": "Category:Rhode Island State House interior",
+  "ruin": "Category:Abandoned buildings in the United States"
 }

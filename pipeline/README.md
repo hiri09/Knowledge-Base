@@ -23,6 +23,11 @@ WEEKLY — one research pass feeds 8 pieces of content
                          ↓
 5. RENDER          Remotion template + JSON data
                          ↓
+   [EDITORIAL LOOP]  director + AD agree the sheet (text, no render)
+                     editor builds -> critique.py measures -> senior editor
+                     judges the frames -> notes back. 3 rounds, then stop.
+                     see pipeline/editorial-loop.md
+                         ↓
 6. QC              checks against principles/attention-and-retention.md
                    AND channel/review-feedback.md (every standing rule)
                    returns WRITTEN NOTES, never re-renders

@@ -4,25 +4,46 @@
   "scenes": [
     {
       "type": "grid",
-      "sec": 3,
-      "vo": "This game sold a million copies.",
-      "pause": 0.95,
-      "shot": "push",
-      "trans": "cut",
+      "beat": "HOOK",
+      "sec": 2,
+      "vo": "A million copies.",
+      "pause": 0.0,
+      "perform": {
+        "pitch": 0,
+        "rate": 185
+      },
       "total": 48,
       "filled": 48,
       "mode": "fill",
       "label": "COPIES SOLD",
-      "sub": "Kingdoms of Amalur, 2012"
+      "sub": "Kingdoms of Amalur, 2012",
+      "bg": "grid",
+      "shot": "push",
+      "trans": "cut"
+    },
+    {
+      "type": "line",
+      "beat": "HOOK",
+      "sec": 0.9,
+      "vo": "",
+      "pause": 0,
+      "text": "*BANKRUPT*",
+      "media": "f_money",
+      "shot": "punch",
+      "anim": "scale",
+      "pos": "center",
+      "trans": "flash"
     },
     {
       "type": "timeline",
-      "sec": 3,
-      "vo": "The studio was bankrupt ninety days later.",
-      "pause": 0.3,
-      "shot": "panR",
-      "trans": "flash",
-      "head": 1.0,
+      "beat": "EXPLAIN",
+      "sec": 2,
+      "vo": "Ninety days later.",
+      "pause": 0.9,
+      "perform": {
+        "pitch": -10,
+        "rate": 150
+      },
       "marks": [
         {
           "at": 0,
@@ -33,147 +54,352 @@
           "label": "Jun 2012"
         }
       ],
-      "caption": "90 DAYS"
-    },
-    {
-      "type": "line",
-      "text": "In 2010, *Rhode Island* guaranteed a loan.",
-      "sec": 3.5,
-      "vo": "In twenty ten, Rhode Island guaranteed a loan.",
-      "media": "capitol",
-      "pause": 0.55,
-      "shot": "tilt",
-      "trans": "slideUp"
-    },
-    {
-      "type": "number",
-      "value": "$75M",
-      "label": "Guaranteed by the state",
-      "sec": 3,
-      "source": "https://en.wikipedia.org/wiki/38_Studios",
-      "vo": "Seventy five million dollars, guaranteed by the state.",
-      "pause": 1.05,
-      "shot": "pull",
-      "trans": "punchIn"
-    },
-    {
-      "type": "line",
-      "text": "To a *first-time studio* run by a retired baseball pitcher.",
-      "sec": 4.5,
-      "vo": "To a first time studio, run by a retired baseball pitcher.",
-      "pause": 0.4,
-      "shot": "panL",
+      "head": 1.0,
+      "caption": "FEB → JUN 2012",
+      "bg": "glow",
+      "shot": "panR",
       "trans": "cut"
     },
     {
-      "type": "timeline",
-      "sec": 3.5,
-      "vo": "Kingdoms of Amalur launched in February twenty twelve.",
-      "pause": 0.25,
-      "shot": "push",
-      "trans": "wipe",
-      "head": 0.08,
-      "marks": [
-        {
-          "at": 0,
-          "label": "Launch"
-        },
-        {
-          "at": 0.55,
-          "label": "Payroll missed"
-        },
-        {
-          "at": 1,
-          "label": "Bankrupt"
-        }
-      ]
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 2,
+      "vo": "This was a state budget.",
+      "pause": 0.35,
+      "perform": {
+        "pitch": -4,
+        "rate": 170
+      },
+      "text": "*RHODE ISLAND*",
+      "media": "statehouse",
+      "shot": "panR",
+      "anim": "rise",
+      "pos": "bottom",
+      "trans": "cut"
     },
     {
       "type": "line",
-      "text": "Reviews were warm. It sold over *a million* copies.",
-      "sec": 4,
-      "vo": "Reviews were warm. It sold over a million copies.",
-      "pause": 0.85,
-      "shot": "punch",
+      "beat": "EXPLAIN",
+      "sec": 2,
+      "vo": "Not a venture fund.",
+      "pause": 0.55,
+      "perform": {
+        "pitch": -2,
+        "rate": 164
+      },
+      "text": "THE *SMALLEST STATE*",
+      "media": "providence",
+      "shot": "tilt",
+      "anim": "slideL",
+      "pos": "top",
+      "trans": "cut"
+    },
+    {
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 2.4,
+      "vo": "It guaranteed a loan.",
+      "pause": 0.45,
+      "perform": {
+        "pitch": 2,
+        "rate": 174
+      },
+      "text": "*2010*",
+      "media": "court",
+      "shot": "push",
+      "anim": "blur",
+      "pos": "left",
+      "trans": "punchIn"
+    },
+    {
+      "type": "number",
+      "beat": "REVEAL",
+      "sec": 2.2,
+      "vo": "Seventy five million dollars.",
+      "pause": 1.3,
+      "perform": {
+        "pitch": -8,
+        "rate": 152,
+        "lead": 200
+      },
+      "value": "$75M",
+      "label": "Guaranteed by the state",
+      "source": "https://en.wikipedia.org/wiki/38_Studios",
+      "media": "treasury",
+      "shot": "pull",
+      "anim": "scale",
+      "pos": "center",
+      "trans": "cut"
+    },
+    {
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 2,
+      "vo": "To a first-time studio.",
+      "pause": 0.3,
+      "perform": {
+        "pitch": 0,
+        "rate": 176
+      },
+      "text": "ZERO *SHIPPED GAMES*",
+      "bg": "bars",
+      "anim": "stagger",
+      "pos": "right",
+      "trans": "cut"
+    },
+    {
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 2.4,
+      "vo": "Run by a retired baseball pitcher.",
+      "pause": 0.3,
+      "perform": {
+        "pitch": 3,
+        "rate": 168
+      },
+      "text": "*38 STUDIOS*",
+      "media": "f_office",
+      "shot": "panL",
+      "anim": "slideR",
+      "pos": "bottom",
+      "trans": "slideUp"
+    },
+    {
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 0.8,
+      "vo": "",
+      "pause": 0,
+      "text": "*FEBRUARY 2012*",
+      "bg": "ghost",
+      "anim": "blur",
+      "pos": "center",
       "trans": "flash"
     },
     {
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 1.6,
+      "vo": "The game launched.",
+      "pause": 0.35,
+      "perform": {
+        "pitch": 1,
+        "rate": 176
+      },
+      "text": "KINGDOMS OF *AMALUR*",
+      "media": "empty",
+      "shot": "push",
+      "anim": "rise",
+      "pos": "top",
+      "trans": "cut"
+    },
+    {
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 1.6,
+      "vo": "Reviews were warm.",
+      "pause": 0.3,
+      "perform": {
+        "pitch": 4,
+        "rate": 172
+      },
+      "text": "IT *WORKED*",
+      "bg": "glow",
+      "anim": "slideL",
+      "pos": "left",
+      "trans": "cut"
+    },
+    {
+      "type": "grid",
+      "beat": "EXPLAIN",
+      "sec": 2.4,
+      "vo": "It sold over a million copies.",
+      "pause": 0.45,
+      "perform": {
+        "pitch": 2,
+        "rate": 170
+      },
+      "total": 48,
+      "filled": 48,
+      "mode": "fill",
+      "label": "1,000,000",
+      "sub": "copies sold",
+      "bg": "bars",
+      "shot": "push",
+      "trans": "punchIn"
+    },
+    {
       "type": "compare",
+      "beat": "REVEAL",
+      "sec": 2.2,
+      "vo": "It needed three million.",
+      "pause": 1.35,
+      "perform": {
+        "pitch": -9,
+        "rate": 150,
+        "lead": 250
+      },
       "aLabel": "SOLD",
       "aValue": 1000000,
       "bLabel": "NEEDED",
       "bValue": 3000000,
-      "sec": 5,
       "source": "https://fortune.com/2012/06/15/4-lessons-from-curt-schillings-38-studios-fiasco",
-      "vo": "But it needed three million.",
-      "pause": 0.2,
-      "shot": "pull",
+      "bg": "grid",
       "trans": "cut"
     },
     {
       "type": "line",
-      "text": "It needed *three million* just to break even.",
-      "sec": 3.5,
-      "vo": "Three million, just to break even.",
-      "pause": 0.7,
+      "beat": "EXPLAIN",
+      "sec": 1.6,
+      "vo": "Just to break even.",
+      "pause": 0.5,
+      "perform": {
+        "pitch": -6,
+        "rate": 158
+      },
+      "text": "2,000,000 *SHORT*",
+      "media": "treasury",
       "shot": "panR",
-      "trans": "slideUp"
+      "anim": "scale",
+      "pos": "bottom",
+      "trans": "cut"
+    },
+    {
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 0.7,
+      "vo": "",
+      "pause": 0,
+      "text": "*MAY 2012*",
+      "bg": "grid",
+      "anim": "rise",
+      "pos": "center",
+      "trans": "flash"
+    },
+    {
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 1.6,
+      "vo": "Payroll was missed.",
+      "pause": 0.35,
+      "perform": {
+        "pitch": -4,
+        "rate": 164
+      },
+      "text": "*450 JOBS* PROMISED",
+      "media": "f_office",
+      "shot": "tilt",
+      "anim": "slideR",
+      "pos": "left",
+      "trans": "cut"
     },
     {
       "type": "grid",
-      "sec": 4,
-      "vo": "May twenty twelve. Payroll missed. The entire staff laid off.",
-      "pause": 0.3,
-      "shot": "tilt",
-      "trans": "punchIn",
+      "beat": "EXPLAIN",
+      "sec": 2.2,
+      "vo": "The entire staff was laid off.",
+      "pause": 0.35,
+      "perform": {
+        "pitch": -7,
+        "rate": 156
+      },
       "total": 48,
       "filled": 0,
       "mode": "drain",
-      "label": "STAFF REMAINING"
+      "label": "STAFF REMAINING",
+      "sub": "May 2012",
+      "bg": "glow",
+      "shot": "pull",
+      "trans": "slideUp"
     },
     {
-      "type": "timeline",
-      "sec": 2.5,
-      "vo": "June. Bankruptcy.",
-      "pause": 1.15,
-      "shot": "punch",
-      "trans": "flash",
-      "head": 1.0,
-      "marks": [
-        {
-          "at": 0,
-          "label": "Launch"
-        },
-        {
-          "at": 0.55,
-          "label": "Payroll missed"
-        },
-        {
-          "at": 1,
-          "label": "Bankrupt"
-        }
-      ]
+      "type": "line",
+      "beat": "EXPLAIN",
+      "sec": 1.8,
+      "vo": "In June, bankruptcy.",
+      "pause": 0.5,
+      "perform": {
+        "pitch": -11,
+        "rate": 148
+      },
+      "text": "*JUNE 2012*",
+      "media": "court",
+      "shot": "push",
+      "anim": "rise",
+      "pos": "right",
+      "trans": "cut"
     },
     {
       "type": "number",
+      "beat": "REVEAL",
+      "sec": 2.2,
+      "vo": "Twenty eight million dollars.",
+      "pause": 1.25,
+      "perform": {
+        "pitch": -10,
+        "rate": 150,
+        "lead": 300
+      },
       "value": "$28M",
       "label": "Lost by Rhode Island taxpayers",
-      "sec": 3.5,
       "crack": true,
       "source": "https://www.gamespot.com/articles/four-year-investigation-into-kingdoms-of-amalur-de/1100-6442246/",
-      "vo": "Twenty eight million dollars, lost by Rhode Island taxpayers.",
-      "pause": 1.0,
-      "shot": "push",
+      "media": "treasury",
+      "shot": "pull",
+      "anim": "scale",
+      "pos": "center",
       "trans": "cut"
     },
     {
       "type": "line",
-      "text": "The game didn't fail. *The math did.*",
-      "sec": 3.5,
-      "vo": "The game didn't fail. The math did.",
-      "pause": 0.6,
-      "shot": "pull",
-      "trans": "wipe"
+      "beat": "EXPLAIN",
+      "sec": 2.4,
+      "vo": "Paid by people who never played it.",
+      "pause": 0.45,
+      "perform": {
+        "pitch": -5,
+        "rate": 160
+      },
+      "text": "THE *TAXPAYERS*",
+      "media": "providence",
+      "shot": "panL",
+      "anim": "stagger",
+      "pos": "bottom",
+      "trans": "cut"
+    },
+    {
+      "type": "line",
+      "beat": "CLOSE",
+      "sec": 1.6,
+      "vo": "The game didn't fail.",
+      "pause": 0.5,
+      "perform": {
+        "pitch": 0,
+        "rate": 166
+      },
+      "text": "1,000,000 *BUYERS*",
+      "media": "empty",
+      "shot": "push",
+      "anim": "slideL",
+      "pos": "top",
+      "trans": "punchIn"
+    },
+    {
+      "type": "line",
+      "beat": "CLOSE",
+      "sec": 2,
+      "vo": "The math did.",
+      "pause": 1.0,
+      "perform": {
+        "pitch": -12,
+        "rate": 140,
+        "lead": 250
+      },
+      "text": "3M *NEEDED* · 1M *SOLD*",
+      "bg": "bars",
+      "anim": "scale",
+      "pos": "center",
+      "trans": "cut"
     }
   ]
 }

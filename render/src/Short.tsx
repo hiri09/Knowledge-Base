@@ -3,14 +3,18 @@ import {AbsoluteFill, Sequence, Audio, Img, staticFile, useCurrentFrame, interpo
 import {theme, FPS, MIN_NUMBER_SEC} from './theme';
 import {Background, Photo, Transition, BgKind, Shot, Trans} from './Backgrounds';
 import {UnitGrid, Timeline} from './DataScenes';
-import {Enter, CountUp, ANIMS, POSITIONS, posStyle, accentText} from './motion';
+import {Enter, CountUp, ANIMS, POSITIONS, posStyle, accentText, Anim, Pos} from './motion';
 
-export type Scene =
+export type Scene = Look & (
   | {type: 'hook' | 'line'; text: string; sec: number; vo?: string; source?: string; media?: string; shot?: Shot; trans?: Trans}
   | {type: 'number'; value: string; label: string; sec: number; vo?: string; source?: string; crack?: boolean; media?: string; shot?: Shot; trans?: Trans}
   | {type: 'grid'; total: number; filled: number; mode: 'fill' | 'drain'; label: string; sub?: string; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans}
   | {type: 'timeline'; marks: {at: number; label: string}[]; head: number; caption?: string; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans}
-  | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans};
+  | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans});
+
+// Chosen per scene by the Assistant Director, enforced by critique.py.
+// `beat` is not consumed by the renderer — it is what the hold gate is read against.
+export type Look = {beat?: 'HOOK' | 'EXPLAIN' | 'REVEAL' | 'CLOSE'; bg?: BgKind; anim?: Anim; pos?: Pos};
 
 export type ShortData = {id: string; title: string; scenes: Scene[]};
 export type MediaLock = Record<string, {file: string}>;
@@ -74,7 +78,14 @@ const NumberScene: React.FC<{scene: Extract<Scene, {type: 'number'}>; anim: any}
           ) : null}
         </div>
       </Enter>
-      <div style={{fontSize: 50, fontWeight: 600, color: theme.muted, marginTop: 26}}>{scene.label}</div>
+      <div
+        style={{
+          fontSize: 52, fontWeight: 700, color: '#E8E8EA', marginTop: 26,
+          letterSpacing: 0.3, textShadow: '0 4px 24px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.9)',
+        }}
+      >
+        {scene.label}
+      </div>
     </>
   );
 };
@@ -113,10 +124,14 @@ const Compare: React.FC<{scene: Extract<Scene, {type: 'compare'}>}> = ({scene}) 
 };
 
 const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: MediaLock}> = ({scene, i, ghost, media}) => {
-  const anim = ANIMS[i % ANIMS.length];
+  // A scene chooses its own look. The index fallbacks below are a floor for
+  // unmigrated data, never a design: cycling by i is what made every fourth
+  // shot identical, which reads as machine-made however good each shot is.
+  const s_ = scene as any;
+  const anim = (s_.anim ?? ANIMS[i % ANIMS.length]) as typeof ANIMS[number];
   const dataScene = scene.type === 'compare' || scene.type === 'grid' || scene.type === 'timeline';
-  const pos = dataScene ? 'center' : POSITIONS[i % POSITIONS.length];
-  const bg = BGS[i % BGS.length];
+  const pos = (s_.pos ?? (dataScene ? 'center' : POSITIONS[i % POSITIONS.length])) as Pos;
+  const bg = (s_.bg ?? BGS[i % BGS.length]) as BgKind;
   const key = 'media' in scene ? (scene as any).media : undefined;
   const photo = key && media?.[key] ? staticFile(media[key].file) : undefined;
   const shot = ((scene as any).shot ?? 'push') as Shot;

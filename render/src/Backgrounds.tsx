@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, useCurrentFrame, interpolate} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, interpolate, OffthreadVideo, Loop} from 'remotion';
 import {theme} from './theme';
 
 // Rule (review-feedback.md): no frame is ever flat black.
@@ -37,9 +37,9 @@ export const Background: React.FC<{kind: BgKind; ghost?: string}> = ({kind, ghos
         <AbsoluteFill
           style={{
             backgroundImage:
-              `linear-gradient(${theme.muted}66 1px, transparent 1px),` +
-              `linear-gradient(90deg, ${theme.muted}66 1px, transparent 1px),` +
-              `linear-gradient(${theme.accent}33 2px, transparent 2px)`,
+              `linear-gradient(${theme.muted}CC 1px, transparent 1px),` +
+              `linear-gradient(90deg, ${theme.muted}CC 1px, transparent 1px),` +
+              `linear-gradient(${theme.accent}59 2px, transparent 2px)`,
             backgroundSize: '120px 120px, 120px 120px, 100% 600px',
             transform: `translate(${-shift}px, ${-shift}px) scale(1.25)`,
           }}
@@ -64,7 +64,11 @@ export const Background: React.FC<{kind: BgKind; ghost?: string}> = ({kind, ghos
       return (
         <AbsoluteFill
           style={{
-            backgroundImage: `repeating-linear-gradient(115deg, ${theme.muted}4D 0 3px, transparent 3px 92px)`,
+            backgroundImage:
+              `repeating-linear-gradient(115deg, ${theme.muted}D9 0 4px, transparent 4px 46px),` +
+              `linear-gradient(115deg, transparent 35%, ${theme.accent}26 50%, transparent 65%)`,
+            backgroundSize: 'auto, 240% 100%',
+            backgroundPosition: `0 0, ${(frame * 1.1) % 240}% 0`,
             transform: `translateX(${-shift}px) scale(1.4)`,
           }}
         />
@@ -80,7 +84,7 @@ export const Background: React.FC<{kind: BgKind; ghost?: string}> = ({kind, ghos
             fontSize: 760,
             fontWeight: 900,
             color: '#FFFFFF',
-            opacity: 0.1,
+            opacity: 0.22,
             whiteSpace: 'nowrap',
             transform: `translateX(${drift}px)`,
           }}
@@ -107,7 +111,9 @@ export type Shot = 'push' | 'pull' | 'panL' | 'panR' | 'tilt' | 'punch';
 // Photographic ground. Graded to the channel palette so stock never reads as stock.
 // Every shot moves differently — an identical camera move on every image is the
 // single loudest "machine made this" tell.
-export const Photo: React.FC<{src: string; shot: Shot}> = ({src, shot}) => {
+export const isFootage = (src: string) => /\.(mp4|webm|mov)(\?|$)/i.test(src);
+
+export const Photo: React.FC<{src: string; shot: Shot; clipFrames?: number}> = ({src, shot, clipFrames = 120}) => {
   const frame = useCurrentFrame();
   const t = (a: number, b: number, end = 150) =>
     interpolate(frame, [0, end], [a, b], {extrapolateRight: 'clamp'});
@@ -128,18 +134,27 @@ export const Photo: React.FC<{src: string; shot: Shot}> = ({src, shot}) => {
     <AbsoluteFill style={{backgroundColor: theme.bg, overflow: 'hidden'}}>
       <AbsoluteFill
         style={{
-          backgroundImage: `url(${src})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
           transform: `scale(${scale}) translate(${x}%, ${y}%)`,
-          filter: 'grayscale(1) contrast(1.18) brightness(0.55)',
+          filter: 'grayscale(1) contrast(1.22) brightness(0.72)',
+          ...(isFootage(src)
+            ? {}
+            : {backgroundImage: `url(${src})`, backgroundSize: 'cover', backgroundPosition: 'center'}),
         }}
-      />
-      <AbsoluteFill style={{backgroundColor: theme.accent, opacity: 0.22, mixBlendMode: 'color'}} />
+      >
+        {isFootage(src) ? (
+          // Archive footage moves on its own, so a shot built on it can never
+          // read as a frozen card — which is half of what "it's just text"
+          // meant. Looped because the clip is shorter than most scenes.
+          <Loop durationInFrames={Math.max(1, Math.round(clipFrames))}>
+            <OffthreadVideo src={src} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+          </Loop>
+        ) : null}
+      </AbsoluteFill>
+      <AbsoluteFill style={{backgroundColor: theme.accent, opacity: 0.09, mixBlendMode: 'color'}} />
       <AbsoluteFill
         style={{
           background:
-            'linear-gradient(180deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.38) 58%, rgba(0,0,0,0.96) 100%)',
+            'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.22) 32%, rgba(0,0,0,0.32) 60%, rgba(0,0,0,0.94) 100%)',
         }}
       />
       <Grain />
