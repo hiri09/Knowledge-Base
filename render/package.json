@@ -6,7 +6,9 @@
     "studio": "remotion studio",
     "render": "ID=$(node -p \"require('./data/current.json').id\") && remotion render Short out/$ID.mp4 && ./finish.sh $ID",
     "bake:kids": "node bake-kids.mjs",
-    "render:kids": "remotion render KidsShort out/kids-001.mp4 --gl=angle --concurrency=2 && ./finish-kids.sh kids-001"
+    "render:kids": "remotion render KidsShort out/kids-001.mp4 --gl=angle --concurrency=2 && ./finish-kids.sh kids-001",
+    "render:comedy": "remotion render KidsComedy out/kids-002.mp4 --gl=angle --concurrency=2 && ./finish-kids.sh kids-002",
+    "voice": "ID=$(node -p \"require('./data/current.json').id\") && python3 build-audio.py $ID && python3 build-score.py $ID"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",

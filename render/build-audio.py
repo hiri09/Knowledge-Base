@@ -28,9 +28,13 @@ import re
 import subprocess
 import sys
 
-VOICE = "Daniel"        # en_GB, the most neutral of the built-ins
-RATE = 170              # ~145 wpm target per pipeline/voice.md
-PITCH = 42              # Daniel's natural base; the Director moves around this
+# Piper, not macOS `say`. Measured on the same line, `say` moves 25.7Hz of
+# intonation; this voice moves 50.5Hz over a 258Hz range. Prosody direction
+# fixed the delivery, but the timbre itself was the remaining complaint, and
+# no amount of [[pbas]] fixes timbre.
+VOICE_MODEL = "models/piper/en_GB-alan-medium.onnx"
+BASE_RATE = 170         # the rate a scene means by "normal"
+PITCH_PER_UNIT = 0.35   # direction-sheet pitch units -> semitones
 CLIP_TARGET_DB = -16.0  # the loudest moment of every line sits here
 DEFAULT_TAIL = 0.35     # hold after the last word, unless the scene says otherwise
 LEAD_IN = 0.25          # a track that begins on sample zero has no breath
@@ -47,18 +51,39 @@ def run(args, **kw):
     return subprocess.run(args, check=True, capture_output=True, **kw)
 
 
-def direct(sc):
-    """Performance direction -> embedded speech commands."""
+VENV_PY = str(root / ".venv/bin/python")
+
+
+def say_line(sc, dest):
+    """Synthesise one line with Piper, then apply the Director's direction.
+
+    Piper has no pitch control, so the per-line pitch from the direction sheet
+    is applied afterwards by resampling and compensating the tempo — which
+    shifts pitch without changing how long the line takes, so word alignment
+    downstream is unaffected.
+    """
     pf = sc.get("perform") or {}
-    pre = ""
-    if pf.get("lead"):
-        pre += f"[[slnc {int(pf['lead'])}]] "
-    pre += f"[[pbas {max(10, min(90, PITCH + pf.get('pitch', 0)))}]] "
-    if pf.get("rate"):
-        pre += f"[[rate {int(pf['rate'])}]] "
-    if pf.get("volm") is not None:
-        pre += f"[[volm {pf['volm']}]] "
-    return pre + sc["vo"]
+    length_scale = BASE_RATE / float(pf.get("rate", BASE_RATE))
+    raw = dest.with_name(dest.stem + "_p.wav")
+    subprocess.run([VENV_PY, "-m", "piper", "-m", str(root / VOICE_MODEL),
+                    "-f", str(raw), "--length-scale", f"{length_scale:.3f}"],
+                   input=sc["vo"], text=True, check=True, capture_output=True)
+
+    semis = pf.get("pitch", 0) * PITCH_PER_UNIT
+    lead = float(pf.get("lead", 0)) / 1000.0
+    sr = int(float(run(["ffprobe", "-v", "error", "-select_streams", "a:0",
+                        "-show_entries", "stream=sample_rate", "-of",
+                        "default=nw=1:nk=1", str(raw)], text=True).stdout.strip()))
+    chain = []
+    if abs(semis) > 0.01:
+        f = 2 ** (semis / 12.0)
+        chain.append(f"asetrate={int(sr * f)},aresample={sr},atempo={1 / f:.5f}")
+    if lead > 0.001:
+        chain.append(f"adelay={int(lead * 1000)}|{int(lead * 1000)}")
+    af = ",".join(chain) if chain else "anull"
+    run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(raw), "-af", af,
+         "-ar", "48000", "-ac", "2", str(dest)])
+    raw.unlink()
 
 
 def words_of(wav):
@@ -160,11 +185,7 @@ for i, sc in enumerate(data["scenes"]):
         continue
 
     raw = out / f"{i}raw.wav"
-    aiff = out / f"{i}.aiff"
-    run(["say", "-v", VOICE, "-r", str(RATE), "-o", str(aiff), direct(sc)])
-    run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(aiff),
-         "-ar", "48000", "-ac", "2", str(raw)])
-    aiff.unlink()
+    say_line(sc, raw)
 
     ws = words_of(raw)
     tail = sc.get("tail", DEFAULT_TAIL)

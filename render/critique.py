@@ -116,7 +116,9 @@ GATES = {
     "local_pace_min": 1.9,    # no run of 3 shots may average below this
     "level_match_db": 2.5,    # how far one line may sit from the narration median      # a new idea every <2.2s reads as frantic
     "closing_hold_min": 2.5,  # the last shot has to be allowed to land
-    "pitch_spread_min": 12.0,  # Hz between line medians. flat read ~1, directed ~47
+    "pitch_spread_min": 6.0,   # Hz between line medians — catches every line read alike
+    "silence_share_max": 0.15,  # share of the delivered mix at bare silence
+    "intonation_min": 28.0,    # Hz of F0 movement WITHIN lines. say 25.7, piper 49.7
 }
 
 
@@ -256,6 +258,37 @@ def line_peaks(wav, shot_list, sr=16000, win=0.2):
     return out
 
 
+def silence_share(path, sr=16000, win=0.2, floor=-45.0):
+    """Share of the DELIVERED mix sitting at bare silence.
+
+    Measured on the mp4, not the narration: what ships is the mix, and a
+    voice-only track reads as unfinished however good the voice is.
+    """
+    try:
+        p = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-ac", "1",
+                            "-ar", str(sr), "-f", "s16le", "-"],
+                           capture_output=True, timeout=300)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None
+    if p.returncode != 0 or not p.stdout:
+        return None
+    import array
+    import math
+    a = array.array("h")
+    a.frombytes(p.stdout[:len(p.stdout) // 2 * 2])
+    n = int(sr * win)
+    quiet = total = 0
+    for i in range(0, max(1, len(a) - n), n):
+        w = a[i:i + n]
+        if not w:
+            continue
+        total += 1
+        r = math.sqrt(sum(x * x for x in w) / len(w))
+        if r == 0 or 20 * math.log10(r / 32768) < floor:
+            quiet += 1
+    return round(quiet / total, 3) if total else None
+
+
 def pitch_by_shot(wav, shot_list, sr=8000):
     """{ran, medians, spread} — does the read change pitch line to line?
 
@@ -281,8 +314,30 @@ def pitch_by_shot(wav, shot_list, sr=8000):
         a, b = int(s["start"] * sr), int(s["end"] * sr)
         medians.append(_f0(pcm[a:b], sr) if b > a else None)
     live = [m for m in medians if m]
+    # Movement WITHIN lines, which is what a flat voice actually lacks.
+    inner = []
+    for s in shot_list:
+        a, b = int(s["start"] * sr), int(s["end"] * sr)
+        seg = pcm[a:b]
+        win, hop = int(sr * 0.04), int(sr * 0.05)
+        track = []
+        for i in range(0, max(1, len(seg) - win), hop):
+            w = seg[i:i + win]
+            if not w or sum(x * x for x in w) / len(w) < 2e5:
+                continue
+            best, lag = 0, None
+            for L in range(sr // 320, sr // 60):
+                c = sum(w[j] * w[j + L] for j in range(0, len(w) - L, 4))
+                if c > best:
+                    best, lag = c, L
+            if lag:
+                track.append(sr / lag)
+        if len(track) > 3:
+            inner.append(statistics.pstdev(track))
+
     return {"ran": True, "medians": medians,
-            "spread": statistics.pstdev(live) if len(live) > 1 else 0.0}
+            "spread": statistics.pstdev(live) if len(live) > 1 else 0.0,
+            "intonation": round(statistics.mean(inner), 1) if inner else None}
 
 
 def cut_drift(shot_list, cut_result):
@@ -521,7 +576,7 @@ def evaluate(metrics):
 
     audio = metrics.get("audio", {})
     for key, gate in (("pause_stdev", "pause_stdev"), ("wps_spread", "wps_spread"),
-                      ("pitch_spread", "pitch_spread")):
+                      ("pitch_spread", "pitch_spread"), ("intonation", "intonation")):
         v, limit = audio.get(key), GATES[f"{key}_min"]
         if v is None:
             out.append(_fail(gate, None, limit, None, "not measured"))
@@ -534,6 +589,11 @@ def evaluate(metrics):
             if abs(p - mid) > GATES["level_match_db"]:
                 out.append(_fail("level_match", round(p, 1), f"median {mid:.1f} ±2.5", i,
                                  "one line is mixed louder than the rest"))
+
+    sil = audio.get("silence_share")
+    if sil is not None and sil > GATES["silence_share_max"]:
+        out.append(_fail("silence_share", round(sil, 2), GATES["silence_share_max"], None,
+                         "the track is voice over nothing"))
 
     for m in audio.get("money_pauses", []):
         if m["pause"] < GATES["money_pause_min"]:
@@ -583,14 +643,16 @@ def measure(root, vid):
     audio = json.loads(audio_path.read_text()) if audio_path.exists() else {}
 
     st = shots(data, audio)
+    _pitch = pitch_by_shot(root / "public" / vid / "vo.wav", st["shots"])
     vm = visual_metrics(st["shots"], freezes(str(mp4)), luma(str(mp4)))
     metrics = {"id": vid, "duration": info["duration"], **vm,
                "info": information_gain(st["shots"]),
                "audio": {**audio_metrics(st["shots"], data),
-                         "pitch_spread": pitch_by_shot(
-                             root / "public" / vid / "vo.wav", st["shots"])["spread"],
+                         "pitch_spread": _pitch["spread"],
+                         "intonation": _pitch["intonation"],
                          "line_peaks": line_peaks(
-                             root / "public" / vid / "vo.wav", st["shots"])},
+                             root / "public" / vid / "vo.wav", st["shots"]),
+                         "silence_share": silence_share(mp4)},
                "drift": st["drift"] + cut_drift(st["shots"], cuts(str(mp4)))}
     return metrics, 0
 

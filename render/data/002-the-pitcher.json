@@ -191,10 +191,10 @@
       "beat": "EXPLAIN",
       "vo": "Three million copies, just to break even.",
       "key": "break",
-      "tail": 0.45,
+      "tail": 0.3,
       "perform": {
         "pitch": -5,
-        "rate": 158
+        "rate": 176
       },
       "text": "2,000,000 *SHORT*",
       "media": "treasury",
@@ -225,10 +225,10 @@
       "beat": "EXPLAIN",
       "vo": "The entire staff was laid off.",
       "key": "staff",
-      "tail": 0.7,
+      "tail": 0.55,
       "perform": {
         "pitch": -7,
-        "rate": 154
+        "rate": 168
       },
       "total": 48,
       "filled": 0,
@@ -244,10 +244,10 @@
       "beat": "EXPLAIN",
       "vo": "In June, it filed for bankruptcy.",
       "key": "june",
-      "tail": 0.5,
+      "tail": 0.45,
       "perform": {
         "pitch": -11,
-        "rate": 148
+        "rate": 162
       },
       "text": "*BANKRUPT*",
       "media": "court",
@@ -261,10 +261,10 @@
       "beat": "REVEAL",
       "vo": "Rhode Island's taxpayers lost twenty eight million.",
       "key": "twenty",
-      "tail": 0.9,
+      "tail": 0.7,
       "perform": {
         "pitch": -10,
-        "rate": 148,
+        "rate": 160,
         "lead": 250
       },
       "value": "$28M",

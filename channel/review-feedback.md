@@ -51,6 +51,23 @@ stays advisory and is checked by the Senior Editor's eye.
 _(empty)_
 
 ### Voice / narration
+- **The voice is Piper, not macOS `say`.** Prosody direction fixed the
+  delivery; it cannot fix timbre. Measured on the same line, `say` moves 25.7Hz
+  of intonation, `en_GB-alan-medium` moves 50.5Hz over a 258Hz range.
+  _(2026-11-13)_ → gate: `intonation ≥ 28Hz` of F0 movement WITHIN lines
+- **Measure intonation inside the line, not just between lines.** Per-line
+  pitch spread was a proxy built when the voice could not move on its own; a
+  real voice carries its expression inside the sentence, and the old gate
+  failed a better read. _(2026-11-13)_
+- **Piper has no pitch control, so the Director's direction is applied after.**
+  Resample and compensate the tempo — pitch shifts, duration does not, so word
+  alignment downstream is untouched. _(2026-11-13)_
+- **A Short is never voice over nothing.** A bed and sound design, ducked under
+  the narration rather than set to a fixed level. Before scoring, 70 of 260
+  windows were bare silence. _(2026-11-13)_ → gate: `silence_share ≤ 15%` of the delivered mix
+- **The score is synthesised, not licensed.** The channel already carries
+  Content ID exposure on game footage; a library bed would add a second,
+  separate claim surface on every upload. _(2026-11-13)_
 - **Every line is level-matched before assembly, on its loudest window.** `say`
   renders each line independently, so a short fast line lands several dB hotter
   than a slow one — and the hot line's synthesis artefacts are what get heard

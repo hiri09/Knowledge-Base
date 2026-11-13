@@ -358,7 +358,7 @@ def _metrics(**over):
          "ground_coverage": 0.9, "template_counts": {}, "bg_counts": {},
          "consecutive_repeats": [],
          "info": {"per_shot": [], "worst": 0.2, "novel_shots": 3},
-         "audio": {"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
+         "audio": {"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0, "intonation": 45.0,
                    "money_pauses": []},
          "drift": []}
     m.update(over)
@@ -507,6 +507,37 @@ def test_level_match_is_silent_when_it_was_not_measured():
     m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
                         "money_pauses": [], "line_peaks": []})
     assert not any(f["gate"] == "level_match" for f in critique.evaluate(m))
+
+
+def test_a_voice_with_no_intonation_fails_even_if_lines_differ_in_pitch():
+    # Per-line pitch spread was a proxy for "does the voice move", built when
+    # the voice could not move on its own. A real voice carries its expression
+    # INSIDE the line, so that is what has to be measured.
+    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
+                        "intonation": 9.0, "money_pauses": [], "line_peaks": []})
+    assert any(f["gate"] == "intonation" for f in critique.evaluate(m))
+
+
+def test_an_expressive_read_passes_the_intonation_gate():
+    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
+                        "intonation": 45.0, "money_pauses": [], "line_peaks": []})
+    assert not any(f["gate"] == "intonation" for f in critique.evaluate(m))
+
+
+def test_a_track_that_is_mostly_bare_silence_fails():
+    # Voice over nothing. The gaps between lines were audibly empty, which is
+    # what "the sound is not good" meant as much as the voice itself did.
+    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
+                        "intonation": 45.0, "money_pauses": [], "line_peaks": [],
+                        "silence_share": 0.27})
+    assert any(f["gate"] == "silence_share" for f in critique.evaluate(m))
+
+
+def test_a_scored_track_passes():
+    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
+                        "intonation": 45.0, "money_pauses": [], "line_peaks": [],
+                        "silence_share": 0.08})
+    assert not any(f["gate"] == "silence_share" for f in critique.evaluate(m))
 
 
 # ------------------------------------------------------------ pitch (vo)

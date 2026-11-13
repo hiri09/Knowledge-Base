@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition} from 'remotion';
 import {Short, durationOf, ShortData, AudioData, MediaLock} from './Short';
 import {KidsShort, Baked} from './KidsShort';
+import {KidsComedy, COMEDY_FRAMES} from './KidsComedy';
 import kids001 from '../data/kids-001.frames.json';
 import {FPS} from './theme';
 // Which video is being worked on. One line, and `npm run render` reads the
@@ -45,6 +46,15 @@ export const RemotionRoot: React.FC = () => (
     width={1080}
     height={1920}
     defaultProps={{baked: kidsBaked, sfx: 'kids-001/sfx.wav'}}
+  />
+  <Composition
+    id="KidsComedy"
+    component={KidsComedy}
+    durationInFrames={COMEDY_FRAMES}
+    fps={30}
+    width={1080}
+    height={1920}
+    defaultProps={{sfx: 'kids-002/sfx.wav'}}
   />
   </>
 );
