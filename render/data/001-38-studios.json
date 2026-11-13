@@ -13,7 +13,9 @@
       "filled": 48,
       "mode": "fill",
       "label": "COPIES SOLD",
-      "sub": "Kingdoms of Amalur, 2012"
+      "sub": "Kingdoms of Amalur, 2012",
+      "beat": "HOOK",
+      "bg": "grid"
     },
     {
       "type": "timeline",
@@ -33,7 +35,9 @@
           "label": "Jun 2012"
         }
       ],
-      "caption": "90 DAYS"
+      "caption": "90 DAYS",
+      "beat": "EXPLAIN",
+      "bg": "glow"
     },
     {
       "type": "line",
@@ -43,7 +47,10 @@
       "media": "capitol",
       "pause": 0.55,
       "shot": "tilt",
-      "trans": "slideUp"
+      "trans": "slideUp",
+      "beat": "EXPLAIN",
+      "anim": "rise",
+      "pos": "left"
     },
     {
       "type": "number",
@@ -54,7 +61,11 @@
       "vo": "Seventy five million dollars, guaranteed by the state.",
       "pause": 1.05,
       "shot": "pull",
-      "trans": "punchIn"
+      "trans": "punchIn",
+      "beat": "REVEAL",
+      "anim": "scale",
+      "pos": "center",
+      "bg": "bars"
     },
     {
       "type": "line",
@@ -63,7 +74,11 @@
       "vo": "To a first time studio, run by a retired baseball pitcher.",
       "pause": 0.4,
       "shot": "panL",
-      "trans": "cut"
+      "trans": "cut",
+      "beat": "EXPLAIN",
+      "anim": "slideL",
+      "pos": "right",
+      "bg": "ghost"
     },
     {
       "type": "timeline",
@@ -86,7 +101,9 @@
           "at": 1,
           "label": "Bankrupt"
         }
-      ]
+      ],
+      "beat": "EXPLAIN",
+      "bg": "grid"
     },
     {
       "type": "line",
@@ -95,7 +112,11 @@
       "vo": "Reviews were warm. It sold over a million copies.",
       "pause": 0.85,
       "shot": "punch",
-      "trans": "flash"
+      "trans": "flash",
+      "beat": "EXPLAIN",
+      "anim": "blur",
+      "pos": "bottom",
+      "bg": "glow"
     },
     {
       "type": "compare",
@@ -108,7 +129,9 @@
       "vo": "But it needed three million.",
       "pause": 0.2,
       "shot": "pull",
-      "trans": "cut"
+      "trans": "cut",
+      "beat": "REVEAL",
+      "bg": "bars"
     },
     {
       "type": "line",
@@ -117,7 +140,11 @@
       "vo": "Three million, just to break even.",
       "pause": 0.7,
       "shot": "panR",
-      "trans": "slideUp"
+      "trans": "slideUp",
+      "beat": "EXPLAIN",
+      "anim": "slideR",
+      "pos": "left",
+      "bg": "ghost"
     },
     {
       "type": "grid",
@@ -129,7 +156,9 @@
       "total": 48,
       "filled": 0,
       "mode": "drain",
-      "label": "STAFF REMAINING"
+      "label": "STAFF REMAINING",
+      "beat": "EXPLAIN",
+      "bg": "grid"
     },
     {
       "type": "timeline",
@@ -152,7 +181,9 @@
           "at": 1,
           "label": "Bankrupt"
         }
-      ]
+      ],
+      "beat": "EXPLAIN",
+      "bg": "bars"
     },
     {
       "type": "number",
@@ -164,7 +195,11 @@
       "vo": "Twenty eight million dollars, lost by Rhode Island taxpayers.",
       "pause": 1.0,
       "shot": "push",
-      "trans": "cut"
+      "trans": "cut",
+      "beat": "REVEAL",
+      "anim": "stagger",
+      "pos": "center",
+      "bg": "ghost"
     },
     {
       "type": "line",
@@ -173,7 +208,11 @@
       "vo": "The game didn't fail. The math did.",
       "pause": 0.6,
       "shot": "pull",
-      "trans": "wipe"
+      "trans": "wipe",
+      "beat": "CLOSE",
+      "anim": "rise",
+      "pos": "top",
+      "bg": "glow"
     }
   ]
 }

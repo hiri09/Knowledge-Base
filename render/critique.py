@@ -253,16 +253,24 @@ def visual_metrics(shot_list, freeze, lum):
     runtime = max((s["end"] for s in shot_list), default=0.0)
     grounded = sum(s["end"] - s["start"] for s in shot_list if s.get("ground"))
 
-    repeats = []
-    for dim in ("bg", "anim", "type"):
-        for a, b in zip(shot_list, shot_list[1:]):
-            if a.get(dim) is not None and a.get(dim) == b.get(dim):
-                repeats.append({"dim": dim, "i": b["i"], "value": b[dim]})
+    # Visual identity, not raw scene type: a line over the statehouse and a
+    # line over an empty office are different screens. Counting the template
+    # alone would fail every video with more shots than templates.
+    for s in per:
+        s["look"] = f"{s.get('type')}:{s.get('ground') or s.get('bg')}"
+    looks = {s["i"]: s["look"] for s in per}
 
-    def tally(dim):
+    repeats = []
+    for dim in ("bg", "anim", "look"):
+        seq = [(s["i"], looks[s["i"]] if dim == "look" else s.get(dim)) for s in shot_list]
+        for (_, a), (i, b) in zip(seq, seq[1:]):
+            if a is not None and a == b:
+                repeats.append({"dim": dim, "i": i, "value": b})
+
+    def tally(get):
         counts = {}
         for s in shot_list:
-            v = s.get(dim)
+            v = get(s)
             if v is not None:
                 counts[v] = counts.get(v, 0) + 1
         return counts
@@ -270,8 +278,8 @@ def visual_metrics(shot_list, freeze, lum):
     return {
         "shots": per,
         "ground_coverage": (grounded / runtime) if runtime else 0.0,
-        "template_counts": tally("type"),
-        "bg_counts": tally("bg"),
+        "template_counts": tally(lambda s: looks.get(s["i"])),
+        "bg_counts": tally(lambda s: s.get("bg")),
         "consecutive_repeats": repeats,
     }
 

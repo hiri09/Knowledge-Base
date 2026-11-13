@@ -211,9 +211,21 @@ def test_consecutive_entrance_animation_is_flagged():
     assert any(r["dim"] == "anim" for r in m["consecutive_repeats"])
 
 
-def test_a_template_used_three_times_is_tallied():
-    sh = [{"i": i, "type": "timeline", "start": i, "end": i + 1} for i in range(3)]
-    assert critique.visual_metrics(sh, NO_FREEZE, NO_LUMA)["template_counts"]["timeline"] == 3
+def test_a_template_on_the_same_ground_three_times_is_tallied():
+    sh = [{"i": i, "type": "timeline", "bg": "glow", "start": i, "end": i + 1}
+          for i in range(3)]
+    assert critique.visual_metrics(sh, NO_FREEZE, NO_LUMA)["template_counts"]["timeline:glow"] == 3
+
+
+def test_the_same_template_on_different_grounds_is_not_a_repeat():
+    # A line over the statehouse and a line over an empty office are not the
+    # same screen. Counting raw scene type would fail any video with more
+    # shots than templates, which is every video.
+    sh = [{"i": 0, "type": "line", "ground": "capitol", "start": 0, "end": 1},
+          {"i": 1, "type": "line", "ground": "office", "start": 1, "end": 2},
+          {"i": 2, "type": "line", "ground": "court", "start": 2, "end": 3}]
+    counts = critique.visual_metrics(sh, NO_FREEZE, NO_LUMA)["template_counts"]
+    assert max(counts.values()) == 1
 
 
 def test_alternating_backgrounds_are_not_flagged():
