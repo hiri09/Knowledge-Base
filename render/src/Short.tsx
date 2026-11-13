@@ -78,7 +78,14 @@ const NumberScene: React.FC<{scene: Extract<Scene, {type: 'number'}>; anim: any}
           ) : null}
         </div>
       </Enter>
-      <div style={{fontSize: 50, fontWeight: 600, color: theme.muted, marginTop: 26}}>{scene.label}</div>
+      <div
+        style={{
+          fontSize: 52, fontWeight: 700, color: '#E8E8EA', marginTop: 26,
+          letterSpacing: 0.3, textShadow: '0 4px 24px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.9)',
+        }}
+      >
+        {scene.label}
+      </div>
     </>
   );
 };

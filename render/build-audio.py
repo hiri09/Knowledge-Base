@@ -57,10 +57,18 @@ def dur(f):
 parts, durations = [], []
 for i, sc in enumerate(data["scenes"]):
     aiff, wav = out / f"{i}.aiff", out / f"{i}.wav"
-    subprocess.run(["say", "-v", VOICE, "-r", str(RATE), "-o", str(aiff), direct(sc)], check=True)
-    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(aiff),
-                    "-af", f"apad=pad_dur={sc.get('pause', PAD)}", "-ar", "48000", "-ac", "2", str(wav)], check=True)
-    aiff.unlink()
+    if not sc.get("vo"):
+        # A silent beat. Picture without narration is how a cut lands on its
+        # own — otherwise every shot is exactly as long as its sentence, and
+        # a 1-second hook is impossible without two-word sentences.
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "lavfi",
+                        "-i", f"anullsrc=r=48000:cl=stereo", "-t", str(sc.get("sec", 1.0)),
+                        str(wav)], check=True)
+    else:
+        subprocess.run(["say", "-v", VOICE, "-r", str(RATE), "-o", str(aiff), direct(sc)], check=True)
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(aiff),
+                        "-af", f"apad=pad_dur={sc.get('pause', PAD)}", "-ar", "48000", "-ac", "2", str(wav)], check=True)
+        aiff.unlink()
     d = dur(wav)
     durations.append(round(d, 3))
     parts.append(wav)

@@ -67,8 +67,13 @@ def probe(path):
     }
 
 
-def cuts(path, threshold=0.3):
-    """{ran, times} — timestamps where the picture changes wholesale."""
+def cuts(path, threshold=0.15):
+    """{ran, times} — timestamps where the picture changes wholesale.
+
+    0.15, not the usual 0.3: this channel grades everything dark and keeps one
+    palette, so a genuine hard cut scores ~0.25. Measured on 001, 0.3 saw 5 of
+    23 real cuts and 0.15 sees them all.
+    """
     rc, _, err = _run(["ffmpeg", "-i", path, "-vf",
                        f"select='gt(scene,{threshold})',showinfo",
                        "-f", "null", "-"])

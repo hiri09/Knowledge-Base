@@ -1,17 +1,37 @@
 {
-  "capitol": {
-    "file": "media/capitol.jpg",
+  "statehouse": {
+    "file": "media/statehouse.jpg",
     "license": "public domain",
-    "term": "state capitol dome"
+    "term": "Category:Rhode Island State House"
   },
-  "office": {
-    "file": "media/office.jpg",
+  "providence": {
+    "file": "media/providence.jpg",
+    "license": "cc0",
+    "term": "Category:Providence, Rhode Island"
+  },
+  "treasury": {
+    "file": "media/treasury.jpg",
     "license": "public domain",
-    "term": "empty office cubicles"
+    "term": "Category:United States Department of the Treasury"
   },
   "court": {
     "file": "media/court.jpg",
     "license": "public domain",
-    "term": "legislative chamber"
+    "term": "Category:Courtrooms in the United States"
+  },
+  "empty": {
+    "file": "media/empty.jpg",
+    "license": "public domain",
+    "term": "Category:Empty rooms"
+  },
+  "f_money": {
+    "file": "media/f_money.mp4",
+    "license": "public domain",
+    "term": "archive.org 1933-03-20_Money_Stream_Flow_From_Treasury"
+  },
+  "f_office": {
+    "file": "media/f_office.mp4",
+    "license": "public domain",
+    "term": "archive.org new_girl_in_the_office_1"
   }
 }
