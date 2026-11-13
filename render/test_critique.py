@@ -156,6 +156,35 @@ def test_an_unknown_scene_type_is_drift_not_an_exception():
     assert any("hologram" in d for d in r["drift"])
 
 
+def test_an_unknown_beat_label_is_drift_not_a_free_pass():
+    # A typo'd beat silently takes the most permissive hold limit (4.0s),
+    # which is the exact failure this system exists to prevent: a rule that
+    # passes because nobody checked the input, not because the video is good.
+    data = {"scenes": [{"type": "line", "text": "a", "vo": "a", "sec": 1,
+                        "pause": 0, "beat": "TURN"}]}
+    r = critique.shots(data, {"durations": [1.0]})
+    assert any("TURN" in d for d in r["drift"]), r["drift"]
+
+
+def test_a_known_beat_label_is_not_drift():
+    data = {"scenes": [{"type": "line", "text": "a", "vo": "a", "sec": 1,
+                        "pause": 0, "beat": "EXPLAIN"}]}
+    assert critique.shots(data, {"durations": [1.0]})["drift"] == []
+
+
+def test_cut_count_far_from_the_shot_count_is_drift():
+    # The data file says what was meant to be on screen; the detector says
+    # what actually rendered. Disagreement is itself a finding.
+    sh = [{"i": i, "start": i, "end": i + 1} for i in range(10)]
+    assert critique.cut_drift(sh, {"ran": True, "times": [1.0]})
+    assert critique.cut_drift(sh, {"ran": True, "times": [float(i) for i in range(1, 10)]}) == []
+
+
+def test_cut_drift_is_silent_when_the_probe_did_not_run():
+    sh = [{"i": 0, "start": 0, "end": 1}]
+    assert critique.cut_drift(sh, {"ran": False, "times": []}) == []
+
+
 def test_ground_comes_from_the_media_slug():
     data = {"scenes": [{"type": "line", "text": "a", "vo": "a", "sec": 1,
                         "pause": 0, "media": "capitol"}]}

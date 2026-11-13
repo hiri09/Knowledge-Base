@@ -148,6 +148,11 @@ def shots(data, audio):
         kind = s.get("type")
         if kind not in _SCREEN:
             drift.append(f"scene {i}: unknown type {kind!r}")
+        beat = s.get("beat")
+        if beat is not None and beat not in GATES["hold"]:
+            # Unflagged, a typo'd beat quietly takes the most permissive hold
+            # limit — a gate passing because nobody checked the input.
+            drift.append(f"scene {i}: unknown beat {beat!r}")
         floor = MIN_NUMBER_SEC if kind == "number" else MIN_SEC
         spoken = durations[i] if i < len(durations) else None
         hold = max(floor, spoken if spoken is not None else s.get("sec", floor))
@@ -171,6 +176,22 @@ def shots(data, audio):
         t += hold
 
     return {"ran": bool(scenes), "shots": out, "drift": drift}
+
+
+def cut_drift(shot_list, cut_result):
+    """Did the picture actually change as often as the data file intended?
+
+    The JSON is authoritative for intent, the detector for what rendered.
+    Transitions that fade rather than cut are legitimately missed, so this
+    only speaks up when the gap is wide enough to mean something is wrong.
+    """
+    if not cut_result.get("ran"):
+        return []
+    intended, detected = max(0, len(shot_list) - 1), len(cut_result.get("times", []))
+    if detected < intended / 2:
+        return [f"{detected} visible cuts for {len(shot_list)} shots — "
+                f"transitions are not registering as picture changes"]
+    return []
 
 
 MONEY = re.compile(r"\$[\d.,]+\s?[MBK]?", re.I)
@@ -427,7 +448,7 @@ def measure(root, vid):
     metrics = {"id": vid, "duration": info["duration"], **vm,
                "info": information_gain(st["shots"]),
                "audio": audio_metrics(st["shots"], data),
-               "drift": st["drift"]}
+               "drift": st["drift"] + cut_drift(st["shots"], cuts(str(mp4)))}
     return metrics, 0
 
 
