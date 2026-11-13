@@ -51,6 +51,17 @@ stays advisory and is checked by the Senior Editor's eye.
 _(empty)_
 
 ### Voice / narration
+- **Every line is level-matched before assembly, on its loudest window.** `say`
+  renders each line independently, so a short fast line lands several dB hotter
+  than a slow one — and the hot line's synthesis artefacts are what get heard
+  as background noise. Matching on mean RMS is not enough; a punchy line passes
+  that and stays hot on the peaks. _(2026-11-13)_ → gate: `level_match` ±2.5dB from the median
+- **Never master narration with one-pass `loudnorm`.** It is adaptive, silently
+  ignores `linear=true` (check for `Normalization Type: Dynamic`), and with no
+  history at the start of a track it over-gains the opening. Measure, then
+  apply one fixed gain and a limiter. _(2026-11-13)_
+- **The track gets a lead-in.** Narration that begins on sample zero has no
+  breath before it and exposes the first phoneme. _(2026-11-13)_
 - **`say` is not flat — it was being driven flat.** `[[pbas N]]` sets pitch (measured 30 → 80Hz, 65 → 235Hz on Daniel), `[[rate N]]` sets pace per line, `[[slnc N]]` inserts silence. Every line carries a performance direction or it is read in the same voice as all the others. _(2026-11-13)_ → gate: `pitch_spread ≥ 12Hz` between line medians
 - **A scene may be silent.** Tying every shot's length to its own sentence makes a one-second beat impossible without two-word sentences. A picture beat with no narration is how a cut lands on its own. _(2026-11-13)_
 
@@ -74,6 +85,12 @@ _(empty)_
 - **Check what a fetched image depicts, not just whether it matches.** A search for US banknotes returned officers handling seized evidence. The 38 Studios investigation closed with no charges — shipping that frame would have implied a crime the script explicitly avoids. _(2026-11-13)_
 
 ### Pacing / edit
+- **A whole-video average hides a frantic stretch.** The mean hold passed at
+  2.50s while the opening three shots ran at 1.54s. Pace is checked in runs of
+  three, not as one number. _(2026-11-13)_ → gate: `local_pace ≥ 1.9s` over any 3 consecutive shots
+- **The hook gets room.** A 1.2s ceiling on the opening shot came from research
+  about cutting between angles, not about a shot that has to carry a whole
+  idea. _(2026-11-13)_ → gate: `HOOK ≤ 2.6s`
 - **Cut rate is not idea rate.** The reference channels cut every 1–2s, but those are several angles on ONE idea. A new *idea* every 1.9s reads as frantic however legal each shot is. Average hold stays at or above 2.2s. _(2026-11-13)_ → gate: `avg_hold ≥ 2.2s`
 - **A Short has to land, not stop.** Ending on the last spoken word reads as the file running out. The closing shot holds ≥2.5s, silent, and the picture settles out rather than cutting to black. _(2026-11-13)_ → gate: `closing_hold ≥ 2.5s`
 

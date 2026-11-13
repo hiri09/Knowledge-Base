@@ -198,7 +198,7 @@ NO_LUMA = {"ran": True, "samples": []}
 
 
 def test_hold_gate_per_beat_class():
-    assert critique.GATES["hold"]["HOOK"] == 1.6
+    assert critique.GATES["hold"]["HOOK"] == 2.6
     assert critique.GATES["hold"]["EXPLAIN"] == 3.2
     assert critique.GATES["hold"]["REVEAL"] == 4.5
 
@@ -453,6 +453,46 @@ def test_a_closing_shot_that_is_allowed_to_land_passes():
                         {"i": 1, "beat": "CLOSE", "type": "line", "hold": 3.0,
                          "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}])
     assert not any(f["gate"] == "closing_hold" for f in critique.evaluate(m))
+
+
+def test_a_frantic_opening_fails_even_when_the_average_passes():
+    # The whole-video mean is exactly the kind of number that passes while a
+    # stretch of the video is wrong — the same blind spot as a background
+    # layer that exists at 4% opacity.
+    fast = [{"i": i, "beat": "HOOK", "type": "line", "hold": 1.3,
+             "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"} for i in range(3)]
+    slow = [{"i": i + 3, "beat": "EXPLAIN", "type": "line", "hold": 3.0,
+             "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"} for i in range(12)]
+    m = _metrics(shots=fast + slow)
+    assert sum(s["hold"] for s in fast + slow) / 15 > critique.GATES["avg_hold_min"]
+    assert any(f["gate"] == "local_pace" for f in critique.evaluate(m))
+
+
+def test_an_evenly_paced_video_passes_the_local_gate():
+    m = _metrics(shots=[{"i": i, "beat": "EXPLAIN", "type": "line", "hold": 2.5,
+                         "luma_spread": 40.0, "frozen_for": 0.0, "ground": "x"}
+                        for i in range(10)])
+    assert not any(f["gate"] == "local_pace" for f in critique.evaluate(m))
+
+
+def test_one_line_mixed_louder_than_the_rest_fails():
+    # 3.6dB hot on the opening line is what "background noise at the start"
+    # actually was: the synthesiser's artefacts pushed up with it.
+    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
+                        "money_pauses": [], "line_peaks": [-11.9, -15.4, -15.2, -15.3]})
+    assert any(f["gate"] == "level_match" for f in critique.evaluate(m))
+
+
+def test_an_evenly_mixed_narration_passes():
+    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
+                        "money_pauses": [], "line_peaks": [-15.2, -15.4, -15.1, -15.3]})
+    assert not any(f["gate"] == "level_match" for f in critique.evaluate(m))
+
+
+def test_level_match_is_silent_when_it_was_not_measured():
+    m = _metrics(audio={"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0,
+                        "money_pauses": [], "line_peaks": []})
+    assert not any(f["gate"] == "level_match" for f in critique.evaluate(m))
 
 
 # ------------------------------------------------------------ pitch (vo)

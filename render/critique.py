@@ -101,7 +101,7 @@ def freezes(path, noise=0.003, dur=1.0):
 # Values from pipeline/editorial-loop.md. The Senior Editor cannot waive
 # these; only Himanshu can.
 GATES = {
-    "hold": {"HOOK": 1.6, "EXPLAIN": 3.2, "REVEAL": 4.5, "CLOSE": 5.0, None: 4.5},
+    "hold": {"HOOK": 2.6, "EXPLAIN": 3.2, "REVEAL": 4.5, "CLOSE": 5.0, None: 4.5},
     "freeze_max": 1.0,        # seconds a shot may sit motionless
     "luma_spread_min": 10.0,  # YHIGH-YLOW: a visible ground, not flat dark
     "ground_coverage_min": 0.5,
@@ -112,7 +112,9 @@ GATES = {
     "pause_stdev_min": 0.25,
     "wps_spread_min": 0.15,
     "money_pause_min": 0.5,
-    "avg_hold_min": 2.2,      # a new idea every <2.2s reads as frantic
+    "avg_hold_min": 2.2,
+    "local_pace_min": 1.9,    # no run of 3 shots may average below this
+    "level_match_db": 2.5,    # how far one line may sit from the narration median      # a new idea every <2.2s reads as frantic
     "closing_hold_min": 2.5,  # the last shot has to be allowed to land
     "pitch_spread_min": 12.0,  # Hz between line medians. flat read ~1, directed ~47
 }
@@ -216,6 +218,42 @@ def _f0(samples, sr, lo=60, hi=320):
             out.append(sr / lag_at)
     out.sort()
     return out[len(out) // 2] if out else None
+
+
+def line_peaks(wav, shot_list, sr=16000, win=0.2):
+    """Loudest short-window level per shot, in dBFS.
+
+    One line mixed hotter than the rest is heard as noise on that line, because
+    whatever artefacts the synthesiser left are pushed up with it. Overlapping
+    windows so a sharp onset is not measured quietly just because it straddles
+    a window boundary.
+    """
+    try:
+        p = subprocess.run(["ffmpeg", "-v", "error", "-i", str(wav), "-ac", "1",
+                            "-ar", str(sr), "-f", "s16le", "-"],
+                           capture_output=True, timeout=300)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return []
+    if p.returncode != 0 or not p.stdout:
+        return []
+    import array
+    import math
+    pcm = array.array("h")
+    pcm.frombytes(p.stdout[:len(p.stdout) // 2 * 2])
+    n = int(sr * win)
+    out = []
+    for s in shot_list:
+        seg = pcm[int(s["start"] * sr):int(s["end"] * sr)]
+        best = None
+        for i in range(0, max(1, len(seg) - n), max(1, n // 4)):
+            w = seg[i:i + n]
+            if not w:
+                continue
+            r = math.sqrt(sum(x * x for x in w) / len(w))
+            if r > 0:
+                best = max(best or -999, 20 * math.log10(r / 32768))
+        out.append(round(best, 1) if best is not None and best > -60 else None)
+    return out
 
 
 def pitch_by_shot(wav, shot_list, sr=8000):
@@ -441,6 +479,15 @@ def evaluate(metrics):
         if avg < GATES["avg_hold_min"]:
             out.append(_fail("avg_hold", round(avg, 2), GATES["avg_hold_min"], None,
                              "a new idea arrives faster than it can land"))
+        # A mean passes while a stretch is wrong. Check every run of three.
+        for i in range(len(holds) - 2):
+            run = sum(holds[i:i + 3]) / 3
+            if run < GATES["local_pace_min"]:
+                out.append(_fail("local_pace", round(run, 2), GATES["local_pace_min"],
+                                 metrics["shots"][i]["i"],
+                                 f"shots {i}-{i + 2} average {run:.2f}s"))
+                break
+
         last = metrics["shots"][-1]
         if (last.get("hold") or 0) < GATES["closing_hold_min"]:
             out.append(_fail("closing_hold", round(last.get("hold") or 0, 2),
@@ -478,6 +525,14 @@ def evaluate(metrics):
             out.append(_fail(gate, None, limit, None, "not measured"))
         elif v < limit:
             out.append(_fail(gate, round(v, 3), limit))
+    peaks = [p for p in audio.get("line_peaks", []) or [] if p is not None]
+    if len(peaks) > 2:
+        mid = statistics.median(peaks)
+        for i, p in enumerate(peaks):
+            if abs(p - mid) > GATES["level_match_db"]:
+                out.append(_fail("level_match", round(p, 1), f"median {mid:.1f} ±2.5", i,
+                                 "one line is mixed louder than the rest"))
+
     for m in audio.get("money_pauses", []):
         if m["pause"] < GATES["money_pause_min"]:
             out.append(_fail("money_pause", m["pause"], GATES["money_pause_min"], m["i"]))
@@ -531,7 +586,9 @@ def measure(root, vid):
                "info": information_gain(st["shots"]),
                "audio": {**audio_metrics(st["shots"], data),
                          "pitch_spread": pitch_by_shot(
-                             root / "public" / vid / "vo.wav", st["shots"])["spread"]},
+                             root / "public" / vid / "vo.wav", st["shots"])["spread"],
+                         "line_peaks": line_peaks(
+                             root / "public" / vid / "vo.wav", st["shots"])},
                "drift": st["drift"] + cut_drift(st["shots"], cuts(str(mp4)))}
     return metrics, 0
 

@@ -29,6 +29,20 @@ the rest. Both are required — a cut that clears every gate and looks like a
 slideshow is still a reject, and a cut you like that fails a gate is still a
 reject.
 
+**Then do the audio pass. It is not optional and it is not covered by looking.**
+
+```sh
+# per-line mix level — one hot line is heard as noise on that line
+python3 -c "import critique,json; d=json.load(open('out/<id>.metrics.json')); \
+            print(d['metrics']['audio']['line_peaks'])"
+
+# the opening on its own, which is where a mastering fault shows first
+ffplay -autoexit -t 4 out/<id>-voice.mp3
+```
+
+A review that never opened the audio has reviewed half the video. Three of the
+last four faults Himanshu found were things no contact sheet could show.
+
 ## Hard rules
 
 - **Never score from a description.** If you did not extract the frames in this
@@ -38,6 +52,12 @@ reject.
   is to break the render.
 - **"Not measured" is a failure, not a pass.** A probe that did not run tells
   you nothing, and nothing is not the same as fine.
+- **A whole-video average is not evidence about any part of the video.** The
+  mean hold passed at 2.50s while the first three shots ran at 1.54s and read
+  as frantic. Read the per-shot list, and look specifically at the opening and
+  the close — they are the two places a viewer actually decides.
+- **Check the first three seconds separately, picture and sound.** More
+  rejections come from there than from the whole rest of the cut.
 - **You cannot waive a gate.** Only Himanshu can.
 - **After round 1, only gate failures may block.** New taste objections get
   recorded for Gate 3 and do not stop the cut. This is what stops the loop

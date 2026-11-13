@@ -7,7 +7,7 @@
       "beat": "HOOK",
       "sec": 2,
       "vo": "A million copies.",
-      "pause": 0.15,
+      "pause": 0.9,
       "perform": {
         "pitch": 0,
         "rate": 180
@@ -24,7 +24,7 @@
     {
       "type": "line",
       "beat": "HOOK",
-      "sec": 1.0,
+      "sec": 1.4,
       "vo": "",
       "pause": 0,
       "text": "*BANKRUPT*",
@@ -39,7 +39,7 @@
       "beat": "EXPLAIN",
       "sec": 2,
       "vo": "Ninety days later.",
-      "pause": 1.0,
+      "pause": 1.2,
       "perform": {
         "pitch": -10,
         "rate": 148
@@ -201,7 +201,7 @@
     {
       "type": "line",
       "beat": "EXPLAIN",
-      "sec": 0.9,
+      "sec": 1.3,
       "vo": "",
       "pause": 0,
       "text": "*MAY 2012*",
@@ -215,7 +215,7 @@
       "beat": "EXPLAIN",
       "sec": 2,
       "vo": "Payroll was missed.",
-      "pause": 0.5,
+      "pause": 0.9,
       "perform": {
         "pitch": -4,
         "rate": 160
