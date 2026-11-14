@@ -51,6 +51,19 @@ stays advisory and is checked by the Senior Editor's eye.
 _(empty)_
 
 ### Visuals
+- **Every cover is the company's plate with a stamp struck across it.**
+  (Himanshu's idea.) The company name set as a plate, one rubber stamp — BANKRUPT,
+  FINISHED, SOLD — struck across its lower half, one supporting fact beneath.
+  The story changes, the grammar does not: a recognisable visual language is
+  itself a CTR lever, because returning viewers identify the channel in the feed
+  before they read a word. `render/src/Thumbnail.tsx`, props only. _(2026-11-14)_
+- **The stamp never crosses the company name.** Struck through it, both are
+  unreadable. It strikes below, clear of the wordmark, and overruns the plate
+  edge the way a real stamp does. _(2026-11-14)_
+- **Packaging constraints, from 2026 CTR research:** one dominant subject · 2-3
+  colours · 3-5 words · 30-40% negative space, *composed* (give it the light
+  source) not dead · subject on a rule-of-thirds line. Cleaner is outperforming
+  maximalist. _(2026-11-14)_
 - **A failure story is not automatically a dark frame.** Dark-equals-serious is
   the faceless-channel default, so it reads as generic — and in a feed of dark
   thumbnails a light frame is contrast against *the feed*, which is where CTR
