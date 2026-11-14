@@ -51,13 +51,27 @@ stays advisory and is checked by the Senior Editor's eye.
 _(empty)_
 
 ### Visuals
+- **A failure story is not automatically a dark frame.** Dark-equals-serious is
+  the faceless-channel default, so it reads as generic — and in a feed of dark
+  thumbnails a light frame is contrast against *the feed*, which is where CTR
+  actually happens. Kurzgesagt covers extinction in candy colour; Company Man
+  runs failures on white. **The verdict carries the weight, not the background.**
+  Dark is allowed when a specific story earns it, never as the default.
+  _(2026-11-14, his note)_
+- **Show the thing being counted, don't just set the number.** "A million sold"
+  is an image before it is a figure — units on screen, the dead share drained of
+  colour and tipped over. A number alone on a ground is a title card.
+  _(2026-11-14)_
+- **Judge every frame at ~300px before shipping it.** The label "COPIES SOLD"
+  passed three full-size renders and was illegible at shelf size every time.
+  Full-size review does not predict the size it is actually seen at.
+  _(2026-11-14)_
 - **No ground is used for more than 2 shots in a Short.** 002 ran the same
   Rhode Island seal under 4 of 10 sampled frames. The complaint "visuals not
   appealing" is not about colour — it is sameness. _(2026-11-14)_
   → gate: no sampled frame pair above a similarity threshold
-- **Dark is allowed, flat is not.** The business-doc look stays desaturated, but
-  value has to move across the Short or nothing reads as escalation. 002 held
-  one brightness for 52s. _(2026-11-14)_
+- **Flat is the fault, not brightness.** Value has to move across the Short or
+  nothing reads as escalation. 002 held one brightness for 52s. _(2026-11-14)_
 - **Use the 3D stack that is already installed.** `@remotion/three`,
   `@react-three/fiber`, `three` and `cannon-es` ship in `render/package.json`
   and are already driving the kids renders. Extruded figures, charts that build,
