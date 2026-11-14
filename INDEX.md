@@ -9,7 +9,7 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 
 ## channel
 
-- `channel/december-2026-sprint.md` — **December 2026 sprint — the numbers run** — The goal until January is **data, not revenue.** Himanshu is explicitly not chasing
+- `channel/december-2026-sprint.md` — **December 2026 sprint** — Until January the goal is **retention data, not revenue.** Any agent optimising
 - `channel/idea-bank.md` — **Idea bank** — Every story candidate ever proposed, with its score and verdict. Written by the Researcher.
 - `channel/positioning.md` — **Channel positioning (locked)** — The decision. Everything in `channel/` supports this; everything in `principles/` and `platforms/` is how it g
 - `channel/retention-log.md` — **Retention log** — What the numbers said after publishing. Written by the Reviewer once a piece passes ~500 views.
