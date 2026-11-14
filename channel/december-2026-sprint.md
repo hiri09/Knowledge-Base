@@ -16,12 +16,13 @@ it needs 20+ uploads to mean anything. AVP and the 3-second drop are readable of
 
 ## The four gates (set 2026-11-14, before data)
 
-Written in advance so January is a comparison, not a rationalisation.
+Written in advance so January is a comparison, not a rationalisation. The first
+two are published 2026 benchmarks, not guesses.
 
 | Gate | Pass |
 |---|---|
-| 3-second retention | ≥ 70% |
-| AVP on a ~50s Short | ≥ 60% |
+| 3-second retention | **≥ 80%** — the swipe-or-stay moment; 50-60% of all drop-off happens here |
+| AVP on a ~50s Short | ≥ 60% (the algorithm's push threshold for 30-60s is ~50%; ~65% under 30s) |
 | Best single Short | > 5,000 views |
 | Separation between hook arms | ≥ 10 points |
 
