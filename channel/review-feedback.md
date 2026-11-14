@@ -50,6 +50,26 @@ stays advisory and is checked by the Senior Editor's eye.
 ### Script / writing
 _(empty)_
 
+### Visuals
+- **No ground is used for more than 2 shots in a Short.** 002 ran the same
+  Rhode Island seal under 4 of 10 sampled frames. The complaint "visuals not
+  appealing" is not about colour — it is sameness. _(2026-11-14)_
+  → gate: no sampled frame pair above a similarity threshold
+- **Dark is allowed, flat is not.** The business-doc look stays desaturated, but
+  value has to move across the Short or nothing reads as escalation. 002 held
+  one brightness for 52s. _(2026-11-14)_
+- **Use the 3D stack that is already installed.** `@remotion/three`,
+  `@react-three/fiber`, `three` and `cannon-es` ship in `render/package.json`
+  and are already driving the kids renders. Extruded figures, charts that build,
+  a slow camera push — not flat type on a texture. _(2026-11-14)_
+- **No text over an empty field.** "THAT WAS THE PROBLEM" over blank stripes and
+  "STAFF REMAINING" over an empty grid are title cards, not shots. If a number is
+  on screen, the thing it measures is on screen. _(2026-11-14)_
+- **Nothing in the first 2 seconds but the hook.** No logo, no name card, no
+  preamble — the opening frame is the hook. _(2026-11-14)_
+- **Captions always.** A large share of Shorts viewers watch with sound off and
+  the narration carries the whole story. _(2026-11-14)_
+
 ### Voice / narration
 - **The voice is Piper, not macOS `say`.** Prosody direction fixed the
   delivery; it cannot fix timbre. Measured on the same line, `say` moves 25.7Hz
