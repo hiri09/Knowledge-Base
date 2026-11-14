@@ -3,17 +3,13 @@
 Auto-generated. **Agents: read `00-start-here.md` first.**
 
 
-## .superpowers/sdd/2026-11-13-editorial-loop
-
-- `.superpowers/sdd/2026-11-13-editorial-loop/progress.md` — **SDD ledger — plan: /Users/himanshukumar/.claude/knowledge-base/pipeline/plans/2026-11-13-editorial-loop.md** — Pre-flight: probes(T1) -> visual_metrics(T3): T1 returns {ran,...}, T3 consumes it — matches.
-- `.superpowers/sdd/2026-11-13-editorial-loop/task-1-brief.md` — **.superpowers/sdd/2026-11-13-editorial-loop/task-1-brief.md** — Four functions that shell out to ffmpeg and parse stderr. Every one reports whether it actually ran.
-
 ## (root)
 
 - `00-start-here.md` — **Start here (agent entry point)** — This knowledge base is Himanshu's external brain. Read this file first, then route.
 
 ## channel
 
+- `channel/december-2026-sprint.md` — **December 2026 sprint — the numbers run** — The goal until January is **data, not revenue.** Himanshu is explicitly not chasing
 - `channel/idea-bank.md` — **Idea bank** — Every story candidate ever proposed, with its score and verdict. Written by the Researcher.
 - `channel/positioning.md` — **Channel positioning (locked)** — The decision. Everything in `channel/` supports this; everything in `principles/` and `platforms/` is how it g
 - `channel/retention-log.md` — **Retention log** — What the numbers said after publishing. Written by the Reviewer once a piece passes ~500 views.
@@ -22,6 +18,7 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 ## channel/scripts
 
 - `channel/scripts/001-38-studios.md` — **Video 001 — 38 Studios (Short 1 of batch)** — **Title contract:** This Game Sold 1,000,000 Copies And Still Died
+- `channel/scripts/002-the-pitcher.md` — **Video 002 — The Pitcher (38 Studios, Short 2 of batch)** — **Title contract:** A Baseball Player Got A US State To Bet $75,000,000 On A Video Game
 
 ## channel
 
@@ -52,7 +49,7 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 
 ## pipeline
 
-- `pipeline/voice.md` — **Voice** — **Current: macOS `say` (Daniel, en_GB).** Himanshu's own voice and cloning are both
+- `pipeline/voice.md` — **Voice** — **Word-level alignment is the spine.** `whisper-cli -ml 1 --dtw base.en` over
 
 ## platforms
 
@@ -66,9 +63,72 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 - `principles/audience-psychology.md` — **Audience psychology (universal)** — How human attention actually works. Platform-agnostic — every rule in `platforms/` is a local application of s
 - `principles/content-operating-model.md` — **The content operating model (how companies actually do it)** — Generalisable beyond video. This is a stage-gate development system: the same shape studios, game companies an
 
+## render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort
+
+- `render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md` — **render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md** — BSD 3-Clause License
+
+## render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/fft/pocketfft
+
+- `render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md` — **render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md** — Copyright (C) 2010-2018 Max-Planck-Society
+
+## render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random
+
+- `render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/LICENSE.md` — **NCSA Open Source License** — **This software is dual-licensed under the The University of Illinois/NCSA
+
+## render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/distributions
+
+- `render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/distributions/LICENSE.md` — **render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/distributions/LICENSE.md** — Copyright (c) 2005-2017, NumPy Developers.
+
+## render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/mt19937
+
+- `render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md` — **MT19937** — Copyright (c) 2003-2005, Jean-Sebastien Roy (js@jeannot.org)
+
+## render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/pcg64
+
+- `render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md` — **PCG64** — PCG Random Number Generation for C.
+
+## render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/philox
+
+- `render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/philox/LICENSE.md` — **PHILOX** — Copyright 2010-2012, D. E. Shaw Research.
+
+## render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/sfc64
+
+- `render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md` — **SFC64** — Adapted from a C++ implementation of Chris Doty-Humphrey's SFC PRNG.
+
+## render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/splitmix64
+
+- `render/.venv/lib/python3.14/site-packages/numpy-2.5.4.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md` — **SPLITMIX64** — Written in 2015 by Sebastiano Vigna (vigna@acm.org)
+
+## render/.venv/lib/python3.14/site-packages/numpy/random
+
+- `render/.venv/lib/python3.14/site-packages/numpy/random/LICENSE.md` — **NCSA Open Source License** — **This software is dual-licensed under the The University of Illinois/NCSA
+
+## render/.venv/lib/python3.14/site-packages/onnxruntime
+
+- `render/.venv/lib/python3.14/site-packages/onnxruntime/Privacy.md` — **Privacy** — The software may collect information about you and your use of the software and send it to Microsoft. Microsof
+
+## render/.venv/lib/python3.14/site-packages/onnxruntime/tools/mobile_helpers
+
+- `render/.venv/lib/python3.14/site-packages/onnxruntime/tools/mobile_helpers/coreml_supported_mlprogram_ops.md` — **render/.venv/lib/python3.14/site-packages/onnxruntime/tools/mobile_helpers/coreml_supported_mlprogram_ops.md** — <!--
+- `render/.venv/lib/python3.14/site-packages/onnxruntime/tools/mobile_helpers/coreml_supported_neuralnetwork_ops.md` — **render/.venv/lib/python3.14/site-packages/onnxruntime/tools/mobile_helpers/coreml_supported_neuralnetwork_ops.md** — <!--
+- `render/.venv/lib/python3.14/site-packages/onnxruntime/tools/mobile_helpers/nnapi_supported_ops.md` — **render/.venv/lib/python3.14/site-packages/onnxruntime/tools/mobile_helpers/nnapi_supported_ops.md** — <!--
+
+## render/.venv/lib/python3.14/site-packages/pip-26.1.1.dist-info/licenses/src/pip/_vendor/idna
+
+- `render/.venv/lib/python3.14/site-packages/pip-26.1.1.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md` — **render/.venv/lib/python3.14/site-packages/pip-26.1.1.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md** — BSD 3-Clause License
+
+## render/.venv/lib/python3.14/site-packages/pip/_vendor/idna
+
+- `render/.venv/lib/python3.14/site-packages/pip/_vendor/idna/LICENSE.md` — **render/.venv/lib/python3.14/site-packages/pip/_vendor/idna/LICENSE.md** — BSD 3-Clause License
+
 ## render/node_modules/@babel/parser
 
 - `render/node_modules/@babel/parser/CHANGELOG.md` — **Changelog** — > **Tags:**
+
+## render/node_modules/@react-three/fiber
+
+- `render/node_modules/@react-three/fiber/CHANGELOG.md` — **@react-three/fiber** — - Include native build output explicitly in published packages so workspace ignore rules cannot omit the React
+- `render/node_modules/@react-three/fiber/readme.md` — **Install expo-cli, this will create our app** — <h1>react-three-fiber</h1>
 
 ## render/node_modules/@remotion/media-utils
 
@@ -85,6 +145,14 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 ## render/node_modules/buffer-from
 
 - `render/node_modules/buffer-from/readme.md` — **Buffer From** — A [ponyfill](https://ponyfill.com) for `Buffer.from`, uses native implementation if available.
+
+## render/node_modules/buffer
+
+- `render/node_modules/buffer/AUTHORS.md` — **Authors** — - Romain Beauxis (toots@rastageeks.org)
+
+## render/node_modules/cannon-es
+
+- `render/node_modules/cannon-es/readme.md` — **cannon-es** — This is a maintained fork of [cannon.js](https://github.com/schteppe/cannon.js), originally created by Stefan 
 
 ## render/node_modules/chrome-trace-event
 
@@ -142,6 +210,10 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 
 - `render/node_modules/fd-slicer/CHANGELOG.md` — **render/node_modules/fd-slicer/CHANGELOG.md** —  * use `setImmediate` instead of `nextTick`
 
+## render/node_modules/fflate
+
+- `render/node_modules/fflate/CHANGELOG.md` — **render/node_modules/fflate/CHANGELOG.md** — - Fix buffer over-read for Zip64 extra fields
+
 ## render/node_modules/fs-monkey
 
 - `render/node_modules/fs-monkey/CHANGELOG.md` — **[1.0.0](https://github.com/streamich/fs-monkey/compare/v0.3.1...v1.0.0) (2020-02-17)** — * add missing parameter in jsdoc for `patchRequire` ([#233](https://github.com/streamich/fs-monkey/issues/233)
@@ -196,6 +268,10 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 ## render/node_modules/kleur
 
 - `render/node_modules/kleur/readme.md` — **All Colors** — <div align="center">
+
+## render/node_modules/meshoptimizer
+
+- `render/node_modules/meshoptimizer/LICENSE.md` — **render/node_modules/meshoptimizer/LICENSE.md** — MIT License
 
 ## render/node_modules/mime-db
 
@@ -295,10 +371,22 @@ Auto-generated. **Agents: read `00-start-here.md` first.**
 
 - `render/node_modules/supports-color/readme.md` — **supports-color** — > Detect whether a terminal supports color
 
+## render/node_modules/suspend-react
+
+- `render/node_modules/suspend-react/readme.md` — **render/node_modules/suspend-react/readme.md** — [![Build Size](https://img.shields.io/bundlephobia/minzip/suspend-react@0.0.8?label=bundle%20size&style=flat&c
+
 ## render/node_modules/terser
 
 - `render/node_modules/terser/CHANGELOG.md` — **Changelog** — - Roll back fix for ambiguously scoped default args, due to issues that came up without clear reproduction
 - `render/node_modules/terser/PATRONS.md` — **Our patrons** — These are the first-tier patrons from Patreon (notice: **The Terser Patreon is shutting down in favor of openc
+
+## render/node_modules/three/examples/jsm/libs
+
+- `render/node_modules/three/examples/jsm/libs/mikktspace.README.md` — **MikkTSpace** — JavaScript port of [Morten S. Mikkelsen's MikkTSpace reference](https://github.com/mmikk/MikkTSpace/blob/3e895
+
+## render/node_modules/three/src/nodes/materialx
+
+- `render/node_modules/three/src/nodes/materialx/DISCLAIMER.md` — **render/node_modules/three/src/nodes/materialx/DISCLAIMER.md** — MaterialX is a project of the
 
 ## render/node_modules/tslib
 

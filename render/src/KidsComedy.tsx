@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Audio, staticFile, useCurrentFrame, useVideoConfig, interpolate, Easing} from 'remotion';
+import {AbsoluteFill, Audio, Img, staticFile, useCurrentFrame, useVideoConfig, interpolate, Easing} from 'remotion';
 import {ThreeCanvas} from '@remotion/three';
 import {useThree} from '@react-three/fiber';
 import {Pawn, Die, Tile, Stars, Scenery, Pose, PALETTE, FACE_UP} from './kidsChars';
@@ -211,3 +211,32 @@ export const KidsComedy: React.FC<{sfx?: string}> = ({sfx}) => {
 };
 
 export const COMEDY_FRAMES = T.end;
+
+// Thumbnail. Not a frame grab — the same scene held at the comic peak, pushed
+// in so two faces and the stars survive the size a Shorts grid renders at, with
+// one word. The channel page and search are where a Short's thumbnail is seen;
+// the feed never shows it.
+export const THUMB_FRAME = 352;
+
+export const KidsComedyThumb: React.FC = () => (
+  // Built on a real frame from the finished film, not on a re-render of the
+  // scene. Two bespoke thumbnail cameras put the hero in a corner — the still
+  // renderer does not frame the scene the way the film does, and a frame that
+  // already shipped cannot disagree with the video it is advertising.
+  // Re-cut the film? Re-grab the frame:
+  //   ffmpeg -ss 11.75 -i out/kids-002-final.mp4 -frames:v 1 public/kids-002/thumbframe.png
+  <AbsoluteFill>
+    <Img src={staticFile('kids-002/thumbframe.png')} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+    <div style={{position: 'absolute', top: '6%', left: 0, right: 0, textAlign: 'center'}}>
+      <div style={{
+        display: 'inline-block', fontFamily: '"Baloo 2", "Trebuchet MS", sans-serif',
+        fontWeight: 900, fontSize: 215, lineHeight: 1, color: '#FFD93D',
+        WebkitTextStroke: '28px #243B53', paintOrder: 'stroke fill',
+        transform: 'rotate(-7deg)',
+        filter: 'drop-shadow(0 18px 0 rgba(36,59,83,0.28))',
+      }}>
+        OUCH!
+      </div>
+    </div>
+  </AbsoluteFill>
+);

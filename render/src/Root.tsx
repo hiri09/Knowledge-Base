@@ -2,9 +2,10 @@ import React from 'react';
 import {Composition} from 'remotion';
 import {Short, durationOf, ShortData, AudioData, MediaLock} from './Short';
 import {KidsShort, Baked} from './KidsShort';
-import {KidsComedy, COMEDY_FRAMES} from './KidsComedy';
+import {KidsComedy, KidsComedyThumb, COMEDY_FRAMES} from './KidsComedy';
 import kids001 from '../data/kids-001.frames.json';
 import {FPS} from './theme';
+import {Thumbnail} from './Thumbnail';
 // Which video is being worked on. One line, and `npm run render` reads the
 // same file, so the id can never be set in two places and disagree.
 import current from '../data/current.json';
@@ -55,6 +56,32 @@ export const RemotionRoot: React.FC = () => (
     width={1080}
     height={1920}
     defaultProps={{sfx: 'kids-002/sfx.wav'}}
+  />
+  <Composition
+    id="KidsComedyThumb"
+    component={KidsComedyThumb}
+    durationInFrames={1}
+    fps={30}
+    width={1080}
+    height={1920}
+  />
+  <Composition
+    id="Thumb"
+    component={Thumbnail}
+    durationInFrames={1}
+    fps={FPS}
+    width={1080}
+    height={1920}
+    defaultProps={{wide: false}}
+  />
+  <Composition
+    id="ThumbWide"
+    component={Thumbnail}
+    durationInFrames={1}
+    fps={FPS}
+    width={1280}
+    height={720}
+    defaultProps={{wide: true}}
   />
   </>
 );
