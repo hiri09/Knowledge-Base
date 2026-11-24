@@ -1,67 +1,19 @@
 import React from 'react';
 import {Composition} from 'remotion';
-import {Short, durationOf, ShortData, AudioData, MediaLock} from './Short';
-import {KidsShort, Baked} from './KidsShort';
-import {KidsComedy, KidsComedyThumb, COMEDY_FRAMES} from './KidsComedy';
-import kids001 from '../data/kids-001.frames.json';
 import {FPS} from './theme';
 import {Thumbnail} from './Thumbnail';
-// Which video is being worked on. One line, and `npm run render` reads the
-// same file, so the id can never be set in two places and disagree.
-import current from '../data/current.json';
-import d001 from '../data/001-38-studios.json';
-import a001 from '../data/001-38-studios.audio.json';
-import m001 from '../data/001-38-studios.media.lock.json';
-import d002 from '../data/002-the-pitcher.json';
-import a002 from '../data/002-the-pitcher.audio.json';
-import m002 from '../data/002-the-pitcher.media.lock.json';
+import {TestShot} from './TestShot';
 
-const BY_ID: Record<string, {data: unknown; audio: unknown; media: unknown}> = {
-  '001-38-studios': {data: d001, audio: a001, media: m001},
-  '002-the-pitcher': {data: d002, audio: a002, media: m002},
-};
-
-const picked = BY_ID[(current as {id: string}).id];
-const short = picked.data as ShortData;
-const aud = picked.audio as AudioData;
-const med = picked.media as MediaLock;
-
-const kidsBaked = kids001 as unknown as Baked;
-
+// ponytail: no video wired in yet post-reset. Re-add a `Short` composition
+// (see git history before this reset for the pattern) once the next script's
+// data/audio/media JSON exists.
 export const RemotionRoot: React.FC = () => (
   <>
   <Composition
-    id="Short"
-    component={Short}
-    durationInFrames={durationOf(short, aud)}
+    id="TestShot"
+    component={TestShot}
+    durationInFrames={90}
     fps={FPS}
-    width={1080}
-    height={1920}
-    defaultProps={{data: short, audio: aud, media: med}}
-  />
-  <Composition
-    id="KidsShort"
-    component={KidsShort}
-    durationInFrames={kidsBaked.frames}
-    fps={kidsBaked.fps}
-    width={1080}
-    height={1920}
-    defaultProps={{baked: kidsBaked, sfx: 'kids-001/sfx.wav'}}
-  />
-  <Composition
-    id="KidsComedy"
-    component={KidsComedy}
-    durationInFrames={COMEDY_FRAMES}
-    fps={30}
-    width={1080}
-    height={1920}
-    defaultProps={{sfx: 'kids-002/sfx.wav'}}
-  />
-  <Composition
-    id="KidsComedyThumb"
-    component={KidsComedyThumb}
-    durationInFrames={1}
-    fps={30}
     width={1080}
     height={1920}
   />
