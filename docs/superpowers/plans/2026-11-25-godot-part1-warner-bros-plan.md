@@ -126,12 +126,21 @@ this contract.
 - [ ] **Step 4: Commit**
 
 ```bash
-cd render-godot && git add -A && git commit -qm "feat: scaffold Godot project, verify movie-maker export quits cleanly"
+git add render-godot/ && git commit -qm "feat: scaffold Godot project, verify movie-maker export quits cleanly"
 ```
 
-(Commits in this plan happen inside the `knowledge-base` repo, same as
-every other change this session — `render-godot/` is a subfolder of it, not
-a separate repo.)
+**Ruling (location changed from the original plan):** Himanshu asked for
+`render-godot/` to live at `/Users/himanshukumar/Documents/ludo/Godot-Games`
+(remote: `github.com/hiri09/Godot-Games-`, branch `main`, zero commits so
+far) instead of inside `knowledge-base/`. Working directly on `main` here,
+no worktree — consistent with how the rest of this session's work has gone,
+and this repo has no existing commits to protect yet. This repo also holds
+an unrelated pre-existing chess game (`chess_logic.gd`, `chess_view.gd`,
+`Main.tscn`, `project.godot`, `test_chess_logic.gd`, currently untracked) —
+those are Himanshu's own separate work, not part of this plan: every commit
+here stages only paths under `render-godot/`, never the repo-root chess
+files. Every `render-godot/...` path elsewhere in this plan is relative to
+this repo now, not `knowledge-base/`.
 
 ---
 
