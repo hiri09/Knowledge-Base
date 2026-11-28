@@ -17,7 +17,7 @@ real slippage, real gaps that jump past your stop.
 - **Orders**: market, limit, stop, plus optional stop-loss / take-profit brackets
   (one fills, the other cancels). Short selling allowed.
 - **Position sizer** — enter risk %, entry and stop; it tells you the quantity.
-  This is `risk-and-position-sizing.md` as a button.
+  This is `../05-not-losing-money/risk-and-position-sizing.md` as a button.
 - **Account panel** — equity, realised P&L, fees paid, return, max drawdown.
   Watch the fees line while you overtrade the chop scenario. That's the lesson.
 - **Levels** — press `L` to mark support/resistance at the crosshair.
@@ -27,7 +27,7 @@ Keys: `space` play/pause · `→` step one tick · `b` buy · `s` sell · `l` le
 ## How to use it so it teaches something
 
 1. Pick one scenario and one thing to practise. Not "make money".
-2. Before each trade, write the line in `../paper-trading-log.md`: setup, thesis,
+2. Before each trade, write the line in `../07-before-real-money/paper-trading-log.md`: setup, thesis,
    stop, target. Before, never after.
 3. Trade it. Step bar by bar if you want to think.
 4. Score the **process**, not the outcome. A stopped-out trade with a written

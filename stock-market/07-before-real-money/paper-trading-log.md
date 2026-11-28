@@ -3,7 +3,7 @@
 Simulated trades are worthless unless the **reason** is recorded before the outcome
 is known. Otherwise you just rewrite history to make yourself look smart.
 
-Practise in `lab/trading-lab.html` (open it in a browser — no install, no server).
+Practise in `../lab/trading-lab.html` (open it in a browser — no install, no server).
 Log here.
 
 ## The entry format (write it BEFORE the trade)

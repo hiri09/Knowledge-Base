@@ -24,7 +24,7 @@ Not what sounds brave — what I'd hold through without selling.
 - Won't: ___ (e.g. F&O, penny stocks, IPO day buys, anything from a tip)
 - Max per single stock: ___% of portfolio
 - Max per sector: ___% of portfolio
-- Risk per idea: ___% of capital (see `risk-and-position-sizing.md`)
+- Risk per idea: ___% of capital (see `../05-not-losing-money/risk-and-position-sizing.md`)
 
 ## 4. My checklist before any buy
 
@@ -47,4 +47,4 @@ an investment into a slot machine.
 ## How I'd get this wrong
 
 Writing this and never reading it again. It gets read before every buy, and the
-checklist answers go into `paper-trading-log.md` where they can be scored later.
+checklist answers go into `paper-trading-log.md` (same folder) where they can be scored later.
