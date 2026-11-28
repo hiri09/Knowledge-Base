@@ -19,6 +19,7 @@ ponytail: ffmpeg filters do all the measuring. No numpy, no OpenCV.
 """
 import json
 import re
+import itertools
 import statistics
 import subprocess
 
@@ -32,6 +33,16 @@ def _run(args):
         return p.returncode, p.stdout, p.stderr
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return 1, "", ""
+
+
+def _run_bytes(args):
+    """Like _run, but stdout stays bytes. Raw pixel output must not be decoded:
+    text=True mangles it into replacement characters."""
+    try:
+        p = subprocess.run(args, capture_output=True, timeout=300)
+        return p.returncode, p.stdout, p.stderr.decode("utf-8", "replace")
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return 1, b"", ""
 
 
 def _ran(rc, err):
@@ -102,7 +113,7 @@ def freezes(path, noise=0.003, dur=1.0):
 # these; only Himanshu can.
 GATES = {
     "hold": {"HOOK": 2.6, "EXPLAIN": 3.2, "REVEAL": 4.5, "CLOSE": 5.0, None: 4.5},
-    "freeze_max": 1.0,        # seconds a shot may sit motionless
+    "freeze_max": 0.3,        # seconds a shot may sit motionless
     "luma_spread_min": 10.0,  # YHIGH-YLOW: a visible ground, not flat dark
     "ground_coverage_min": 0.5,
     "template_max": 2,        # times one scene template may appear
@@ -119,6 +130,42 @@ GATES = {
     "pitch_spread_min": 6.0,   # Hz between line medians — catches every line read alike
     "silence_share_max": 0.15,  # share of the delivered mix at bare silence
     "intonation_min": 28.0,    # Hz of F0 movement WITHIN lines. say 25.7, piper 49.7
+
+    # --- style targets -----------------------------------------------------
+    # Calibrated 2026-11-14 against ONE measured reference Short (65s, the
+    # genre Himanshu picked as the quality bar) with 002 as the failing case.
+    # Each limit sits between the two, nearer the failure, so it is reachable.
+    #
+    # ponytail: one reference is a sample of one, and it was measured through a
+    # phone screen recording, so absolute values carry compression error. The
+    # 3-4x gaps are far larger than that error, so the direction is safe even
+    # though the exact numbers are not. Re-measure against our own best Short
+    # once three exist, and move these then — they are a calibration knob, not
+    # a discovered constant.
+    #
+    #                        reference   002(fail)   limit
+    "sat_mean_min": 15.0,     # 24.20      6.68      the single biggest gap
+    # Re-measured 2026-11-14 after motion() moved from YAVG to YHIGH; the old
+    # 6.0/1.5 belonged to the previous scale and mean nothing here.
+    #                        reference   002(fail)   ours(v5)
+    "motion_p10_min": 12.0,   # 29.0        3.0        9.0  <- we currently FAIL
+    "motion_floor_min": 4.0,  #  5.0        1.0        9.0
+    #
+    # The limit sits above our own best shot on purpose. v5's camera genuinely
+    # travels about a third as far as the reference, and lowering the bar to
+    # whatever we happened to score is how a gate stops meaning anything.
+    # ponytail: pixel difference is a proxy and blur still costs it ~25%. The
+    # real fix is gating on declared camera travel from the shot plan, which
+    # lands when Short.tsx carries camera specs. Until then this is directional.
+    "hue_stdev_min": 35.0,    # 47.17     26.43      time spent across hues
+    "shot_distance_min": 12,  # 16/64     10/64      closest pair of shots
+    "caption_words_max": 4,   # reference runs 1-3 words, word-synced
+    # World units per second the camera must travel on a built set. Read from
+    # the shot plan, so unlike the pixel probe it cannot be fooled by blur.
+    # ponytail: a floor that catches a parked camera, not a target — I have no
+    # measurement of the reference's camera in world units, only its pixels.
+    # Raise it once our own good shots give a number worth matching.
+    "cam_travel_min": 1.5,
 }
 
 
@@ -135,6 +182,9 @@ _SCREEN = {
     "grid": lambda s: f"{s.get('label', '')} {s.get('sub', '')}",
     "timeline": lambda s: s.get("caption", ""),
     "compare": lambda s: f"{s.get('aLabel', '')} {s.get('bLabel', '')}",
+    # A built set draws its caption the same way a line does. Without this the
+    # overlap gate silently skips every 3D shot.
+    "set": lambda s: s.get("text", ""),
 }
 
 MIN_NUMBER_SEC = 2.0  # mirrors src/theme.ts
@@ -436,7 +486,8 @@ def visual_metrics(shot_list, freeze, lum):
         per.append({**s, "frozen_for": frozen, "luma_spread": spread})
 
     runtime = max((s["end"] for s in shot_list), default=0.0)
-    grounded = sum(s["end"] - s["start"] for s in shot_list if s.get("ground"))
+    grounded = sum(s["end"] - s["start"] for s in shot_list
+                   if s.get("ground") or s.get("type") == "set")
 
     # Visual identity, not raw scene type: a line over the statehouse and a
     # line over an empty office are different screens. Counting the template
@@ -498,6 +549,179 @@ def luma(path, fps=2):
         if cur.get("t") is not None and "YLOW" in cur:
             samples.append((cur["t"], cur["YLOW"], cur["YHIGH"], cur["YAVG"]))
     return {"ran": ran, "samples": samples}
+
+
+
+def chroma(path, fps=2):
+    """{ran, samples} of (t, satavg, hueavg).
+
+    Luma spread proves a frame is not flat. It says nothing about colour, and
+    a video can clear every luma gate while holding one hue for its whole
+    runtime — which is exactly what 002 did.
+    """
+    rc, out, err = _run(["ffmpeg", "-i", path, "-vf",
+                         f"fps={fps},signalstats,metadata=print:file=-",
+                         "-f", "null", "-"])
+    ran = _ran(rc, err)
+    samples = []
+    if ran:
+        cur = {}
+        for line in (out + "\n" + err).splitlines():
+            if line.startswith("frame:"):
+                if cur.get("t") is not None and "SATAVG" in cur:
+                    samples.append((cur["t"], cur["SATAVG"], cur.get("HUEAVG", 0.0)))
+                m = re.search(r"pts_time:([\d.]+)", line)
+                cur = {"t": float(m.group(1)) if m else None}
+            else:
+                m = re.match(r"lavfi\.signalstats\.(SATAVG|HUEAVG)=([-\d.]+)", line.strip())
+                if m:
+                    cur[m.group(1)] = float(m.group(2))
+        if cur.get("t") is not None and "SATAVG" in cur:
+            samples.append((cur["t"], cur["SATAVG"], cur.get("HUEAVG", 0.0)))
+    return {"ran": ran, "samples": samples}
+
+
+def motion(path, fps=4):
+    """{ran, samples} of (t, magnitude) — frame-to-frame change at the moving edge.
+
+    Reads YHIGH of the difference frame, not YAVG. YAVG conflates two different
+    things: how much the camera moved, and how sharp the image is. Once depth of
+    field went in, soft background pixels stopped changing much and the average
+    fell by a fifth while the camera moved exactly as far — the probe was
+    measuring blur, not movement. YHIGH asks "how much did the most-changed part
+    of the frame change", which a blurred background cannot drag down.
+
+    freezedetect only catches a shot that is *completely* dead. The reference
+    Short never sits still at all: the camera glides inside every shot, so a
+    held frame is the exception rather than the tolerance. This measures how
+    much the image is actually moving, which freezedetect cannot.
+
+    tblend difference leaves a frame whose average luminance IS the motion
+    magnitude, so signalstats reads it straight off.
+    """
+    rc, out, err = _run(["ffmpeg", "-i", path, "-vf",
+                         f"fps={fps},tblend=all_mode=difference,"
+                         "signalstats,metadata=print:file=-",
+                         "-f", "null", "-"])
+    ran = _ran(rc, err)
+    samples = []
+    if ran:
+        cur = {}
+        for line in (out + "\n" + err).splitlines():
+            if line.startswith("frame:"):
+                if cur.get("t") is not None and "YHIGH" in cur:
+                    samples.append((cur["t"], cur["YHIGH"]))
+                m = re.search(r"pts_time:([\d.]+)", line)
+                cur = {"t": float(m.group(1)) if m else None}
+            else:
+                m = re.match(r"lavfi\.signalstats\.(YHIGH)=([\d.]+)", line.strip())
+                if m:
+                    cur[m.group(1)] = float(m.group(2))
+        if cur.get("t") is not None and "YHIGH" in cur:
+            samples.append((cur["t"], cur["YHIGH"]))
+    return {"ran": ran, "samples": samples}
+
+
+def _ahash(path, t):
+    """64-bit average hash of the frame at t, or None if it could not be read.
+
+    ponytail: 8x8 average hash, no dependency. It is deliberately coarse — it
+    answers "is this the same screen again" and nothing finer. Swap for a DCT
+    hash only if near-duplicates start slipping through.
+    """
+    rc, raw, err = _run_bytes(["ffmpeg", "-ss", f"{t:.3f}", "-i", path, "-vf",
+                               "scale=8:8,format=gray", "-frames:v", "1",
+                               "-f", "rawvideo", "-"])
+    if rc != 0 or len(raw) < 64:
+        return None
+    px = list(raw[:64])
+    mean = sum(px) / 64
+    bits = 0
+    for i, v in enumerate(px):
+        if v > mean:
+            bits |= 1 << i
+    return bits
+
+
+def shot_similarity(path, shot_list):
+    """Closest pair of shots by average hash, as bits-different out of 64.
+
+    bg_max counts *names*. Two differently-named grounds that render to the
+    same screen still pass it, and a ground revisited from the same angle is
+    the thing that actually reads as repetition. This compares pixels.
+    """
+    hashes = []
+    for s in shot_list:
+        mid = s["start"] + (s["end"] - s["start"]) / 2
+        h = _ahash(path, mid)
+        hashes.append((s["i"], h))
+    pairs = []
+    for (ia, ha), (ib, hb) in itertools.combinations(hashes, 2):
+        if ha is None or hb is None:
+            continue
+        pairs.append({"a": ia, "b": ib, "distance": bin(ha ^ hb).count("1")})
+    measured = all(h is not None for _, h in hashes) and len(hashes) > 1
+    closest = min(pairs, key=lambda p: p["distance"]) if pairs else None
+    return {"ran": measured, "pairs": pairs, "closest": closest}
+
+
+def cam_travel(shot_list):
+    """Per-shot camera travel in world units per second, for built sets only.
+
+    A 2D scene has no camera and is skipped — None here would fail it as "not
+    measured", which would be wrong rather than strict.
+    """
+    out = []
+    for s in shot_list:
+        cam = s.get("cam")
+        if s.get("type") != "set" or not isinstance(cam, dict):
+            continue
+        a, b = cam.get("from"), cam.get("to")
+        if not (isinstance(a, list) and isinstance(b, list) and len(a) == 3 == len(b)):
+            out.append({"i": s["i"], "per_sec": None})
+            continue
+        dist = sum((b[k] - a[k]) ** 2 for k in range(3)) ** 0.5
+        secs = max(1e-6, s["end"] - s["start"])
+        out.append({"i": s["i"], "per_sec": dist / secs})
+    return out
+
+
+def caption_words(shot_list):
+    """Longest on-screen text, in words, per shot."""
+    out = []
+    for s in shot_list:
+        txt = _strip(s.get("text") or "")
+        out.append({"i": s["i"], "words": len(txt.split()) if txt else 0})
+    return out
+
+
+def style_metrics(path, shot_list):
+    """Colour, motion and screen-repetition summary for the whole video.
+
+    These are the measurements 002 had no gate for. It cleared every luma and
+    freeze limit while being 3.6x less saturated than the reference and barely
+    moving, because nothing looked at colour or at how much the image changes.
+    """
+    mo, ch = motion(path), chroma(path)
+    mags = [v for _, v in mo["samples"]]
+    sats = [v for _, v, _ in ch["samples"]]
+    hues = [h for _, _, h in ch["samples"]]
+    sim = shot_similarity(path, shot_list)
+
+    def pct(xs, q):
+        return sorted(xs)[min(len(xs) - 1, int(len(xs) * q))] if xs else None
+
+    return {
+        "motion_mean": statistics.mean(mags) if mags else None,
+        "motion_p10": pct(mags, 0.10),
+        "motion_floor": min(mags) if mags else None,
+        "sat_mean": statistics.mean(sats) if sats else None,
+        "hue_stdev": statistics.pstdev(hues) if len(hues) > 1 else None,
+        "shot_distance_min": (sim["closest"] or {}).get("distance") if sim["ran"] else None,
+        "closest_pair": sim["closest"] if sim["ran"] else None,
+        "captions": caption_words(shot_list),
+        "cam_travel": cam_travel(shot_list),
+    }
 
 
 # ------------------------------------------------------------ evaluation
@@ -590,6 +814,41 @@ def evaluate(metrics):
                 out.append(_fail("level_match", round(p, 1), f"median {mid:.1f} ±2.5", i,
                                  "one line is mixed louder than the rest"))
 
+    style = metrics.get("style", {})
+    for key, gate, worse in (
+        ("sat_mean", "sat_mean_min", lambda v, L: v < L),
+        ("motion_p10", "motion_p10_min", lambda v, L: v < L),
+        ("motion_floor", "motion_floor_min", lambda v, L: v < L),
+        ("hue_stdev", "hue_stdev_min", lambda v, L: v < L),
+        ("shot_distance_min", "shot_distance_min", lambda v, L: v < L),
+    ):
+        limit, v = GATES[gate], style.get(key)
+        if v is None:
+            out.append(_fail(gate, None, limit, None, "not measured"))
+        elif worse(v, limit):
+            why = {
+                "sat_mean_min": "the video is near-greyscale",
+                "motion_p10_min": "the quiet shots sit still",
+                "motion_floor_min": "at least one frame is dead",
+                "hue_stdev_min": "one colour holds the whole runtime",
+                "shot_distance_min": "two shots are the same screen",
+            }[gate]
+            shot = (style.get("closest_pair") or {}).get("b") if gate == "shot_distance_min" else None
+            out.append(_fail(gate, round(v, 2), limit, shot, why))
+
+    for mv in style.get("cam_travel", []):
+        if mv["per_sec"] is None:
+            out.append(_fail("cam_travel", None, GATES["cam_travel_min"], mv["i"],
+                             "the shot plan gives no camera move"))
+        elif mv["per_sec"] < GATES["cam_travel_min"]:
+            out.append(_fail("cam_travel", round(mv["per_sec"], 2), GATES["cam_travel_min"],
+                             mv["i"], "the camera is parked"))
+
+    for cap in style.get("captions", []):
+        if cap["words"] > GATES["caption_words_max"]:
+            out.append(_fail("caption_words", cap["words"], GATES["caption_words_max"],
+                             cap["i"], "a sentence on screen reads as a title card"))
+
     sil = audio.get("silence_share")
     if sil is not None and sil > GATES["silence_share_max"]:
         out.append(_fail("silence_share", round(sil, 2), GATES["silence_share_max"], None,
@@ -653,6 +912,7 @@ def measure(root, vid):
                          "line_peaks": line_peaks(
                              root / "public" / vid / "vo.wav", st["shots"]),
                          "silence_share": silence_share(mp4)},
+               "style": style_metrics(str(mp4), st["shots"]),
                "drift": st["drift"] + cut_drift(st["shots"], cuts(str(mp4)))}
     return metrics, 0
 

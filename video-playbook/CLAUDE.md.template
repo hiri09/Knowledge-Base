@@ -1,0 +1,30 @@
+# CLAUDE.md: video production repo
+
+## What this repo is
+Edit-as-code video production for <APP NAME>: app ads (Google App campaigns, Meta), Instagram Reels, YouTube Shorts and long-form videos.
+Audience: <who>. Languages: <English / Hinglish / ...>. Platform: <Android / iOS / web>.
+
+## Binding playbook
+Read `video-playbook/README.md` first, then the file for the task at hand. Its rules are defaults backed by real failures; deviate only with a stated reason.
+
+## Rules
+- Work silent and headless: Playwright with `--mute-audio`, no GUI windows, no audio playback. Verify with frame sheets, loudness meters and transcripts.
+- Measure, never estimate: word onsets (whisper + silence snap), loudness, crops, fps and frame counts.
+- `brand/brand.json` is the only source for colors, fonts, type scale, motion and safe zones. Use the real logo, icon and fonts; never redraw brand assets.
+- Every asset needs a licence entry (`library/*/index.json`); the build fails without one. No ripped footage, no commercial songs in exports.
+- Fail loud: a missing asset, unmocked API, console error or silent bed stops the build. No placeholders ship.
+- Demo and capture data comes from seeded demo accounts on staging, never real users.
+- Every on-screen claim (price, limits, "free") must match the product's real config: <link or file>.
+- Git holds code, specs, scripts and research. Media (renders, audio, footage) is gitignored.
+- After every render: run `qa/`, then report the QA.md summary, a contact sheet and the board path.
+- When I correct something, update brand.json, the engine defaults or `video-playbook/` so it doesn't recur.
+- One heavy render, TTS or whisper job at a time.
+
+## Commands
+- Build: `<node engine/render.mjs videos/<slug>/spec.json --shapes 9x16,16x9,1x1>`
+- QA: `<node qa/qa.mjs videos/<slug>/out>`
+- Board: `<python board/build.py>` → open `board/index.html`
+
+## Campaign facts
+- Activation event for bidding: `<event_name>`
+- Kill/keep thresholds: <fill in>

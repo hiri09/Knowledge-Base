@@ -360,6 +360,11 @@ def _metrics(**over):
          "info": {"per_shot": [], "worst": 0.2, "novel_shots": 3},
          "audio": {"pause_stdev": 0.4, "wps_spread": 0.3, "pitch_spread": 30.0, "intonation": 45.0,
                    "money_pauses": []},
+         # passing style defaults, near the measured reference Short
+         "style": {"motion_mean": 23.0, "motion_p10": 30.0, "motion_floor": 9.0,
+                   "sat_mean": 24.0, "hue_stdev": 45.0, "shot_distance_min": 20,
+                   "closest_pair": {"a": 0, "b": 1, "distance": 20}, "captions": [],
+                   "cam_travel": []},
          "drift": []}
     m.update(over)
     return m
@@ -603,6 +608,105 @@ def main():
             print(f"FAIL {name}: {type(e).__name__}: {e}")
     print(f"{len(tests) - failed}/{len(tests)} passed")
     return 1 if failed else 0
+
+# ------------------------------------------------- style gates (2026-11-14)
+# Calibrated against one measured reference Short; 002 is the failing case.
+
+
+def _style(**over):
+    st = dict(_metrics()["style"])
+    st.update(over)
+    return _metrics(style=st)
+
+
+def test_a_near_greyscale_video_fails_the_saturation_gate():
+    # 002 measured 6.68 against the reference's 24.20 — the single biggest gap
+    fails = critique.evaluate(_style(sat_mean=6.68))
+    assert any(f["gate"] == "sat_mean_min" for f in fails)
+    assert any("greyscale" in f["reason"] for f in fails if f["gate"] == "sat_mean_min")
+
+
+def test_a_saturated_video_passes_the_saturation_gate():
+    assert not any(f["gate"] == "sat_mean_min" for f in critique.evaluate(_style(sat_mean=24.2)))
+
+
+def test_still_quiet_shots_fail_the_motion_percentile_gate():
+    # the mean can pass while the quiet tenth sits dead — 002 p10 was 2.0
+    assert any(f["gate"] == "motion_p10_min"
+               for f in critique.evaluate(_style(motion_mean=23.0, motion_p10=3.0)))
+
+
+def test_one_dead_frame_fails_the_motion_floor():
+    assert any(f["gate"] == "motion_floor_min"
+               for f in critique.evaluate(_style(motion_floor=1.0)))
+
+
+def test_one_hue_held_for_the_runtime_fails():
+    assert any(f["gate"] == "hue_stdev_min"
+               for f in critique.evaluate(_style(hue_stdev=26.4)))
+
+
+def test_two_shots_that_are_the_same_screen_fail_and_name_the_shot():
+    fails = [f for f in critique.evaluate(
+        _style(shot_distance_min=4, closest_pair={"a": 2, "b": 9, "distance": 4}))
+        if f["gate"] == "shot_distance_min"]
+    assert fails and fails[0]["shot"] == 9
+
+
+def test_a_sentence_on_screen_fails_the_caption_gate():
+    fails = critique.evaluate(_style(captions=[{"i": 3, "words": 7}]))
+    assert any(f["gate"] == "caption_words" and f["shot"] == 3 for f in fails)
+
+
+def test_three_words_on_screen_passes():
+    assert not any(f["gate"] == "caption_words"
+                   for f in critique.evaluate(_style(captions=[{"i": 3, "words": 3}])))
+
+
+def test_unmeasured_style_fails_rather_than_passing():
+    # absence of evidence is never evidence of absence, same as every other gate
+    m = _metrics()
+    del m["style"]
+    gates = {f["gate"] for f in critique.evaluate(m)}
+    assert {"sat_mean_min", "motion_p10_min", "hue_stdev_min"} <= gates
+
+
+def test_a_parked_camera_on_a_built_set_fails():
+    fails = critique.evaluate(_style(cam_travel=[{"i": 4, "per_sec": 0.2}]))
+    assert any(f["gate"] == "cam_travel" and f["shot"] == 4 for f in fails)
+
+
+def test_a_travelling_camera_passes():
+    assert not any(f["gate"] == "cam_travel"
+                   for f in critique.evaluate(_style(cam_travel=[{"i": 4, "per_sec": 3.1}])))
+
+
+def test_a_set_with_no_camera_in_the_plan_fails_as_unmeasured():
+    fails = critique.evaluate(_style(cam_travel=[{"i": 2, "per_sec": None}]))
+    assert any(f["gate"] == "cam_travel" and "no camera move" in f["reason"] for f in fails)
+
+
+def test_cam_travel_is_computed_per_second_and_skips_2d_scenes():
+    shots = [{"i": 0, "type": "set", "start": 0.0, "end": 2.0,
+              "cam": {"from": [0, 0, 0], "to": [0, 0, 6]}},
+             {"i": 1, "type": "line", "start": 2.0, "end": 4.0}]
+    got = critique.cam_travel(shots)
+    assert len(got) == 1 and got[0]["i"] == 0
+    assert abs(got[0]["per_sec"] - 3.0) < 1e-6
+
+
+def test_the_hash_is_stable_and_separates_different_screens():
+    a, b = critique._ahash(CLIP_BLACK, 0), critique._ahash(CLIP_TESTSRC, 1)
+    assert a is not None and b is not None
+    assert bin(a ^ a).count("1") == 0
+    assert bin(a ^ b).count("1") > critique.GATES["shot_distance_min"]
+
+
+def test_motion_separates_a_static_clip_from_a_moving_one():
+    still = critique.motion(CLIP_STATIC)
+    moving = critique.motion(CLIP_TESTSRC)
+    assert still["ran"] and moving["ran"]
+    assert max(v for _, v in still["samples"]) < min(v for _, v in moving["samples"])
 
 
 if __name__ == "__main__":

@@ -4,13 +4,17 @@ import {theme, FPS, MIN_NUMBER_SEC} from './theme';
 import {Background, Photo, Transition, BgKind, Shot, Trans} from './Backgrounds';
 import {UnitGrid, Timeline} from './DataScenes';
 import {Enter, CountUp, ANIMS, POSITIONS, posStyle, accentText, Anim, Pos} from './motion';
+import {Set3D, SetScene} from './Set3D';
 
 export type Scene = Look & (
   | {type: 'hook' | 'line'; text: string; sec: number; vo?: string; source?: string; media?: string; shot?: Shot; trans?: Trans}
   | {type: 'number'; value: string; label: string; sec: number; vo?: string; source?: string; crack?: boolean; media?: string; shot?: Shot; trans?: Trans}
   | {type: 'grid'; total: number; filled: number; mode: 'fill' | 'drain'; label: string; sub?: string; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans}
   | {type: 'timeline'; marks: {at: number; label: string}[]; head: number; caption?: string; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans}
-  | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans});
+  | {type: 'compare'; aLabel: string; aValue: number; bLabel: string; bValue: number; sec: number; vo?: string; source?: string; shot?: Shot; trans?: Trans}
+  // A built 3D set. The room, the camera move and who is in it come from the
+  // shot plan; everything it draws comes from the shared kit in props.tsx.
+  | ({type: 'set'; text?: string; sec: number; vo?: string; source?: string; trans?: Trans} & SetScene));
 
 // Chosen per scene by the Assistant Director, enforced by critique.py.
 // `beat` is not consumed by the renderer — it is what the hold gate is read against.
@@ -23,7 +27,7 @@ export type MediaLock = Record<string, {file: string}>;
 // The accent word turns red AT the moment its word is spoken, not before the
 // viewer has heard it. This is what makes the whole video read as synced
 // rather than just the two shots that carry a number.
-const Marked: React.FC<{text: string; at?: number}> = ({text, at}) => {
+const Marked: React.FC<{text: string; at?: number; accent?: string}> = ({text, at, accent}) => {
   const frame = useCurrentFrame();
   const hit = at === undefined || frame >= at;
   return (
@@ -33,9 +37,9 @@ const Marked: React.FC<{text: string; at?: number}> = ({text, at}) => {
           <span
             key={i}
             style={{
-              color: hit ? theme.accent : theme.text,
+              color: hit ? (accent ?? theme.accent) : theme.text,
               transition: 'none',
-              textShadow: hit ? `0 0 46px ${theme.accent}66` : 'none',
+              textShadow: hit ? `0 0 46px ${(accent ?? theme.accent)}66` : 'none',
             }}
           >
             {part.slice(1, -1)}
@@ -181,6 +185,30 @@ const SceneView: React.FC<{scene: Scene; i: number; ghost?: string; media?: Medi
   const photo = key && media?.[key] ? staticFile(media[key].file) : undefined;
   const shot = ((scene as any).shot ?? 'push') as Shot;
   const trans = ((scene as any).trans ?? 'cut') as Trans;
+  // A built set is the whole frame — no 2D ground behind it, and its caption
+  // sits on top rather than inside a layout column.
+  if (scene.type === 'set') {
+    return (
+      <Transition kind={trans}>
+        <Set3D scene={scene} />
+        {scene.text ? (
+          <AbsoluteFill style={{fontFamily: theme.font, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 300}}>
+            <div className="setcap" style={{
+              fontSize: 82, fontWeight: 900, color: '#FFFFFF', textAlign: 'center',
+              maxWidth: '86%', lineHeight: 1.1,
+              paddingTop: 18, paddingBottom: 22, paddingLeft: 34, paddingRight: 34,
+              borderRadius: 18,
+              background: 'rgba(10,8,14,0.46)',
+              textShadow: '0 6px 26px rgba(0,0,0,0.95), 0 2px 0 rgba(0,0,0,0.7)',
+            }}>
+              <Marked text={scene.text} at={keyFrame} accent="#FFC83D" />
+            </div>
+          </AbsoluteFill>
+        ) : null}
+      </Transition>
+    );
+  }
+
   return (
     <Transition kind={trans}>
       {photo ? <Photo src={photo} shot={shot} dim={(scene as any).dim} /> : <Background kind={bg} ghost={ghost} />}
