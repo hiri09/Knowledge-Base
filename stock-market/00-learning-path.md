@@ -4,6 +4,9 @@ Himanshu is new to the market. The rule for this folder: **theory only, no trade
 until a concept is written down here in his own words.** Each concept gets its own
 note in `stock-market/`. This file is the running order and the status board.
 
+**Practise alongside:** `lab/trading-lab.html` — a full trading terminal that runs
+in the browser with fake money and real mechanics. Double-click it. See `lab/README.md`.
+
 ## Order (don't skip ahead)
 
 **1. What the thing actually is**
@@ -41,6 +44,17 @@ note in `stock-market/`. This file is the running order and the status board.
 **7. Before the first rupee**
 - `my-investing-thesis.md` — goal, horizon, risk tolerance, what he will and won't buy.
 - `paper-trading-log.md` — decisions and reasons, scored later against outcomes.
+
+All 22 notes above are written. Read them in order, one sitting each, and after
+every section go do the matching thing in the lab:
+
+| After section | Do this in `lab/trading-lab.html` |
+|---|---|
+| 2 — how price happens | Place a market vs. a limit order. Compare the fill you got. |
+| 4 — charts | Mark levels with `L` *before* price gets there, then step bar by bar. |
+| 5 — risk | Use the position sizer on every trade. Watch max drawdown, not profit. |
+| 5 — behaviour | Run "Sideways chop" for 100 bars. Read the fees line afterwards. |
+| 5 — behaviour | Run "Pure random walk". Notice yourself seeing patterns in nothing. |
 
 ## Rules for this folder
 
