@@ -93,6 +93,25 @@ td.num,th.num{text-align:right;font-family:var(--mono);font-size:13px}
 .out b{color:var(--txt)}
 footer{max-width:780px;margin:60px auto 0;padding:26px 28px 0;border-top:1px solid var(--line);
   color:var(--dimmer);font:13px/1.7 -apple-system,sans-serif}
+
+/* plain-language add-ons */
+.one{background:#121b26;border:1px solid #223246;border-radius:10px;padding:13px 16px;margin:0 0 18px;
+  font-size:16.5px;color:#dfe9f5}
+.one span{display:block;font:600 10.5px -apple-system,sans-serif;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:5px}
+.w{border-bottom:1px dashed #5b7da8;cursor:help;position:relative;color:#cfe1ff;outline:none}
+.w i{display:none;position:absolute;left:0;top:140%;z-index:20;width:290px;max-width:78vw;
+  background:#0a1017;border:1px solid #2f4259;border-radius:8px;padding:9px 11px;
+  font:normal 13px/1.5 -apple-system,sans-serif;color:#cdd9e6;font-style:normal;
+  box-shadow:0 10px 26px rgba(0,0,0,.6)}
+.w:hover i,.w:focus i{display:block}
+.words{background:#131a22;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:20px 0}
+.words h4{font:600 11px -apple-system,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--warn);margin:0 0 10px}
+.words dl{margin:0;display:grid;grid-template-columns:150px 1fr;gap:7px 14px;font-size:14.5px}
+.words dt{color:#fff;font-weight:700}
+.words dd{margin:0;color:var(--dim)}
+@media(max-width:620px){.words dl{grid-template-columns:1fr;gap:2px 0}.words dd{margin-bottom:8px}}
 @media(max-width:900px){#layout{grid-template-columns:1fr}nav{position:static;height:auto}}
 </style>
 </head>
@@ -545,305 +564,517 @@ so the index quietly upgrades itself every year. Your own portfolio does not do 
 ${wr(`Using the index to judge my stock daily. A small-cap and the Nifty answer to different forces.
 "Nifty is green, why is my stock red" is a question with no useful answer.`)}`}]},
 
-{f:'02-how-price-moves',t:'How price happens',
- lede:'Price is not a fact about a company. It is the last point two people agreed on. Here is the machinery underneath.',
- items:[
-{id:'book',t:'The order book and order types',file:'02-how-price-moves/order-book-and-order-types.md',h:`
-<p>There is no single "price". There are two: the highest someone will <b>pay</b> (the bid) and the
-lowest someone will <b>accept</b> (the ask). The gap between them is the <b>spread</b>. The
-"last traded price" you see on screen is simply the last time those two met.</p>
-${fig(FIG.book(),'Every buy order you place is eating this ladder from the top. Every sell eats it from the bottom.')}
-<p><b>Market order</b> — fills instantly at whatever the book offers. You chose certainty, not price.<br>
-<b>Limit order</b> — fills only at your price or better. You chose price, not certainty.<br>
-<b>Stop-loss</b> — a sleeping order that wakes up into a market order when price hits your trigger.
-Protection, not a guarantee: in a gap down it fires at the next available price, which can be far below.</p>
-${key('Liquidity in one line',`A deep book with a tight spread means your order barely moves the price.
-A thin book means a ₹2 lakh order can move a small stock 3% — and you pay for all of it.`)}
-${wr(`Using market orders in illiquid small-caps and then blaming "manipulation" for the terrible fill.
-I ate the book myself. Limit orders exist for exactly this.`)}`},
-
-{id:'moves',t:'What actually moves a price',file:'02-how-price-moves/what-moves-price.md',h:`
-<p>In the moment, only one thing moves price: <b>order flow</b>. Price rises because buyers lift the
-ask; it falls because sellers hit the bid. Everything else is a reason people <i>decide</i> to do that.</p>
-${fig(FIG.priceEq(),'Earnings are knowable and slow. The multiple is a mood and fast. Both are in the price.')}
-<p>The reasons, from most durable to least: <b>earnings and cash flow</b> → <b>expectations vs reality</b>
-→ <b>interest rates</b> → <b>flows</b> (index inclusion, SIP money, FII buying) → <b>narrative</b>.
-The last one is the strongest over a week and the weakest over a decade.</p>
-${ex(`Infosys reports profit up 12%. Analysts expected 18%. The stock drops 6% on a good quarter.
-Nothing is broken. The price already contained the forecast, so what moved was the <b>surprise</b>.`)}
-${key('The one sentence to keep',`Most one-year returns are mood. Most ten-year returns are earnings.`)}
-${wr(`Reading the day's news as the cause of the day's move. The headline is usually written <i>after</i>
-the move, to explain it. Causation is assigned, not observed.`)}`},
-
-{id:'who',t:'Who is on the other side of your trade',file:'02-how-price-moves/market-participants.md',h:`
-<p>Every trade has someone taking the opposite side. Knowing <i>who</i> tells you how much to read
-into a move.</p>
-<table><tr><th>Participant</th><th>Behaviour</th><th>What their buying means</th></tr>
-<tr><td><b>Retail</b> (you)</td><td>small, slow information, emotional</td><td>little on its own, a lot in aggregate via SIPs</td></tr>
-<tr><td><b>DII</b> — Indian funds, insurers</td><td>steady, rule-bound</td><td>SIP money must be deployed monthly, price-insensitive</td></tr>
-<tr><td><b>FII / FPI</b> — foreign funds</td><td>big and fast</td><td>reacting to global rates and the rupee as much as to the company</td></tr>
-<tr><td><b>Promoters</b></td><td>the founding owners</td><td>the most informed signal available, and publicly disclosed</td></tr>
-<tr><td><b>Market makers</b></td><td>quote both sides, earn the spread</td><td>nothing — they have no opinion</td></tr>
-<tr><td><b>Operators</b></td><td>small-cap manipulation</td><td>manufactured volume; where "the stock that only goes up" lives</td></tr></table>
-${ex(`A stock jumps 4% on no news. If it is a ₹2 lakh crore company, large money repriced it.
-If it is a ₹200 crore company on ₹30 lakh of volume, <b>one buyer</b> did that — and one seller can undo it.`)}
-${wr(`Assuming the other side is dumber than me. Often it is someone who has read the annual report and
-is paid full-time to do this. My edge must be patience and horizon — never speed or information.`)}`}]},
-
-{f:'03-reading-a-company',t:'Reading a company',
- lede:'The slow, boring section that decides what is actually worth owning. This is the part that compounds.',
- items:[
-{id:'statements',t:'The three statements, and which one lies least',file:'03-reading-a-company/financial-statements.md',h:`
-<p>Every company publishes three statements. They answer three different questions, and one of them
-is much harder to fake than the others.</p>
-${fig(FIG.statements(),'Profit is an opinion. Cash is a fact. When they separate for two years, go and find out why.')}
-${ex(`A company sells ₹100 cr of goods on credit and collects nothing yet. <b>P&amp;L:</b> revenue
-₹100 cr — a great year. <b>Balance sheet:</b> receivables +₹100 cr — an IOU, not money.
-<b>Cash flow from operations:</b> ₹0.`)}
-${key('The 60-second read of any annual report',`1. Does <b>operating cash flow</b> roughly track
-<b>net profit</b> over 3-5 years?<br>2. Is debt rising faster than profit?<br>
-3. Are receivables and inventory growing faster than revenue?<br>
-4. Is the dividend being funded out of borrowings?<br>
-Any "no" is not a verdict. It is a question you now have to go answer.`)}
-${wr(`Reading only the headline profit number in a news app. The number I actually want is five years
-of operating cash flow, and it never appears in a headline.`)}`},
-
-{id:'ratios',t:'Key ratios — the question each one asks',file:'03-reading-a-company/key-ratios.md',h:`
-<p>A ratio is a question in compressed form. Learn the question, not the number.</p>
-<table><tr><th>Ratio</th><th>Formula</th><th>The question it asks</th></tr>
-<tr><td><b>P/E</b></td><td>price ÷ EPS</td><td>How many years of current earnings am I paying?</td></tr>
-<tr><td><b>P/B</b></td><td>price ÷ book value</td><td>What am I paying per ₹1 of net assets?</td></tr>
-<tr><td><b>ROE</b></td><td>profit ÷ equity</td><td>How well does it turn owners' money into profit?</td></tr>
-<tr><td><b>ROCE</b></td><td>EBIT ÷ (debt + equity)</td><td>Same, including borrowed money — harder to fake</td></tr>
-<tr><td><b>Debt / Equity</b></td><td>debt ÷ equity</td><td>How much of this is borrowed and fragile?</td></tr>
-<tr><td><b>Operating margin</b></td><td>op. profit ÷ revenue</td><td>How much of each ₹100 of sales survives?</td></tr>
-<tr><td><b>Interest coverage</b></td><td>EBIT ÷ interest</td><td>Can it even pay the interest? Under ~3 = watch</td></tr></table>
-${fig(FIG.pe(),'P/E 20 means twenty years of today\'s earnings, paid today, for one share.')}
-${W.pe()}
-${key('What each one hides',`<b>P/E</b> is meaningless for loss-makers and misleading for cyclicals —
-a commodity stock looks <i>cheapest</i> at peak profits, right before the cycle turns.
-<b>ROE</b> can be inflated purely by taking on debt, so always read it next to D/E, or use ROCE.
-<b>P/B</b> matters for banks and barely matters for an asset-light software firm.`)}
-${wr(`Screening for "P/E under 10" and calling it value. A cheap ratio usually means the market expects
-earnings to fall. My job is to work out whether the market is right.`)}`},
-
-{id:'valuation',t:'Valuation — price vs value',file:'03-reading-a-company/valuation.md',h:`
-<p><b>Price</b> is what the last two people agreed on. <b>Value</b> is the cash the business will hand
-its owners over its life, discounted back to today. They are related the way weather is related to climate.</p>
-${fig(FIG.dcf(),'Money in the future is worth less today — because you could have earned a safe return, and because the future is uncertain.')}
-${ex(`A shop reliably earns ₹1,00,000 a year forever, and a safe FD pays 7%.<br>
-Value ≈ 1,00,000 ÷ 0.07 = <b>₹14,28,571</b>.<br>
-Now the same shop growing 3% a year: 1,00,000 ÷ (0.07 − 0.03) = <b>₹25,00,000</b>.<br>
-Three percent of growth nearly doubled the value. And if rates rise 7% → 9%, the no-growth shop is
-worth ₹11.1 lakh. <b>The shop never changed.</b>`)}
-${key('Why this matters more than it looks',`This is the entire reason growth stocks carry huge multiples,
-why a small cut to expected growth destroys so much price, and why the whole market falls when bond
-yields rise. One formula, three headlines.`)}
-${wr(`Believing a DCF because it has decimals in it. Change growth by 2% and the answer moves 50%.
-A valuation makes your assumptions explicit. It is not a price target.`)}`},
-
-{id:'moat',t:'Moats — why some businesses keep earning',file:'03-reading-a-company/moats-and-business-quality.md',h:`
-<p>High profits attract competitors, and competition destroys profits. A <b>moat</b> is the specific
-reason that does not happen to a particular company.</p>
-${fig(FIG.moat(),'If you cannot name which of these five a company has, assume it has none.')}
-${ex(`Two paint companies. One has 70,000 dealers with mixing machines installed, and a brand customers
-ask for by name. The other has a better formula and a lower price. <b>The second one still loses</b> —
-because paint is bought from whoever the dealer stocks. Distribution was the moat, not chemistry.`)}
-${wr(`Confusing a great product with a great business. The product I personally love may be sold by a
-company with no pricing power, thin margins, and three identical competitors.`)}`}]},
 ];
 
+/* plain-language helpers: every jargon word gets a definition right where it appears */
+const w=(term,def)=>`<span class="w" tabindex="0">${term}<i>${def}</i></span>`;
+const words=list=>`<div class="words"><h4>The words in this page</h4><dl>`+
+  list.map(([t,d])=>`<dt>${t}</dt><dd>${d}</dd>`).join('')+`</dl></div>`;
+const one=t=>`<p class="one"><span>In one line</span>${t}</p>`;
+
 SECTIONS.push(
+{f:'02-how-price-moves',t:'How price happens',
+ lede:'Why the number on the screen goes up and down. No maths, no jargon — a vegetable market will do.',
+ items:[
+{id:'book',t:'How a price is made (the order book)',file:'02-how-price-moves/order-book-and-order-types.md',h:`
+${one('A price is not fixed by the company. It is just the last deal that two people agreed on.')}
+<p>Think of a vegetable market. You want to buy tomatoes. One man shouts "I will pay ₹40 a kilo".
+Another shouts "I will sell at ₹42". Nobody is right or wrong. A sale only happens when one of them
+moves. The moment they shake hands at ₹41, that is "the price of tomatoes".</p>
+<p>The stock market is the same, but written down in a list. That list is called the
+${w('order book','a live list of everyone waiting to buy and everyone waiting to sell, with their prices')}.</p>
+${fig(FIG.book(),'Red on top = people waiting to sell. Green below = people waiting to buy. Nobody is trading yet — they are just standing in a queue with a price tag.')}
+${words([
+ ['Bid','The highest price a buyer is ready to pay right now. ₹100.00 in the picture.'],
+ ['Ask (or offer)','The lowest price a seller is ready to accept right now. ₹100.20 in the picture.'],
+ ['Spread','The gap between the two. Here ₹0.20. A small gap means a busy, healthy stock.'],
+ ['Last traded price','The price of the last deal that actually happened. This is the number apps show you.'],
+ ['Quantity / depth','How many shares are waiting at each price. More waiting = your order moves the price less.'],
+ ['Liquidity','How easy it is to buy or sell without moving the price. A crowded market is liquid.'],
+])}
+<p>Now, the three ways to place an order. This is the first real skill, and it is easy.</p>
+<table><tr><th>Order type</th><th>What you are saying</th><th>What you give up</th></tr>
+<tr><td><b>Market order</b></td><td>"Buy it now, whatever the price is."</td><td>You do not choose the price.</td></tr>
+<tr><td><b>Limit order</b></td><td>"Buy only at ₹100 or cheaper. I will wait."</td><td>It may never happen.</td></tr>
+<tr><td><b>Stop loss</b></td><td>"If it falls to ₹95, get me out."</td><td>Nothing — this one protects you.</td></tr></table>
+${ex(`Look at the picture again. You place a <b>market</b> order to buy 150 shares.<br>
+There are only 100 shares waiting at ₹100.20. So you get 100 at ₹100.20, and the remaining
+50 come from the next line up, at ₹100.50.<br>
+Your average price = <b>₹100.30</b>, not ₹100.20.<br><br>
+That extra 10 paise per share is called ${w('slippage','the difference between the price you saw and the price you actually got')}.
+On 150 shares it is ₹15. On a big order in a quiet stock, it can be thousands.`)}
+${key('The simple rule',`Busy stock (Reliance, HDFC Bank) → a market order is fine, the spread is tiny.<br>
+Quiet small company → always use a limit order, or you will pay far more than the screen said.`)}
+${wr(`Buying a small, quiet stock with a market order, getting a terrible price, and thinking someone
+cheated me. Nobody cheated me. There were simply very few sellers near that price, and I agreed in
+advance to take any price. The limit order exists exactly for this.`)}`},
+
+{id:'moves',t:'What makes the price go up or down',file:'02-how-price-moves/what-moves-price.md',h:`
+${one('Price goes up when buyers are in a hurry, and down when sellers are in a hurry. Everything else is just the reason they are in a hurry.')}
+<p>Imagine a house in your area. Its "price" changes even though the house does not change. More
+families want to live there → price up. A factory opens next door and people leave → price down.
+The bricks are the same bricks.</p>
+<p>A share is the same. So there are only two questions: <b>how much does this business earn</b>,
+and <b>how excited are people about it</b>.</p>
+${fig(FIG.priceEq(),'Earnings change slowly and you can check them in the accounts. Excitement changes every day and you cannot check it anywhere.')}
+${words([
+ ['Earnings (or profit, PAT)','What the business actually keeps after paying all its costs, in a year.'],
+ ['EPS','Earnings Per Share. Total profit divided by number of shares. Your personal slice of the profit.'],
+ ['Multiple (P/E)','How many rupees people pay for ₹1 of yearly profit. The "excitement" number.'],
+ ['Expectations','What the market already believes will happen. It is already inside the price.'],
+ ['Interest rate','What a safe bank deposit or government bond pays. The boring alternative to shares.'],
+ ['FII / DII','Foreign and Indian big investors. Their buying and selling moves whole markets.'],
+])}
+${ex(`Infosys announces: profit is up 12%. Good news! The stock falls 6%.<br><br>
+Why? Because everyone already expected <b>18%</b>, and that expectation was already baked into
+yesterday's price. The company delivered less than what people had already paid for.<br><br>
+<b>The lesson:</b> a share does not react to good or bad news. It reacts to the difference between
+the news and what people already believed.`)}
+${key('Say this out loud until it is boring',`Over one year, the price mostly follows people's mood.
+Over ten years, the price mostly follows the company's profit. That is the whole difference between
+trading and investing.`)}
+${wr(`Reading a news headline at 4pm and believing it caused the move at 10am. Journalists write the
+headline <i>after</i> the price moves, to explain it. Very often nobody actually knows why.`)}`},
+
+{id:'who',t:'Who is on the other side when you buy',file:'02-how-price-moves/market-participants.md',h:`
+${one('Every time you buy, somebody sold to you. It is worth knowing who that person probably was.')}
+<p>You never buy "from the market". You buy from a specific person or institution who, at that exact
+moment, wanted to get rid of the thing you wanted. Sometimes they are panicking. Sometimes they know
+something. Sometimes they are a machine with no opinion at all.</p>
+<table><tr><th>Who</th><th>In plain words</th><th>What it means for you</th></tr>
+<tr><td><b>Retail</b></td><td>normal people like you and me, buying in small amounts</td><td>Slow information, emotional decisions. Together we are huge now because of SIPs.</td></tr>
+<tr><td><b>DII</b></td><td>Indian mutual funds, LIC, pension money</td><td>They must invest every month whatever the price is. Steady buying.</td></tr>
+<tr><td><b>FII</b></td><td>big foreign funds investing in India</td><td>They can sell everything in a week because of something happening in America. Big sudden falls are usually them.</td></tr>
+<tr><td><b>Promoters</b></td><td>the family or founders who own and run the company</td><td>They know the business best. Their buying or selling must be declared publicly — worth checking.</td></tr>
+<tr><td><b>Market makers</b></td><td>computers that quote both a buy and a sell price all day</td><td>They earn the tiny spread. They have no view on the company at all.</td></tr>
+<tr><td><b>Operators</b></td><td>groups who secretly pump small illiquid stocks</td><td>This is where "the stock that only goes up" lives — until one day it does not.</td></tr></table>
+${ex(`A stock jumps 4% and there is no news.<br>
+<b>If it is Reliance</b> (very large): thousands of large investors decided something. Real.<br>
+<b>If it is a tiny ₹200 crore company</b> with only ₹30 lakh traded that day: literally one buyer did
+that. One seller tomorrow can undo it completely.<br><br>
+Same 4% on the screen. Completely different meaning.`)}
+${wr(`Thinking "this is so obviously cheap, how is everyone else missing it". Often the person selling
+to me has read the full annual report and does this for a living. My advantage is not being cleverer
+or faster — it is that I can wait five years and a fund manager cannot wait five months.`)}`}]},
+
+{f:'03-reading-a-company',t:'Reading a company',
+ lede:'How to look at a business and decide if it is any good. Slow and boring — and the only part that makes money over years.',
+ items:[
+{id:'statements',t:'The three reports every company must publish',file:'03-reading-a-company/financial-statements.md',h:`
+${one('Three reports. One shows profit, one shows what it owns, one shows whether real money actually arrived. The third one is the honest one.')}
+<p>Think of your own tea stall. At the end of the year someone asks you three different questions:</p>
+<ul>
+<li>"How much did you earn this year?" → that answer is the ${w('P&amp;L','Profit and Loss statement: sales minus all costs, over one year')}</li>
+<li>"What do you own and what do you owe?" → that is the ${w('balance sheet','a photo on one day: your stall, your stock, your cash, minus your loans')}</li>
+<li>"How much cash actually came into your hand?" → that is the ${w('cash flow statement','the real money that moved in and out, with no estimates allowed')}</li>
+</ul>
+<p>Here is the trick. The first one can be made to look good with clever accounting. The third one
+cannot, because either money came in or it did not.</p>
+${fig(FIG.statements(),'When the orange line (profit) climbs and the green line (actual cash) does not follow, something is wrong. This is the single most useful picture in this whole page.')}
+${words([
+ ['Revenue / sales / turnover','Total money billed to customers. Before any costs.'],
+ ['Profit (PAT)','What is left after every cost and tax. Also called net profit or the bottom line.'],
+ ['Operating cash flow','Cash that actually came in from running the business. The honest number.'],
+ ['Receivables','Money customers owe you but have not paid yet. An IOU, not cash.'],
+ ['Debt','Money the company borrowed and must repay with interest.'],
+ ['Equity','The owners\' share of the company after subtracting all debts.'],
+])}
+${ex(`A company sells ₹100 crore of goods on credit. Nobody has paid yet.<br><br>
+<b>P&amp;L says:</b> sales ₹100 crore. Fantastic year! Share price goes up.<br>
+<b>Balance sheet says:</b> receivables up ₹100 crore. That is a promise, not money.<br>
+<b>Cash flow says:</b> ₹0 came in.<br><br>
+If this repeats for two years, either customers cannot pay, or the sales were never real.`)}
+${key('Your 60-second check on any company',`1. Over 5 years, does cash flow roughly follow profit?<br>
+2. Is debt growing faster than profit?<br>
+3. Are unpaid customer bills growing faster than sales?<br>
+4. Is it borrowing money to pay dividends?<br><br>
+A "no" anywhere is not a verdict. It is just a question you now go and answer.`)}
+${wr(`Looking only at the profit number in a news app. That one number is the easiest of the three to
+dress up. The number I actually want is five years of operating cash flow, and no app shows it on the front page.`)}`},
+
+{id:'ratios',t:'Ratios — a shortcut for comparing companies',file:'03-reading-a-company/key-ratios.md',h:`
+${one('A ratio is just one number divided by another, so you can compare a huge company with a small one fairly.')}
+<p>You cannot compare "₹500 crore profit" with "₹20 crore profit" — of course the big company earns
+more. So instead we ask things like "how much profit does it make per ₹100 of sales?" Now both
+companies can be compared on the same scale. That is all a ratio is.</p>
+<table><tr><th>Ratio</th><th>The sum</th><th>The question it is really asking</th></tr>
+<tr><td><b>P/E</b></td><td>price ÷ EPS</td><td>How many years of profit am I paying for, upfront?</td></tr>
+<tr><td><b>ROE</b></td><td>profit ÷ owners' money</td><td>If I give this company ₹100, how much profit does it make me?</td></tr>
+<tr><td><b>ROCE</b></td><td>profit ÷ (owners' + borrowed money)</td><td>Same, but counting borrowed money too. Harder to fake.</td></tr>
+<tr><td><b>Debt / Equity</b></td><td>loans ÷ owners' money</td><td>How much of this is borrowed? Over 1 means more debt than owners' money.</td></tr>
+<tr><td><b>Operating margin</b></td><td>operating profit ÷ sales</td><td>Out of every ₹100 sold, how much survives?</td></tr>
+<tr><td><b>Interest coverage</b></td><td>profit ÷ interest bill</td><td>Can it even pay the interest? Below 3 is uncomfortable.</td></tr></table>
+${fig(FIG.pe(),'P/E 20 means the price you pay today equals twenty years of the profit it makes today.')}
+<p>Play with this. Move the sliders and watch what a high P/E really means:</p>
+${W.pe()}
+${words([
+ ['P/E ratio','Price divided by yearly profit per share. "Price to earnings."'],
+ ['Earnings yield','The upside-down P/E, shown as a %. P/E 20 = 5% earnings yield. Lets you compare a share with an FD.'],
+ ['ROE / ROCE','How good the company is at turning money into more money. Higher and steadier is better.'],
+ ['Cyclical','A business whose profit swings with a cycle — cement, steel, sugar. Looks cheapest right before profits collapse.'],
+ ['Book value','What the company owns minus what it owes, per share. Matters a lot for banks.'],
+])}
+${ex(`Share price ₹500. The company earns ₹25 per share each year. P/E = 500 ÷ 25 = <b>20</b>.<br><br>
+Meaning: you are handing over 20 years of today's profit to own one share. That is fine if profit
+grows. It is terrible if profit stays flat — an FD would have paid you faster.`)}
+${key('The trap inside every ratio',`A low P/E usually does <b>not</b> mean "cheap and everyone missed it".
+It usually means the market expects profits to fall. Your job is to find out whether the market is
+right — not to assume it is blind.`)}
+${wr(`Filtering for "P/E below 10" and buying the list. Those companies are cheap for a reason, and
+finding the reason is the actual work.`)}`},
+
+{id:'valuation',t:'Price vs value — what is it actually worth',file:'03-reading-a-company/valuation.md',h:`
+${one('Price is what you pay today. Value is all the cash the business will hand you in future, counted in today\'s money.')}
+<p>Why "in today's money"? Because ₹100 next year is not worth ₹100 today. If an FD pays 7%, then
+₹93 today becomes ₹100 next year. So a promise of ₹100 next year is worth only ₹93 to you now.
+A promise of ₹100 in ten years is worth about ₹51 now.</p>
+<p>That shrinking is called ${w('discounting','reducing future money to what it is worth today, because waiting has a cost')}.</p>
+${fig(FIG.dcf(),'The same ₹1,00,000 arriving later and later is worth less and less today. That is the entire idea.')}
+${words([
+ ['Discount rate','The return you could have earned safely instead. Usually the government bond rate.'],
+ ['Free cash flow','Cash left over after the business pays its bills and maintains itself. The money truly available to owners.'],
+ ['DCF','Discounted Cash Flow. Adding up all future cash after shrinking it to today\'s value.'],
+ ['Terminal / forever value','What we assume the business keeps earning far into the future. The biggest guess in the whole calculation.'],
+])}
+${ex(`A shop earns ₹1,00,000 every year, forever. A safe FD pays 7%.<br>
+Value = 1,00,000 ÷ 0.07 = <b>₹14,28,571</b>.<br><br>
+Now suppose that shop grows 3% every year.<br>
+Value = 1,00,000 ÷ (0.07 − 0.03) = <b>₹25,00,000</b>.<br><br>
+A tiny 3% of growth almost doubled the value. And if FD rates rise from 7% to 9%, the first shop is
+suddenly worth only ₹11.1 lakh.<br><br>
+<b>The shop never changed. Not once.</b> Only the surroundings did.`)}
+${key('Why this explains the news',`This one sum explains three headlines you will see forever:
+why "growth" companies trade at crazy prices, why they crash when growth slows even slightly, and
+why the whole market falls when interest rates rise.`)}
+${wr(`Trusting a valuation because it has decimal points. Change the growth guess by 2% and the answer
+moves 50%. It is a way of writing your assumptions down — not a prediction.`)}`},
+
+{id:'moat',t:'Moat — why some companies stay profitable',file:'03-reading-a-company/moats-and-business-quality.md',h:`
+${one('If a business is making easy money, competitors will come and take it. A moat is the reason they cannot.')}
+<p>A ${w('moat','the water around a fort — here, whatever stops competitors from stealing the profits')}
+is just this question: <b>why does somebody not simply copy this and sell it cheaper?</b></p>
+<p>If you cannot answer that, the profits will not last. Five answers actually work:</p>
+${fig(FIG.moat(),'If you cannot point at one of these five and say "that one", assume the company has no moat.')}
+${ex(`Two paint companies.<br>
+<b>Company A</b> has 70,000 shops stocking it, free tinting machines installed in each one, and a
+name your painter asks for by default.<br>
+<b>Company B</b> has a slightly better paint and a lower price.<br><br>
+Company B still loses. You do not research paint — you buy whatever the shop hands you.
+<b>The moat was the 70,000 shops, not the paint.</b>`)}
+${key('How to see a moat in the numbers',`ROCE staying above about 18% for 7-10 years while sales keep
+growing. If ROCE slowly falls year after year, competitors are arriving and the moat was imaginary.`)}
+${wr(`Confusing "I love this product" with "this is a good business". The app I use daily may be run
+by a company that loses money, has no pricing power, and faces three identical rivals.`)}`}]},
+
 {f:'04-reading-a-chart',t:'Reading a chart',
- lede:'Short on purpose, and deliberately placed after fundamentals. A chart tells you about other people — never about the business.',
+ lede:'What the candles and lines mean. Short on purpose — and placed after the company section for a reason.',
  items:[
 {id:'candle',t:'Candles, trend, support, volume',file:'04-reading-a-chart/charts-basics.md',h:`
-<p>A chart is a picture of <b>who was willing to transact, at what price, when</b>. That is all it is.
-Everything below is vocabulary for describing that picture.</p>
-${fig(FIG.candle(),'One candle, four numbers. Learn this and half of chart language is already readable.')}
-<p>Then there are exactly four things worth knowing:</p>
+${one('A chart is only a record of what people paid, and when. It knows nothing about the company.')}
+<p>Each little candle covers one slice of time — one day on a daily chart, one minute on a minute
+chart. It packs four facts into one shape:</p>
+${fig(FIG.candle(),'Open, High, Low, Close. Four numbers, one picture. This is the full alphabet of charts.')}
+${words([
+ ['Open','The first price traded in that period.'],
+ ['Close','The last price traded in that period. The most important of the four.'],
+ ['High / Low','The best and worst prices reached during the period.'],
+ ['Body','The thick part — from open to close. Green means it closed higher than it opened.'],
+ ['Wick / shadow','The thin line — prices that were reached but could not be held.'],
+ ['OHLC','Short for Open, High, Low, Close.'],
+])}
+<p>Now only four ideas matter. That is genuinely all.</p>
 <ol>
-<li><b>Trend</b> — higher highs and higher lows (up), lower highs and lower lows (down), or neither.
-Most of the time it is neither.</li>
-<li><b>Support and resistance</b> — levels where price repeatedly stopped. Not magic: it is memory.</li>
-<li><b>Volume</b> — conviction. A breakout on low volume is a rumour; on 3× average volume it is a decision.</li>
-<li><b>Moving average</b> — the average close of the last N periods. A 50-day MA is just "what the last
-50 days paid on average". Price above it means recent buyers are in profit.</li>
+<li><b>Trend.</b> Going up = each peak is higher than the last peak, and each dip is higher than the
+last dip. Going down = the opposite. <b>Most of the time it is neither</b>, and that is normal.</li>
+<li><b>Support and resistance.</b> Prices where it keeps stopping.
+${w('Support','a price where buyers keep showing up, so falls keep stopping there')} below,
+${w('resistance','a price where sellers keep showing up, so rises keep stopping there')} above.
+It is not magic — it is memory. People who bought at ₹240 and got stuck sell the moment they get
+their money back.</li>
+<li><b>Volume.</b> How many shares changed hands.
+${w('Volume','the number of shares traded in that period — the crowd size behind a move')}
+is the difference between a rumour and a decision.</li>
+<li><b>Moving average.</b> A line showing
+${w('the average closing price of the last N days','a 50-day moving average is simply: add the last 50 closing prices, divide by 50, plot the dot, repeat tomorrow')}.
+Price above the line means recent buyers are sitting in profit.</li>
 </ol>
-${fig(FIG.trend(),'Higher highs, higher lows, a ceiling that holds three times, then a breakout that needs volume to be believed.')}
-${ex(`A stock stalls at ₹240 three times over two months, then closes at ₹252 on 4× volume. Reading:
-the sellers sitting at ₹240 are gone, and it took real money to clear them. If it drifts back under
-₹240 within days on fading volume, the reading was wrong — <b>and that is exactly where the stop belongs</b>.`)}
-${wr(`Finding patterns in noise. On a 5-minute chart everything looks like a signal. The fewer
-indicators on my screen, the better my decisions get.`)}`},
+${fig(FIG.trend(),'Higher peaks, higher dips, a ceiling that holds three times, then a jump through it.')}
+${ex(`A stock tries ₹240 three times over two months and fails each time. Then one day it closes at
+₹252, and four times more shares traded than usual.<br><br>
+<b>Plain reading:</b> the people who were selling at ₹240 have run out, and it took serious money to
+clear them. That is why volume matters — without it, the same ₹252 close is just noise.<br><br>
+And if it slides back under ₹240 a few days later, the reading was simply wrong. <b>That is exactly
+where your exit should have been placed in advance.</b>`)}
+${wr(`Staring at a 5-minute chart where everything looks like a signal, and adding six indicators
+until one of them agrees with what I already wanted to do.`)}`},
 
-{id:'noise',t:'Why technicals mislead beginners',file:'04-reading-a-chart/why-technicals-mislead-beginners.md',h:`
-<p>Technical analysis is not fake — order flow and crowd behaviour are real. The traps are in how a
-beginner uses it. Look at this chart and find the support, the resistance and the breakout:</p>
-${fig(FIG.noise(),'There is nothing in here. It is 120 coin flips. Your brain built the levels, not the market.')}
+{id:'noise',t:'Why charts fool beginners',file:'04-reading-a-chart/why-technicals-mislead-beginners.md',h:`
+${one('Your brain finds patterns everywhere, including in things that have no pattern at all.')}
+<p>Before reading further, look at this chart. Find the support, the resistance, and the breakout:</p>
+${fig(FIG.noise(),'You found them. There is nothing there. This is 120 coin tosses, plotted as a line. No company, no news, no buyers, no sellers.')}
+<p>That is the whole warning, and it is an honest one. Charts are not useless — but four things trip
+up every beginner:</p>
 <ol>
-<li><b>Hindsight teaches nothing.</b> Every chart in every tutorial is already resolved. Live, you
-are standing at the right edge, where the same shape precedes both outcomes.</li>
-<li><b>Patterns are found, not predicted.</b> The brain is a pattern engine and random data obliges.</li>
-<li><b>Indicators are derivatives of price.</b> RSI, MACD, Bollinger — all computed from the same OHLC.
-Six indicators is one piece of information wearing six hats, and their agreement feels like proof.</li>
-<li><b>Shorter timeframe = more noise, more trades, more fees.</b> Costs scale with activity. Edge does not.</li>
+<li><b>Every example you have seen already finished.</b> In a YouTube video the pattern "worked",
+because the teacher scrolled to the part where it worked. Live, you are standing at the right edge
+of the chart, where that same shape leads to both outcomes.</li>
+<li><b>Patterns are found, not predicted.</b> As you just saw with the coin tosses.</li>
+<li><b>Indicators are all made from the same price.</b> RSI, MACD, Bollinger bands — every one of
+them is calculated from the same open-high-low-close. Six indicators agreeing is not six opinions.
+It is one piece of information wearing six costumes.</li>
+<li><b>Smaller timeframe = more noise and more fees.</b> A 1-minute chart gives you fifty "signals" a
+day. Each one costs money to act on. The costs are certain; the signals are not.</li>
 </ol>
-${ex(`Backtest "buy when RSI &lt; 30" on 10 years of Nifty and it looks profitable. Add 0.1% cost per
-round trip and 0.05% slippage and the edge disappears. The strategy did not fail — it never cleared
-its own costs.`)}
-${key('The usable part',`Use charts for <b>timing and risk, not for deciding what to own</b>: where the
-thesis is proven wrong (the stop), whether the market agrees yet (trend and volume), and how much
-room there is to the next obstacle (sizing).`)}
-${wr(`Letting the chart pick the stock. The chart has no idea what the company sells.`)}`}]},
+${words([
+ ['Indicator','Any number calculated from price and drawn on the chart — RSI, MACD, moving averages.'],
+ ['RSI','A 0-100 score of how hard price has risen or fallen recently. Above 70 "overbought", below 30 "oversold" — neither is an instruction.'],
+ ['Backtest','Testing a rule on old data to see if it would have worked.'],
+ ['Timeframe','How much time one candle covers — 1 minute, 1 hour, 1 day.'],
+])}
+${ex(`Test the rule "buy whenever RSI falls below 30" on ten years of Nifty data. On paper it makes money.<br>
+Now subtract 0.1% cost per trade and 0.05% slippage.<br>
+<b>The profit disappears completely.</b><br><br>
+The rule did not stop working. It never earned enough to cover its own costs in the first place.`)}
+${key('So what are charts actually for',`Use them for <b>when</b> and <b>how much</b> — never for
+<b>what</b>. The chart tells you where you would be proven wrong (your exit price), whether other
+people agree yet, and how far away the next obstacle is. It cannot tell you whether the company is
+any good, because it has never heard of the company.`)}
+${wr(`Letting the chart choose the stock for me.`)}`}]},
 
 {f:'05-not-losing-money',t:'Not losing money',
- lede:'The section everyone skips, and the one that decides the outcome. You do not control returns. You control how much you lose when you are wrong.',
+ lede:'The section everybody skips. It decides more than all the others combined, and it needs no maths beyond division.',
  items:[
-{id:'risk',t:'Risk and position sizing',file:'05-not-losing-money/risk-and-position-sizing.md',h:`
-${fig(FIG.recovery(),'This table is the entire argument for caring about risk before caring about returns.')}
-<p>So the rule: risk at most <b>1% of capital per idea</b>. Not a 1% position — a 1% <i>loss</i> if
-the stop is hit.</p>
-${fig(FIG.sizing(),'One line of arithmetic that removes the single most expensive decision from your hands.')}
+{id:'risk',t:'How much to buy (the one rule that matters)',file:'05-not-losing-money/risk-and-position-sizing.md',h:`
+${one('You cannot control whether you are right. You can completely control how much you lose when you are wrong.')}
+<p>Start here, because it is the most important table on this page:</p>
+${fig(FIG.recovery(),'Losing is not symmetrical. Lose 50% and you now need to DOUBLE your money just to get back to where you started.')}
+<p>Read it once more. A 10% loss needs an 11% gain — almost fair. A 50% loss needs a 100% gain. A 75%
+loss needs 300%. This is why experienced people talk about risk before they talk about returns.</p>
+<p>So here is the rule, and it is one division:</p>
+${fig(FIG.sizing(),'Decide where you would admit you were wrong. That distance decides how many shares you buy.')}
+${words([
+ ['Capital','Your total money set aside for investing.'],
+ ['Risk per trade','How much of your capital you are willing to lose on ONE idea. 1% is the standard.'],
+ ['Stop loss','The price at which you accept you were wrong and get out. Decided BEFORE you buy.'],
+ ['Position size','How many shares you buy. This is the answer, not the starting point.'],
+ ['Drawdown','How far your account has fallen from its highest point.'],
+])}
+${ex(`Your capital is ₹5,00,000. You risk 1% → that is <b>₹5,000</b> you are willing to lose.<br><br>
+You want to buy at ₹200. You decide that below ₹180, your reason for buying is dead.<br>
+So the risk per share is ₹200 − ₹180 = <b>₹20</b>.<br><br>
+Shares to buy = ₹5,000 ÷ ₹20 = <b>250 shares</b>. That is a ₹50,000 position.<br><br>
+If your exit were tighter — say ₹190 — the risk per share is ₹10, so you could buy 500 shares.
+Either way <b>the amount you can lose stays ₹5,000</b>.`)}
+<p>Try it yourself. Notice that the quantity changes on its own when you move the stop:</p>
 ${W.sizer()}
-${key('Where the stop goes',`At the price that <b>proves the reason for buying was wrong</b> — below the
-structure, the support, the level. Never at a round number of rupees you are emotionally willing to
-lose. The market has never heard of your pain threshold.`)}
-${wr(`Sizing by conviction: "I am very sure, so I will put 40% in." Conviction is the feeling you have
-right before you find out what you did not know. Size by the stop, every single time.`)}`},
+${key('Why 1%',`Lose 20 times in a row at 1% → you still have 82% of your money. You are fine.<br>
+Lose 5 times in a row at 20% → you have 33% left. You are finished.<br>
+Nobody plans to lose 20 times. People do it anyway.`)}
+${wr(`Deciding the quantity by how confident I feel. "I am very sure about this one, so I will put in
+40%." Confidence is the feeling you have just before you discover what you did not know.`)}`},
 
-{id:'diversify',t:'Diversification and correlation',file:'05-not-losing-money/diversification-and-correlation.md',h:`
-<p>Diversification is the one free lunch in finance: less risk for the same expected return. But only
-if the things you hold <b>do not fall for the same reason</b>.</p>
-${fig(FIG.correlation(),'Ten stocks sounds diversified. Ten PSU banks is one bet on rates, wearing ten names.')}
-<p>Diversify across the thing that can actually go wrong: <b>sector</b>, <b>factor</b> (rate-sensitive
-vs commodity-linked vs domestic consumption), <b>currency</b> (IT earns in dollars, an importer pays
-in them), and <b>asset class</b> (equity, debt, gold, cash).</p>
-${key('How many is enough',`Roughly <b>12-20 genuinely different names</b> captures most of the benefit.
-Beyond ~25 you have built an expensive index fund by hand and can no longer follow any of them.
-Under 5 and one accounting fraud ends your year.`)}
-${wr(`"Diversifying" into five more stocks I like — all mid-cap, all domestic, all rate-sensitive,
-all bought in the same bullish month. That is concentration with extra steps.`)}`},
+{id:'diversify',t:'Spreading your money properly',file:'05-not-losing-money/diversification-and-correlation.md',h:`
+${one('Owning ten things only helps if they do not all fall on the same day for the same reason.')}
+<p>${w('Diversification','spreading money across different things so one bad event cannot hurt all of them')}
+is the only genuinely free improvement available: less risk, same expected return. But people do it
+wrongly all the time.</p>
+${fig(FIG.correlation(),'Left: five IT companies. Right: five different kinds of business. Same bad day for IT.')}
+<p>Five IT companies is <b>not</b> five investments. It is one bet on IT spending, bought five times.
+When American companies cut their software budget, all five fall together on the same morning.</p>
+${words([
+ ['Correlation','Whether two things move together. Two IT stocks = high correlation. A bank and a pharma company = low.'],
+ ['Sector','The industry a company belongs to — IT, banking, pharma, cement, FMCG.'],
+ ['Asset class','A type of investment altogether — shares, bonds, gold, property, cash.'],
+ ['Concentration','The opposite of diversification. All your money depending on one thing going right.'],
+])}
+${ex(`<b>Portfolio A:</b> TCS, Infosys, Wipro, HCL, Tech Mahindra → one bad IT quarter, all five drop, you are down 12%.<br>
+<b>Portfolio B:</b> TCS, HDFC Bank, Hindustan Unilever, Sun Pharma, one index fund → the same bad IT
+quarter costs you about 3%.<br><br>
+Both are "five stocks". Only one of them is diversified.`)}
+${key('How many is enough',`About <b>12 to 20</b> genuinely different companies gets you almost all the
+benefit. Past 25 you have built a costly index fund by hand and cannot follow any of them properly.
+Under 5 and a single fraud can end your year.`)}
+${wr(`Adding five more stocks I like — all small companies, all Indian, all sensitive to interest
+rates, all bought in the same excited month — and calling that diversification.`)}`},
 
-{id:'behaviour',t:'Behavioural traps',file:'05-not-losing-money/behavioral-traps.md',h:`
-<p>Your brain is well built for the savannah and badly built for markets. Name these so you can catch
-yourself mid-act.</p>
-<table><tr><th>Trap</th><th>What it makes you do</th></tr>
-<tr><td><b>Loss aversion</b></td><td>A ₹10,000 loss hurts twice as much as a ₹10,000 gain feels good → you cut winners early and hold losers forever.</td></tr>
-<tr><td><b>Anchoring</b></td><td>Fixating on your buy price. The market does not know what you paid. The only question is: at today's price, would I buy it today?</td></tr>
-<tr><td><b>FOMO / herding</b></td><td>Risk feels <i>lowest</i> exactly when everyone is posting their gains — which is when it is highest.</td></tr>
-<tr><td><b>Recency bias</b></td><td>Three good months feel permanent. Bull markets make everyone feel skilled, and leverage shows up right before the correction.</td></tr>
-<tr><td><b>Confirmation bias</b></td><td>Reading only the bullish thread about the stock you already own.</td></tr>
-<tr><td><b>Overtrading</b></td><td>More trades feel like more control. They are more fees and more chances to be wrong.</td></tr>
-<tr><td><b>Revenge trading</b></td><td>Doubling down to "get back" what the market took. The market has no memory of your loss.</td></tr></table>
-${ex(`Bought at ₹300, now ₹210. "I will sell when it gets back to ₹300." That sentence contains zero
-information about the business — only about the anchor. Meanwhile ₹2,10,000 is stuck there instead
-of being in a better idea.`)}
-${key('The only defence that works',`<b>Write the thesis and the exit before buying.</b> Decisions made in
-advance, in writing, are the only ones that survive contact with a red screen.`)}
-${wr(`Reading this list, agreeing with all of it, and then doing every single one anyway — because
-knowing a bias exists does not disable it. Only a written rule does.`)}`},
+{id:'behaviour',t:'The mistakes your own brain makes',file:'05-not-losing-money/behavioral-traps.md',h:`
+${one('Most money is lost not by choosing the wrong share, but by panicking, chasing, or refusing to admit a mistake.')}
+<p>These are not character flaws. They are standard factory settings in every human brain. Name them
+so you can catch yourself doing them.</p>
+<table><tr><th>The trap</th><th>What it feels like</th><th>What it makes you do</th></tr>
+<tr><td><b>Loss aversion</b></td><td>losing ₹10,000 hurts twice as much as winning ₹10,000 feels nice</td><td>sell winners too early, hold losers forever</td></tr>
+<tr><td><b>Anchoring</b></td><td>"I will sell when it comes back to ₹300"</td><td>wait years for a number that only exists in your own head</td></tr>
+<tr><td><b>FOMO</b></td><td>everyone is posting profits, you are missing out</td><td>buy at the top, where risk is highest and feels lowest</td></tr>
+<tr><td><b>Recency</b></td><td>three good months feel like a permanent skill</td><td>take bigger and bigger bets right before the fall</td></tr>
+<tr><td><b>Confirmation</b></td><td>reading only the posts that agree with you</td><td>never notice the problem until it is in the price</td></tr>
+<tr><td><b>Overtrading</b></td><td>doing something feels like being in control</td><td>pay fees twenty times a month for nothing</td></tr>
+<tr><td><b>Revenge trading</b></td><td>"the market took it from me, I will take it back"</td><td>double the size right after a loss — the classic way to blow up</td></tr></table>
+${ex(`You bought at ₹300. It is now ₹210. You say: "I will sell when it gets back to ₹300."<br><br>
+Look at that sentence carefully. It contains <b>nothing about the company</b>. The market does not
+know you paid ₹300, and it has no duty to return there.<br><br>
+The only real question is: <b>at ₹210 today, would I buy this?</b> If the answer is no, then holding
+it is not analysis — it is embarrassment. Meanwhile ₹2,10,000 of your money is parked there instead
+of in a better idea.`)}
+${key('The only defence that actually works',`<b>Write down the reason and the exit before you buy.</b>
+Decisions made calmly in advance, in writing, are the only ones that survive a red screen.`)}
+${wr(`Reading this table, nodding at every row, and then doing all seven anyway. Knowing about a bias
+does not switch it off. Only a written rule does.`)}`},
 
-{id:'fees',t:'Fees, slippage and taxes',file:'05-not-losing-money/fees-slippage-and-taxes.md',h:`
-<p>Every round trip costs you, win or lose. Small per trade. Decisive in aggregate.</p>
-${fig(FIG.feesdrag(),'Same market, same 12% gross return, same 20 years. Only the fee differs.')}
+{id:'fees',t:'The costs nobody mentions',file:'05-not-losing-money/fees-slippage-and-taxes.md',h:`
+${one('Every trade costs money whether you win or lose. Tiny each time. Enormous added up.')}
+<p>Four separate costs, and most people only notice the first one:</p>
+${words([
+ ['Brokerage','What your broker charges per order. Often ₹0 for delivery, around ₹20 for intraday.'],
+ ['STT and government charges','Tax and exchange fees on every order. Small, unavoidable, charged on both sides.'],
+ ['Slippage','The gap between the price you saw and the price you got. Invisible — it never appears on any bill.'],
+ ['Spread','You buy at the higher ask and sell at the lower bid, so every trade starts slightly in loss.'],
+ ['Intraday','Buying and selling the same day. Highest cost, highest tax rate.'],
+ ['Delivery','Buying and keeping the shares. Lowest cost, lowest tax rate.'],
+])}
+${fig(FIG.feesdrag(),'Same market, same 12% return, same 20 years. The only difference is the fee. Look at the gap.')}
+${ex(`One ₹1,00,000 intraday round trip costs roughly <b>₹200</b> including slippage. Nothing, right?<br><br>
+Do it once every trading day for a year: 250 × ₹200 = <b>₹50,000</b>.<br>
+On a ₹1,00,000 account, you now have to make <b>50% profit just to end the year flat</b>.<br><br>
+This, not bad stock picking, is what quietly kills most active traders.`)}
+<p>Move these sliders — it is the same effect inside mutual funds:</p>
 ${W.fees()}
-${ex(`A ₹1,00,000 intraday round trip costs roughly ₹200 all-in with slippage. Nothing.
-Do it once a trading day for a year: 250 × ₹200 = <b>₹50,000 — half of a ₹1,00,000 account.</b>
-You now need a 50% gross return just to break even.`)}
-<p><b>Tax, equity, current regime:</b> short-term gains (held ≤12 months) 20%; long-term (&gt;12 months)
-12.5% with about ₹1.25 lakh a year exempt; dividends at your slab rate. Losses can be carried forward
-8 years — only if you file on time.</p>
-${key('The quiet bonus',`Holding past the 12-month line is a real, quantifiable bump in return.
-Churning is taxed at nearly double the rate <i>and</i> pays fees on every leg.`)}
-${wr(`Judging a strategy on gross returns. The only number that exists is net of fees, slippage and
-tax. A 15% gross strategy traded weekly can net less than an index fund held and ignored.`)}`}]},
+<p><b>Tax, in short:</b> sell within 12 months → 20% tax on the gain. Hold beyond 12 months → 12.5%,
+and roughly the first ₹1.25 lakh of gains each year is free. Losses can be carried forward for 8
+years, but only if you file your returns on time.</p>
+${key('The quiet free money',`Simply holding past the 12-month mark changes your tax from 20% to 12.5%.
+That is a real, guaranteed improvement in return for doing nothing at all.`)}
+${wr(`Judging a strategy by its profit before costs. The only number that exists is what is left after
+fees, slippage and tax. A 15% strategy traded every week can easily end up below a boring index fund.`)}`}]},
 
-{f:'06-instruments',t:'Instruments beyond stocks',
- lede:'What else exists, and which of it to leave alone.',
+{f:'06-instruments',t:'Other things you can buy',
+ lede:'Funds, bonds, and F&O — what they are, in plain words, and which one to stay away from.',
  items:[
-{id:'funds',t:'Mutual funds, index funds, ETFs, SIP',file:'06-instruments/mutual-funds-and-etfs.md',h:`
-<p>A fund pools money from many people and buys a basket. You own <b>units</b> of that basket, priced
-at <b>NAV</b> (net asset value per unit).</p>
-<table><tr><th>Type</th><th>What it does</th><th>Typical fee</th></tr>
-<tr><td><b>Active fund</b></td><td>a manager picks stocks, tries to beat the index</td><td>1-2% a year</td></tr>
-<tr><td><b>Index fund</b></td><td>mechanically holds the index</td><td>0.1-0.2% a year</td></tr>
-<tr><td><b>ETF</b></td><td>an index fund that trades on the exchange like a share</td><td>0.05-0.2% a year</td></tr></table>
-<p>Most active funds do not beat the index after costs, and the ones that did last decade are not
-reliably the ones that will next decade. See the fee chart in the previous section — that gap is the
-whole argument.</p>
-${key('SIP, honestly',`A fixed amount, monthly, automatic. It does two useful things: it removes the
-timing decision (the one you are worst at), and it buys more units when prices are low. It is not
-magic — in a market that falls for a decade an SIP loses money too — but it beats the real
-alternative, which is waiting for a "good time" and never starting.`)}
-${wr(`Picking last year's number-one performing fund. Top-quartile performance is the least persistent
-statistic in finance. The expense ratio is the most predictive one.`)}`},
+{id:'funds',t:'Mutual funds, index funds, ETFs and SIP',file:'06-instruments/mutual-funds-and-etfs.md',h:`
+${one('A fund is a basket. Many people put money in, the basket buys many shares, and you own a slice of the basket.')}
+${words([
+ ['Mutual fund','A pool of many investors\' money, invested together in one basket of shares.'],
+ ['NAV','Net Asset Value — the price of one unit of the fund. Like a share price, but for the basket.'],
+ ['Index fund','A fund that simply buys the whole Nifty 50 and does nothing clever. Very cheap.'],
+ ['Active fund','A fund where a manager picks the shares and tries to beat the index. More expensive.'],
+ ['ETF','An index fund that you buy and sell on the exchange like a normal share.'],
+ ['Expense ratio','The yearly fee, as a % of your money. Charged whether the fund wins or loses.'],
+ ['SIP','Systematic Investment Plan — a fixed amount invested automatically every month.'],
+])}
+<p>The only number that reliably predicts a fund's future is the boring one: the fee.</p>
+${ex(`₹10,00,000 invested for 20 years, earning 12% a year.<br>
+Index fund at a 0.2% fee → <b>₹93.1 lakh</b>.<br>
+Active fund at a 1.5% fee → <b>₹73.4 lakh</b>.<br><br>
+Difference: <b>₹19.7 lakh</b>, about a fifth of the whole result, paid away in fees — for a fund that
+most likely did not beat the index anyway.`)}
+${key('What a SIP really does',`It is not magic and it does not guarantee profit. It does two useful
+things: it removes the timing decision (the thing you are worst at), and it automatically buys more
+units when prices are low. Mostly, it beats the real-life alternative — waiting for "a good time"
+and never starting.`)}
+${wr(`Buying last year's best-performing fund. Past performance is the least reliable number in
+finance; the expense ratio is the most reliable one.`)}`},
 
 {id:'bonds',t:'Bonds and interest rates',file:'06-instruments/bonds-and-fixed-income.md',h:`
-<p>A bond is a <b>loan you own</b>. You lend ₹1,000, collect a fixed coupon, get the ₹1,000 back at
-maturity. Equity is ownership with unlimited upside and last claim. Debt is a contract with capped
-upside and first claim.</p>
-${fig(FIG.bonds(),'The single most useful fact in finance for an equity investor who thinks bonds are boring.')}
-<p><b>Duration</b> measures how hard this hits: a 10-year bond falls much more than a 1-year bond for
-the same rate move, because more future payments get repriced.</p>
-${key('Why a stock investor must know this',`The government bond yield is the risk-free alternative and
-the discount rate under every stock valuation. When the 10-year goes from 6% to 8%, every valuation
-in the market is mechanically worth less — and no company did anything wrong. This is the usual
-answer to "the whole market fell and nothing happened".`)}
-${wr(`Treating a high-yield debt fund as a safe FD substitute. Extra yield is always payment for risk.
-There is no exception, and the risk arrives all at once.`)}`},
+${one('A bond is a loan that you own. You lend money, you get fixed interest, you get the money back at the end.')}
+<p>A share makes you an <b>owner</b> — unlimited upside, and last in the queue if things go wrong.
+A bond makes you a <b>lender</b> — fixed return, and first in the queue.</p>
+${words([
+ ['Bond','A loan to a company or the government, which you can buy and sell.'],
+ ['Coupon','The fixed interest the bond pays you each year.'],
+ ['Yield','The return you actually get, considering the price you paid for the bond.'],
+ ['Maturity','The date you get your original money back.'],
+ ['Duration','How sensitive a bond\'s price is to interest rate changes. Longer bonds swing more.'],
+ ['Credit risk','The chance that the borrower simply does not pay you back.'],
+])}
+${fig(FIG.bonds(),'When new bonds start paying more, nobody wants your old low-paying bond at full price.')}
+${ex(`You own a bond paying ₹70 a year on ₹1,000 — that is 7%.<br>
+The government raises rates. New bonds now pay ₹90 a year on ₹1,000 — that is 9%.<br><br>
+Would anyone pay you ₹1,000 for your 7% bond? No. They would buy a new one.<br>
+So your bond's price has to fall to around <b>₹778</b>, because ₹70 on ₹778 is also 9%.<br><br>
+<b>You did nothing. Your bond did nothing. The alternative got better, so your thing got cheaper.</b>`)}
+${key('Why a share investor must understand this',`That same interest rate is the "safe alternative"
+sitting underneath every share valuation. When rates rise, every share in the market becomes worth
+a little less — no company did anything wrong. This is usually the answer to "why did everything
+fall today when there was no news?"`)}
+${wr(`Treating a high-return debt fund as a safer FD. A higher return is always payment for a higher
+risk. There is no exception, and that risk tends to arrive all at once.`)}`},
 
-{id:'fno',t:'Derivatives (F&amp;O) — read it, do not trade it',file:'06-instruments/derivatives-basics.md',h:`
-<p>A derivative takes its value from something else. <b>Futures</b> are an obligation to buy or sell at
-a set price on a set date, on ~15% margin — which is 6-7× leverage in both directions.
-<b>Options</b> are a right, not an obligation.</p>
-${fig(FIG.payoff(),'The buyer risks only the premium. The seller collects the premium and takes unlimited risk — that is the side that blows up accounts.')}
-${key('Theta — the part beginners never price in',`Options rot. Every day that nothing happens, the
-premium drains. You can be right on direction, late on timing, and still lose everything you put in.`)}
-<p>What F&amp;O is legitimately for: <b>hedging</b> (buying a put to protect a holding you cannot sell)
-and defined-risk expression of a view. Not leverage to make a small account big.</p>
-${wr(`Buying cheap weekly out-of-the-money options because the payoff table looks exciting. Cheap means
-the market thinks it will probably expire worthless — and the market is usually right.`)}`}]},
+{id:'fno',t:'F&amp;O — understand it, do not trade it',file:'06-instruments/derivatives-basics.md',h:`
+${one('Futures and options let you control a lot of money with a little. That cuts both ways, and the data on who wins is brutal.')}
+${words([
+ ['Derivative','Something whose value comes from something else — here, from a share or an index.'],
+ ['Future','An agreement to buy or sell at a fixed price on a fixed future date. An obligation.'],
+ ['Option','The right — not the obligation — to buy or sell at a fixed price. You can walk away.'],
+ ['Call / Put','Call = the right to buy (you want price up). Put = the right to sell (you want price down).'],
+ ['Strike price','The fixed price written into the option.'],
+ ['Premium','What you pay to buy an option. The most a buyer can lose.'],
+ ['Expiry','The date the contract dies. After this, it is worth either its value or nothing.'],
+ ['Leverage','Controlling ₹10 lakh of shares with ₹1.5 lakh. Gains and losses both multiply.'],
+ ['Theta','Time decay — the premium shrinking a little every single day, even if nothing happens.'],
+])}
+${fig(FIG.payoff(),'The buyer can only lose the premium. The seller collects the premium and can lose without limit — that is the side that destroys accounts.')}
+${ex(`Nifty is at 24,000. You buy a call option with strike 24,200 for ₹100. One lot is 75 units, so
+you pay ₹7,500.<br><br>
+<b>If Nifty is 24,500 at expiry:</b> the option is worth 300 points × 75 = ₹22,500. You tripled your money.<br>
+<b>If Nifty is 24,100 at expiry:</b> it is worth <b>zero</b>. You lost all ₹7,500 — <i>and the index
+actually went up</i>. It just did not go up enough, in time.`)}
+${key('The number that should settle the argument',`SEBI's own studies find roughly <b>9 out of 10
+individual F&amp;O traders lose money</b>. That is not a warning label someone wrote. It is a
+measurement of what happened to real people.`)}
+<p>What F&amp;O is honestly for: protecting a holding you cannot sell, and taking a view with a known
+maximum loss. Not for turning a small account into a big one.</p>
+${wr(`Buying cheap weekly options because ₹7,500 turning into ₹22,500 looks exciting on paper. Cheap
+means the market has judged that it will most likely expire worthless — and on that, the market is
+usually right.`)}`}]},
 
-{f:'07-before-real-money',t:'Before the first rupee',
- lede:'Two documents. They are the gate between learning and investing.',
+{f:'07-before-real-money',t:'Before your first rupee',
+ lede:'Two pieces of writing. They are the gate between learning and investing, and they take one evening.',
  items:[
-{id:'thesis',t:'Your written thesis',file:'07-before-real-money/my-investing-thesis.md',h:`
-<p>This is the file that makes everything above enforceable. Written in advance, in your own words,
-and edited only on purpose — never in the middle of a drawdown.</p>
-${key('The gate before equity',`Emergency fund of 6 months expenses, in cash. High-interest debt cleared.
-Money you will not need for at least 5 years. Equity's only real edge is time, and the only way to
-lose that edge is to be forced to sell early.`)}
-<p>Then write down: the maximum per single stock, the maximum per sector, the risk per idea, and what
-you will flatly never buy. And the checklist you must pass before any purchase:</p>
+{id:'thesis',t:'Writing down your own rules',file:'07-before-real-money/my-investing-thesis.md',h:`
+${one('Rules decided calmly in advance are the only ones that survive a falling market.')}
+${key('Three things that must be true before any share',`<b>1.</b> An emergency fund of 6 months of
+expenses, sitting in cash.<br><b>2.</b> No high-interest debt (credit card, personal loan).<br>
+<b>3.</b> This money is not needed for at least 5 years.<br><br>
+Why so strict? Because a share's only real advantage is <b>time</b>, and the only way to lose that
+advantage is to be forced to sell at a bad moment.`)}
+<p>Then write down your own limits, in your own words: the most you will put in one company, the most
+in one sector, how much you risk per idea, and what you will simply never buy.</p>
+<p>And this checklist, to be answered <b>before every purchase</b>:</p>
 <ol>
 <li>What does this business sell, and who pays for it?</li>
-<li>Why will it earn more in 5 years than today?</li>
-<li>What is the moat, and does ROCE show it?</li>
-<li>Does operating cash flow track profit over 5 years?</li>
-<li>What am I paying for that, versus its own history and its peers?</li>
-<li><b>What would prove me wrong, and at what price do I admit it?</b></li>
-<li>Why is it available at this price — what does the seller believe?</li>
+<li>Why will it earn more in 5 years than it does today?</li>
+<li>What stops a competitor from copying it? (the moat)</li>
+<li>Does the real cash match the reported profit over 5 years?</li>
+<li>What am I paying for that, compared to its own past and its rivals?</li>
+<li><b>What would prove me wrong, and at what price do I accept it?</b></li>
+<li>Why is somebody selling this to me at this price?</li>
 </ol>
-<p>If you cannot answer 1, 2 and 6, you do not buy. No exceptions, no "small position just to track it".</p>
-${wr(`Writing this once and never opening it again. It gets read before every buy.`)}`},
+<p>If you cannot answer 1, 2 and 6 in your own words, you do not buy. Not even a small amount
+"just to track it".</p>
+${wr(`Writing this once, feeling organised, and never opening the file again. It gets read before
+every single purchase, or it does nothing.`)}`},
 
-{id:'log',t:'Practising so it actually teaches you',file:'07-before-real-money/paper-trading-log.md',h:`
-<p>Simulated trades are worthless unless the <b>reason</b> is recorded before the outcome is known.
-Otherwise you just rewrite history to make yourself look smart.</p>
-<p>For every practice trade, write this <b>before</b> entering: setup, thesis, entry, size, stop (and
-why there), target (and why there), and your emotion right now. Afterwards, without editing any of
-that: exit, result in R, was the thesis right, was the <i>execution</i> right, one sentence learned.</p>
-<table><tr><th></th><th>Thesis right</th><th>Thesis wrong</th></tr>
-<tr><td><b>Followed my rules</b></td><td class="up">Good process, good outcome</td><td class="up">Good process, bad outcome — <b>this is fine</b></td></tr>
-<tr><td><b>Broke my rules</b></td><td class="dn">Lucky — <b>the most dangerous box</b></td><td class="dn">Bad process, deserved</td></tr></table>
-<p>Judge the process, never the single outcome. Twenty trades of good process beat twenty lucky ones,
-because the lucky box is where ruin gets learned as a habit.</p>
-${key('Minimum before real money',`<b>50 logged trades</b> with written theses, and an honest count of how
-many landed in each box. If "broke my rules" is more than about 10%, the problem is not the strategy.`)}
+{id:'log',t:'Practising so that it teaches you something',file:'07-before-real-money/paper-trading-log.md',h:`
+${one('Practice only teaches you something if you wrote down the reason BEFORE you knew the result.')}
+<p>Otherwise what happens is simple and human: it works, so you decide you are skilled; it fails, so
+you decide you were unlucky. You learn nothing either way.</p>
+<p>So for every practice trade, write this down <b>first</b>: what you saw, why you think it will
+move, your entry, your quantity, your exit-if-wrong price and why there, your target and why there,
+and honestly — what you are feeling right now.</p>
+<p>Then after it finishes, without editing any of the above: where you got out, what the result was,
+was the <b>reason</b> right, and separately, was the <b>execution</b> right.</p>
+<table><tr><th></th><th>Reason was right</th><th>Reason was wrong</th></tr>
+<tr><td><b>I followed my rules</b></td><td class="up">Good process, good result</td><td class="up">Good process, bad result — <b>this is completely fine</b></td></tr>
+<tr><td><b>I broke my rules</b></td><td class="dn">Got lucky — <b>the most dangerous box of all</b></td><td class="dn">Bad process, deserved result</td></tr></table>
+<p>Most beginners judge themselves only by profit, which means the top-right box feels like failure
+and the bottom-left box feels like skill. Both readings are backwards. The bottom-left box is where
+people learn habits that eventually wipe them out.</p>
+${key('The gate',`<b>50 practice trades</b>, each with a written reason, and an honest count of how many
+landed in each box. If "I broke my rules" is more than about 10% of them, the problem is not your
+strategy and no new strategy will fix it.`)}
 <p><a class="lab" href="lab/trading-lab.html">▶ Open the practice lab →</a></p>
-${wr(`Paper trading with unlimited fake size and no fees, feeling great, then sizing real money the
-same way. Set the sim to my real capital and keep the fees on.`)}`}]}
+${wr(`Practising with unlimited imaginary money and no fees, feeling like a genius, and then using
+real money the same way. Set the practice account to the amount I would really use, and keep the
+fees switched on.`)}`}]}
 );
 
 /* ---------- render + progress ---------- */
