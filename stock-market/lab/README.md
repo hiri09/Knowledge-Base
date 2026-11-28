@@ -1,5 +1,7 @@
 # Trading Lab — practise what the notes explain
 
+Theory with diagrams: `../learn.html`. This is the doing half.
+
 Open `trading-lab.html` in any browser. Double-click it. No install, no server,
 no internet, no account. Keep `lab.js` next to it.
 

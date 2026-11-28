@@ -4,6 +4,10 @@ Himanshu is new to the market. The rule for this folder: **theory only, no trade
 until a concept is written down here in his own words.** Each concept gets its own
 note in `stock-market/`. This file is the running order and the status board.
 
+**Read it all in one page:** `learn.html` — every one of the 22 ideas with diagrams,
+worked examples and three interactive calculators. Double-click it. The markdown notes
+below are the same material in text form, one idea per file.
+
 **Practise alongside:** `lab/trading-lab.html` — a full trading terminal that runs
 in the browser with fake money and real mechanics. Double-click it. See `lab/README.md`.
 

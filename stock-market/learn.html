@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock Market — the whole thing, with pictures</title>
+<style>
+:root{
+  --bg:#0c1014; --panel:#12181f; --card:#161d26; --line:#242e3a;
+  --txt:#e8eef5; --dim:#92a0b0; --dimmer:#5f6e7e;
+  --up:#2bb673; --dn:#e85768; --accent:#5b9dff; --warn:#e8b14a; --vio:#a98bff;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --serif:Charter,Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);
+  font:16px/1.65 var(--serif);-webkit-font-smoothing:antialiased}
+#layout{display:grid;grid-template-columns:270px 1fr}
+/* ---- sidebar ---- */
+nav{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--panel);
+  border-right:1px solid var(--line);padding:18px 0 60px}
+nav h1{font:600 12px/1.3 -apple-system,sans-serif;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dimmer);margin:0 18px 4px}
+nav .sub{font:12px/1.4 -apple-system,sans-serif;color:var(--dimmer);margin:0 18px 16px}
+nav .sec{font:600 11px/1.3 -apple-system,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);margin:18px 18px 6px;opacity:.85}
+nav a{display:block;padding:5px 18px 5px 18px;color:var(--dim);text-decoration:none;
+  font:14px/1.35 -apple-system,sans-serif;border-left:2px solid transparent}
+nav a:hover{color:var(--txt);background:#19212b}
+nav a.on{color:var(--txt);border-left-color:var(--accent);background:#19212b}
+nav a .tick{color:var(--up);opacity:0;margin-right:4px}
+nav a.done .tick{opacity:1}
+#prog{margin:10px 18px 0;font:12px/1.4 -apple-system,sans-serif;color:var(--dimmer)}
+#bar{height:3px;background:#1e2833;border-radius:2px;margin-top:5px;overflow:hidden}
+#bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+/* ---- content ---- */
+main{padding:0 0 140px}
+.wrap{max-width:780px;margin:0 auto;padding:0 28px}
+.hero{padding:70px 0 40px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.hero h2{font:700 38px/1.15 var(--serif);margin:0 0 14px;letter-spacing:-.02em}
+.hero p{color:var(--dim);font-size:17px;margin:0 0 10px}
+section{padding:46px 0 10px;border-top:1px solid var(--line);margin-top:34px}
+.secnum{font:600 11px/1 -apple-system,sans-serif;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:10px}
+section>h2{font:700 29px/1.2 var(--serif);margin:0 0 6px;letter-spacing:-.015em}
+section>.lede{color:var(--dim);margin:0 0 6px;font-size:16px}
+article{padding:34px 0 10px}
+article h3{font:700 22px/1.25 var(--serif);margin:0 0 2px;display:flex;align-items:baseline;gap:9px}
+article h3 .n{font:600 12px var(--mono);color:var(--dimmer)}
+.file{font:11px var(--mono);color:var(--dimmer);margin:0 0 16px}
+p{margin:0 0 14px}
+b,strong{color:#fff;font-weight:700}
+code{font:13px var(--mono);background:#1a222c;padding:1px 5px;border-radius:4px;color:#cfe1ff}
+ul,ol{margin:0 0 14px;padding-left:22px}li{margin-bottom:6px}
+.fig{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:18px 16px 12px;margin:20px 0 22px;overflow-x:auto}
+.fig svg{display:block;margin:0 auto;max-width:100%}
+.figcap{font:12px/1.5 -apple-system,sans-serif;color:var(--dimmer);text-align:center;margin-top:10px}
+.ex{background:#141c17;border:1px solid #1f3a2b;border-left:3px solid var(--up);
+  border-radius:0 10px 10px 0;padding:14px 16px;margin:18px 0;font-size:15px}
+.ex h4{font:600 11px -apple-system,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--up);margin:0 0 8px}
+.wrong{background:#1e1518;border:1px solid #42242b;border-left:3px solid var(--dn);
+  border-radius:0 10px 10px 0;padding:14px 16px;margin:18px 0;font-size:15px}
+.wrong h4{font:600 11px -apple-system,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dn);margin:0 0 8px}
+.key{background:#161e2c;border:1px solid #27384f;border-radius:10px;padding:14px 16px;margin:18px 0}
+.key h4{font:600 11px -apple-system,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 8px}
+table{width:100%;border-collapse:collapse;margin:16px 0;font:14px/1.5 -apple-system,sans-serif}
+th{text-align:left;color:var(--dim);font-weight:600;font-size:12px;letter-spacing:.04em;
+  text-transform:uppercase;border-bottom:1px solid var(--line);padding:6px 8px}
+td{border-bottom:1px solid #1b232d;padding:7px 8px;vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--mono);font-size:13px}
+.up{color:var(--up)}.dn{color:var(--dn)}.dim{color:var(--dim)}.warn{color:var(--warn)}
+.lab{display:inline-flex;align-items:center;gap:7px;background:#17243a;border:1px solid #2c4karma;
+  border:1px solid #2c4a7a;color:#bcd7ff;text-decoration:none;border-radius:8px;
+  padding:9px 13px;font:14px/1 -apple-system,sans-serif;margin:6px 0 2px}
+.lab:hover{background:#1d2e49}
+.done-btn{margin:26px 0 0;background:#182029;border:1px solid var(--line);color:var(--dim);
+  border-radius:8px;padding:8px 13px;font:13px -apple-system,sans-serif;cursor:pointer}
+.done-btn.on{background:#17311f;border-color:#2a6341;color:#8fe6b4}
+/* widgets */
+.widget{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:20px 0}
+.widget h4{font:600 11px -apple-system,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--vio);margin:0 0 12px}
+.ctl{display:flex;align-items:center;gap:10px;margin-bottom:8px;font:13px -apple-system,sans-serif}
+.ctl label{width:150px;color:var(--dim)}
+.ctl input[type=range]{flex:1}
+.ctl output{width:92px;text-align:right;font-family:var(--mono);color:var(--txt);font-size:13px}
+.out{font:14px/1.7 var(--mono);color:var(--dim);margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.out b{color:var(--txt)}
+footer{max-width:780px;margin:60px auto 0;padding:26px 28px 0;border-top:1px solid var(--line);
+  color:var(--dimmer);font:13px/1.7 -apple-system,sans-serif}
+@media(max-width:900px){#layout{grid-template-columns:1fr}nav{position:static;height:auto}}
+</style>
+</head>
+<body>
+<div id="layout">
+  <nav>
+    <h1>Stock Market</h1>
+    <div class="sub">Theory, with pictures. 22 ideas, in order.</div>
+    <div id="toc"></div>
+    <div id="prog"><span id="progtxt"></span><div id="bar"><i></i></div></div>
+  </nav>
+  <main>
+    <div class="wrap hero">
+      <h2>The whole thing, in order, with pictures</h2>
+      <p>Every idea below is one page: what it is in plain words, a picture of it, one worked
+      example with real numbers, and the exact way a beginner gets it wrong.</p>
+      <p>Read top to bottom. Don't skip to the charts — the charts are section 4 for a reason.</p>
+      <a class="lab" href="lab/trading-lab.html">▶ Open the practice lab →</a>
+    </div>
+    <div id="content"></div>
+    <footer>
+      Written for Himanshu. The deep-dive text for each idea lives beside this file in
+      <code>01-what-it-is/</code> … <code>07-before-real-money/</code>.
+      Nothing here is investment advice — it is how the machine works, so you can decide for yourself.
+    </footer>
+  </main>
+</div>
+<script>
+/* ---------- tiny SVG helpers ---------- */
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const svg=(w,h,inner)=>`<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+<path d="M0 0 L10 5 L0 10 z" fill="#5b9dff"/></marker>
+<marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+<path d="M0 0 L10 5 L0 10 z" fill="#2bb673"/></marker>
+<marker id="ard" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+<path d="M0 0 L10 5 L0 10 z" fill="#e85768"/></marker></defs>${inner}</svg>`;
+const T=(x,y,s,o={})=>`<text x="${x}" y="${y}" fill="${o.c||'#92a0b0'}" font-size="${o.fs||12}"
+  text-anchor="${o.a||'start'}" font-family="${o.ff||'ui-monospace,Menlo,monospace'}"
+  font-weight="${o.fw||400}">${esc(s)}</text>`;
+const R=(x,y,w,h,f,o={})=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"
+  rx="${o.r===undefined?4:o.r}" ${o.s?`stroke="${o.s}" stroke-width="${o.sw||1}"`:''}
+  ${o.d?`stroke-dasharray="${o.d}"`:''}/>`;
+const LN=(x1,y1,x2,y2,c,o={})=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}"
+  stroke-width="${o.w||1.3}" ${o.d?`stroke-dasharray="${o.d}"`:''} ${o.m?`marker-end="url(#${o.m})"`:''}/>`;
+const PT=(d,c,o={})=>`<path d="${d}" fill="${o.f||'none'}" stroke="${c||'none'}" stroke-width="${o.w||1.6}"
+  ${o.d?`stroke-dasharray="${o.d}"`:''} stroke-linejoin="round"/>`;
+const box=(x,y,w,h,title,lines,col)=>{
+  let s=R(x,y,w,h,'#101820',{s:col||'#2a3542',r:8});
+  s+=T(x+12,y+21,title,{c:col||'#e8eef5',fs:12.5,fw:700,ff:'-apple-system,sans-serif'});
+  (lines||[]).forEach((l,i)=>s+=T(x+12,y+41+i*16,l,{fs:11.5,c:'#92a0b0'}));
+  return s};
+// polyline from numeric series into a box
+function series(data,x,y,w,h,col,o={}){
+  const lo=o.lo!==undefined?o.lo:Math.min(...data), hi=o.hi!==undefined?o.hi:Math.max(...data);
+  const X=i=>x+(i/(data.length-1))*w, Y=v=>y+h-((v-lo)/((hi-lo)||1))*h;
+  let d=data.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ');
+  let out=PT(d,col,{w:o.w||1.8});
+  if(o.fill) out=PT(d+` L${X(data.length-1)} ${y+h} L${X(0)} ${y+h} Z`,'none',{f:o.fill})+out;
+  return out}
+function axes(x,y,w,h){return LN(x,y+h,x+w,y+h,'#2a3542')+LN(x,y,x,y+h,'#2a3542')}
+
+/* ---------- figures ---------- */
+const FIG={};
+
+FIG.share=()=>{let g='';const cols=25,rows=8,sz=20,x0=60,y0=30;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const owned=(r===0&&c<2);
+    g+=R(x0+c*sz,y0+r*sz,sz-3,sz-3,owned?'#2bb673':'#1b2630',{r:2,s:owned?'#49e3a0':'#243040'})}
+  g+=T(x0,20,'ONE COMPANY  =  200 shares',{fs:11,c:'#92a0b0',ff:'-apple-system,sans-serif',fw:700});
+  g+=LN(x0+42,y0+6,x0+150,y0-6,'#2bb673',{m:'arg'});
+  g+=T(x0+156,y0-4,'you own 2 shares = 1% of the business',{fs:12,c:'#2bb673'});
+  g+=T(x0,y0+rows*sz+24,'1% of its factories, 1% of its brand, 1% of every rupee it earns.',{fs:12});
+  return svg(700,230,g)};
+
+FIG.markets=()=>{let g='';
+  g+=box(30,30,180,70,'COMPANY',['raises money once','(IPO / FPO)'],'#5b9dff');
+  g+=box(260,30,170,70,'YOU',['buy at IPO'],'#2bb673');
+  g+=LN(215,65,255,65,'#2bb673',{m:'arg'});
+  g+=T(218,55,'₹7,600',{fs:11,c:'#2bb673'});
+  g+=T(30,125,'PRIMARY MARKET — your money reaches the business',{fs:11.5,c:'#2bb673',fw:700,ff:'-apple-system,sans-serif'});
+  g+=LN(30,140,670,140,'#242e3a',{d:'4 4'});
+  g+=box(30,165,180,70,'COMPANY',['gets nothing','price only changes'],'#3a4654');
+  g+=box(260,165,170,70,'YOU',['sell at ₹110'],'#2bb673');
+  g+=box(480,165,170,70,'MEENA',['another investor'],'#e8b14a');
+  g+=LN(475,200,437,200,'#e8b14a',{m:'ar'});
+  g+=T(440,190,'₹11,000',{fs:11,c:'#e8b14a'});
+  g+=LN(120,163,120,110,'#3a4654',{d:'3 3'});
+  g+=T(30,258,'SECONDARY MARKET — 99.9% of all trading. The company is not involved.',
+       {fs:11.5,c:'#92a0b0',fw:700,ff:'-apple-system,sans-serif'});
+  return svg(700,275,g)};
+
+FIG.plumbing=()=>{const names=[['YOU','tap Buy'],['BROKER','sends order'],['EXCHANGE','matches buyer↔seller'],
+   ['CLEARING CORP','guarantees it settles'],['DEPOSITORY','holds shares (demat)']];
+  let g='',x=14;
+  names.forEach((n,i)=>{g+=box(x,40,124,66,n[0],[n[1]],i===2?'#5b9dff':'#3a4654');
+    if(i<4)g+=LN(x+126,73,x+136,73,'#5b9dff',{m:'ar'});x+=138});
+  g+=T(14,28,'THE JOURNEY OF ONE BUY ORDER  ·  takes milliseconds to match, T+1 to settle',
+      {fs:11,c:'#92a0b0',fw:700,ff:'-apple-system,sans-serif'});
+  g+=T(14,130,'The exchange never takes a side. The clearing corp is why you don\'t have to trust the stranger who sold to you.',{fs:11.5});
+  return svg(700,148,g)};
+
+FIG.index=()=>{let g='';
+  const d=[{n:'A',cap:10000,w:62.5,ch:10},{n:'B',cap:5000,w:31.25,ch:0},{n:'C',cap:1000,w:6.25,ch:-20}];
+  g+=T(20,20,'A 3-STOCK INDEX — weight by size, not by name',{fs:11,fw:700,ff:'-apple-system,sans-serif'});
+  let x=20;
+  d.forEach(s=>{const w=s.w*6.2;
+    g+=R(x,36,w,38,'#1b2630',{s:'#2a3542'});
+    g+=R(x,36,w,38,s.ch>0?'rgba(43,182,115,.25)':s.ch<0?'rgba(232,87,104,.25)':'transparent',{s:'none'});
+    g+=T(x+8,54,`${s.n}  ₹${(s.cap/1000).toFixed(0)},000 cr`,{fs:11.5,c:'#e8eef5'});
+    g+=T(x+8,68,`weight ${s.w}%`,{fs:11,c:'#92a0b0'});
+    g+=T(x+w/2,96,`${s.ch>0?'+':''}${s.ch}%`,{fs:14,a:'middle',c:s.ch>0?'#2bb673':s.ch<0?'#e85768':'#92a0b0',fw:700});
+    x+=w+10});
+  g+=LN(20,112,660,112,'#242e3a');
+  g+=T(20,134,'index move = 62.5%×(+10)  +  31.25%×0  +  6.25%×(−20)  =  +5.0%',{fs:13,c:'#e8eef5'});
+  g+=T(20,154,'A third of the members crashed. The headline still says "market up 5%".',{fs:11.5,c:'#e8b14a'});
+  return svg(700,170,g)};
+
+FIG.book=()=>{let g='';
+  const asks=[[101.00,400],[100.50,250],[100.20,100]], bids=[[100.00,300],[99.80,500],[99.50,900]];
+  g+=T(20,20,'THE ORDER BOOK — there is no single "price"',{fs:11,fw:700,ff:'-apple-system,sans-serif'});
+  let y=40;
+  asks.forEach(([p,q],i)=>{g+=R(300,y-12,q*0.28,17,'rgba(232,87,104,.22)',{r:2});
+    g+=T(240,y,p.toFixed(2),{c:'#e85768',fs:13,a:'end'});g+=T(260,y,String(q),{fs:12,c:'#92a0b0'});
+    if(i===2)g+=T(470,y,'← best ask (what you pay)',{fs:11,c:'#e85768'});y+=24});
+  g+=LN(100,y-10,460,y-10,'#2a3542',{d:'5 4'});
+  g+=T(110,y+5,'spread  ₹0.20',{fs:11.5,c:'#e8b14a'});y+=22;
+  bids.forEach(([p,q],i)=>{g+=R(300,y-12,q*0.28,17,'rgba(43,182,115,.22)',{r:2});
+    g+=T(240,y,p.toFixed(2),{c:'#2bb673',fs:13,a:'end'});g+=T(260,y,String(q),{fs:12,c:'#92a0b0'});
+    if(i===0)g+=T(470,y,'← best bid (what you get)',{fs:11,c:'#2bb673'});y+=24});
+  g+=T(20,y+16,'MARKET buy 150  →  100 @ 100.20 + 50 @ 100.50  =  avg 100.30. Instant, price not chosen.',{fs:12,c:'#e8eef5'});
+  g+=T(20,y+36,'LIMIT buy 150 @ 100.00  →  waits in the queue. Price chosen, fill not guaranteed.',{fs:12,c:'#e8eef5'});
+  return svg(700,y+52,g)};
+
+FIG.priceEq=()=>{let g='';
+  g+=T(20,22,'PRICE  =  EARNINGS  ×  THE MULTIPLE PEOPLE WILL PAY',{fs:12.5,fw:700,c:'#e8eef5',ff:'-apple-system,sans-serif'});
+  g+=box(20,42,200,92,'EARNINGS (EPS)',['moves slowly','knowable, auditable','drives 10-year returns'],'#2bb673');
+  g+=T(238,95,'×',{fs:26,c:'#92a0b0'});
+  g+=box(272,42,200,92,'THE MULTIPLE (P/E)',['moves fast','a mood, not a fact','drives 1-year returns'],'#e8b14a');
+  g+=T(490,95,'=',{fs:26,c:'#92a0b0'});
+  g+=box(524,42,156,92,'PRICE',['what you see'],'#5b9dff');
+  g+=T(20,162,'Infosys profit +12%, market expected +18%  →  stock falls 6% on a good quarter.',{fs:12,c:'#e8eef5'});
+  g+=T(20,181,'Nothing broke. The expectation was repriced, not the business.',{fs:11.5,c:'#e8b14a'});
+  return svg(700,196,g)};
+
+FIG.statements=()=>{let g='';
+  g+=box(16,26,210,96,'P&L  — did it earn?',['revenue − costs = profit','full of judgement calls','easiest to flatter'],'#e8b14a');
+  g+=box(244,26,210,96,'BALANCE SHEET — owns/owes',['assets = liabilities + equity','a photo, one instant','debt, stock, receivables'],'#5b9dff');
+  g+=box(472,26,212,96,'CASH FLOW — did money come?',['operating / investing / financing','cash is a fact','profit is an opinion'],'#2bb673');
+  const prof=[40,52,66,84,104], cash=[38,44,41,30,12];
+  g+=T(16,152,'PROFIT (orange) vs OPERATING CASH FLOW (green) — the pattern to fear',{fs:11,fw:700,ff:'-apple-system,sans-serif'});
+  g+=axes(40,164,300,96);
+  g+=series(prof,40,164,300,96,'#e8b14a',{lo:0,hi:110});
+  g+=series(cash,40,164,300,96,'#2bb673',{lo:0,hi:110});
+  g+=T(348,196,'Profit climbing, cash flat or falling,',{fs:12,c:'#e8eef5'});
+  g+=T(348,214,'receivables ballooning, two years running',{fs:12,c:'#e8eef5'});
+  g+=T(348,232,'= the most common stress / fraud pattern',{fs:12,c:'#e85768'});
+  g+=T(348,252,'there is. Sales booked, money never arrived.',{fs:11.5,c:'#92a0b0'});
+  return svg(700,276,g)};
+
+FIG.pe=()=>{let g='';
+  g+=T(16,20,'P/E 20 — "I am paying 20 years of today\'s earnings for this"',{fs:12,fw:700,c:'#e8eef5',ff:'-apple-system,sans-serif'});
+  for(let i=0;i<20;i++)g+=R(16+i*33,34,27,30,'#1e3350',{s:'#2d4a73',r:3});
+  g+=T(16,80,'each block = ₹25 of annual earnings  ·  20 blocks = the ₹500 you paid',{fs:11.5});
+  g+=T(16,116,'P/E 60 — the market expects earnings to grow a lot. If they don\'t:',{fs:12,fw:700,c:'#e8b14a',ff:'-apple-system,sans-serif'});
+  g+=R(16,130,620,26,'#2a1c22',{s:'#5a2b36'});
+  g+=T(28,148,'the business can be perfectly fine and the stock still falls 50% — the multiple contracted.',{fs:11.5,c:'#e85768'});
+  return svg(700,172,g)};
+
+FIG.dcf=()=>{let g='';
+  g+=T(16,20,'₹1,00,000 a year, for 10 years — what it is worth TODAY at a 7% discount rate',{fs:11.5,fw:700,ff:'-apple-system,sans-serif'});
+  for(let i=0;i<10;i++){const pv=1/Math.pow(1.07,i+1), h=pv*110;
+    g+=R(30+i*64,150-h,42,h,'rgba(91,157,255,.25)',{s:'#5b9dff',r:3});
+    g+=T(51+i*64,164,'y'+(i+1),{fs:10,a:'middle'});
+    g+=T(51+i*64,145-h,Math.round(pv*100)+'k',{fs:10,a:'middle',c:'#8fb8ff'})}
+  g+=T(16,192,'A rupee in year 10 is worth 51 paise today. That is the whole idea of valuation.',{fs:12,c:'#e8eef5'});
+  g+=T(16,212,'Growth 0% → shop worth ₹14.3L.   Growth 3% → ₹25L.   Rates 7%→9% → ₹11.1L.',{fs:12,c:'#e8b14a'});
+  g+=T(16,230,'Same shop every time. Only the assumptions moved.',{fs:11.5,c:'#92a0b0'});
+  return svg(700,244,g)};
+
+FIG.moat=()=>{const m=[['SWITCHING COSTS','leaving is painful','bank core software'],
+  ['NETWORK EFFECTS','each user adds value','exchange, marketplace'],
+  ['COST ADVANTAGE','structurally cheaper','plant on its own mine'],
+  ['INTANGIBLES','brand, patent, licence','paint, pharma approval'],
+  ['EFFICIENT SCALE','room for one or two','city gas pipeline']];
+  let g=T(16,18,'THE FIVE REAL MOATS — the reason competition does not erase the profit',
+    {fs:11,fw:700,ff:'-apple-system,sans-serif'}),x=16,y=30;
+  m.forEach((t,i)=>{if(i===3){x=16;y=118}g+=box(x,y,218,76,t[0],[t[1],'e.g. '+t[2]],'#2bb673');x+=228});
+  g+=T(16,214,'NOT moats: being first, "great management", a nice product, a big ad budget. All copyable.',{fs:11.5,c:'#e85768'});
+  g+=T(16,232,'In the numbers, a moat looks like ROCE staying above ~18% for 7-10 years while revenue grows.',{fs:11.5});
+  return svg(700,244,g)};
+
+FIG.candle=()=>{let g='';
+  const candle=(x,o,c,h,l,col)=>{const Y=v=>250-(v-90)*4.2;
+    let s=LN(x,Y(h),x,Y(l),col,{w:1.6});
+    s+=R(x-17,Y(Math.max(o,c)),34,Math.max(2,Math.abs(Y(o)-Y(c))),col,{r:2});
+    return s};
+  g+=T(16,20,'ONE CANDLE = ONE PERIOD (a day, an hour, a minute). Four numbers: O H L C.',
+      {fs:11.5,fw:700,ff:'-apple-system,sans-serif'});
+  g+=candle(150,104,124,132,98,'#2bb673');
+  g+=candle(470,126,106,132,98,'#e85768');
+  const Y=v=>250-(v-90)*4.2;
+  const mark=(x,v,txt,side)=>LN(x,Y(v),x+(side?70:-70),Y(v),'#3a4654',{d:'3 3'})+
+    T(x+(side?78:-78),Y(v)+4,txt,{fs:11,a:side?'start':'end'});
+  g+=mark(150,132,'HIGH — the best price buyers paid',1);
+  g+=mark(150,124,'CLOSE — where it ended',0);
+  g+=mark(150,104,'OPEN — where it started',0);
+  g+=mark(150,98,'LOW — the worst price sellers took',1);
+  g+=T(150,276,'GREEN: close above open',{fs:12,a:'middle',c:'#2bb673',fw:700});
+  g+=T(470,276,'RED: close below open',{fs:12,a:'middle',c:'#e85768',fw:700});
+  g+=T(150,294,'buyers won the period',{fs:11,a:'middle'});
+  g+=T(470,294,'sellers won the period',{fs:11,a:'middle'});
+  g+=T(300,Y(135)-6,'the thin line is the WICK: prices it reached but could not hold',{fs:11,c:'#e8b14a'});
+  g+=T(300,Y(112),'the fat part is the BODY: open → close',{fs:11,c:'#e8b14a'});
+  g+=T(16,320,'A long upper wick = buyers pushed up and got rejected. A big body on big volume = one side dominated.',{fs:11.5});
+  return svg(700,336,g)};
+
+FIG.trend=()=>{const d=[100,104,99,108,103,113,107,118,112,122,116,126,120,131,124,129,
+   125,130,126,131,127,130,126,131,127,138,134,143];
+  let g=T(16,18,'UPTREND = higher highs AND higher lows. Then a range. Then a breakout on volume.',
+    {fs:11,fw:700,ff:'-apple-system,sans-serif'});
+  g+=axes(40,30,620,180);
+  g+=series(d,40,30,620,180,'#5b9dff',{lo:92,hi:148,w:2});
+  const X=i=>40+(i/(d.length-1))*620, Y=v=>30+180-((v-92)/56)*180;
+  g+=LN(40,Y(131),X(25),Y(131),'#e85768',{d:'5 4'});
+  g+=T(44,Y(131)-7,'RESISTANCE — it stopped here three times',{fs:11,c:'#e85768'});
+  g+=LN(X(14),Y(124),X(27),Y(124),'#2bb673',{d:'5 4'});
+  g+=T(X(14)+4,Y(124)+15,'SUPPORT',{fs:11,c:'#2bb673'});
+  g+=LN(X(25),Y(145),X(25),Y(132),'#e8b14a',{m:'ar'});
+  g+=T(X(25)-10,Y(148),'breakout — only believable on big volume',{fs:11,a:'end',c:'#e8b14a'});
+  g+=T(16,232,'Support and resistance are not magic: they are memory. People trapped at ₹240 sell at break-even.',{fs:11.5});
+  return svg(700,246,g)};
+
+FIG.noise=()=>{const d=[100];let s=7;const r=()=>(s=(s*16807)%2147483647)/2147483647-0.5;
+  for(let i=0;i<120;i++)d.push(d[i]*(1+r()*0.045));
+  let g=T(16,18,'THIS IS A COIN FLIP. 120 flips, plotted. No company, no news, no edge.',
+    {fs:11,fw:700,c:'#e8b14a',ff:'-apple-system,sans-serif'});
+  g+=axes(40,30,620,170);
+  g+=series(d,40,30,620,170,'#92a0b0',{w:1.6});
+  const lo=Math.min(...d),hi=Math.max(...d);
+  const Y=v=>30+170-((v-lo)/(hi-lo))*170;
+  g+=LN(40,Y(lo+(hi-lo)*0.72),660,Y(lo+(hi-lo)*0.72),'#e85768',{d:'4 4'});
+  g+=T(44,Y(lo+(hi-lo)*0.72)-6,'"resistance"',{fs:11,c:'#e85768'});
+  g+=LN(40,Y(lo+(hi-lo)*0.2),660,Y(lo+(hi-lo)*0.2),'#2bb673',{d:'4 4'});
+  g+=T(44,Y(lo+(hi-lo)*0.2)+14,'"support"',{fs:11,c:'#2bb673'});
+  g+=T(16,222,'If you can see trends, breakouts and support in pure randomness — and you can — then seeing them',{fs:11.5});
+  g+=T(16,240,'in a real chart proves nothing by itself. That is the whole warning about technical analysis.',{fs:11.5});
+  return svg(700,252,g)};
+
+FIG.recovery=()=>{const rows=[[10,11],[25,33],[50,100],[75,300],[90,900]];
+  let g=T(16,18,'THE ASYMMETRY — losses compound against you harder than gains compound for you',
+    {fs:11,fw:700,ff:'-apple-system,sans-serif'});
+  let y=38;
+  rows.forEach(([l,gn])=>{
+    g+=T(16,y+14,`−${l}%`,{fs:13,c:'#e85768',fw:700});
+    g+=R(70,y,l*2.4,20,'rgba(232,87,104,.3)',{s:'#e85768',r:3});
+    g+=T(330,y+14,`needs +${gn}%`,{fs:13,c:'#2bb673',fw:700});
+    g+=R(450,y,Math.min(gn*0.24,215),20,'rgba(43,182,115,.3)',{s:'#2bb673',r:3});
+    y+=30});
+  g+=T(16,y+18,'Avoiding one −50% is worth more than catching any single winner.',{fs:12,c:'#e8eef5'});
+  return svg(700,y+34,g)};
+
+FIG.sizing=()=>{let g=T(16,18,'THE STOP DECIDES THE SIZE. NEVER THE OTHER WAY ROUND.',
+    {fs:11.5,fw:700,c:'#e8b14a',ff:'-apple-system,sans-serif'});
+  g+=R(16,32,668,44,'#101820',{s:'#2a3542',r:8});
+  g+=T(34,60,'Quantity  =  ( capital × risk% )  ÷  ( entry price − stop price )',{fs:15,c:'#e8eef5'});
+  const Y=v=>230-(v-170)*2.6;
+  g+=axes(60,96,140,140);
+  g+=LN(60,Y(200),200,Y(200),'#5b9dff',{w:2});g+=T(208,Y(200)+4,'entry ₹200',{fs:11.5,c:'#8fb8ff'});
+  g+=LN(60,Y(180),200,Y(180),'#e85768',{w:2,d:'4 3'});g+=T(208,Y(180)+4,'stop ₹180  → risk ₹20/share',{fs:11.5,c:'#e85768'});
+  g+=T(60,254,'₹5,00,000 × 1% = ₹5,000 risk  ÷  ₹20  =  250 shares  (a ₹50,000 position)',{fs:12.5,c:'#e8eef5'});
+  g+=T(60,274,'Tighter stop at ₹190 → ₹10 risk → 500 shares. Same ₹5,000 at risk either way.',{fs:12,c:'#92a0b0'});
+  g+=R(380,96,304,120,'#141c17',{s:'#1f3a2b',r:8});
+  g+=T(396,118,'20 losses in a row at 1% risk',{fs:12,c:'#8fe6b4',fw:700});
+  g+=T(396,138,'→ 82% of capital left. Survivable.',{fs:12,c:'#92a0b0'});
+  g+=T(396,166,'5 losses in a row at 20% risk',{fs:12,c:'#ffb3bb',fw:700});
+  g+=T(396,186,'→ 33% of capital left. Over.',{fs:12,c:'#92a0b0'});
+  return svg(700,290,g)};
+
+FIG.correlation=()=>{const bad=[100,99,101,100,98,99,88,86,87,85],good=[100,100,101,100,99,100,97,96,97,97];
+  let g=T(16,18,'SAME BAD DAY, TWO PORTFOLIOS OF FIVE STOCKS EACH',{fs:11,fw:700,ff:'-apple-system,sans-serif'});
+  g+=axes(40,32,290,150);
+  g+=series(bad,40,32,290,150,'#e85768',{lo:82,hi:104,w:2});
+  g+=T(44,46,'TCS · Infosys · Wipro · HCL · TechM',{fs:11,c:'#e85768'});
+  g+=T(44,62,'one bad US IT quarter  →  −12%',{fs:11.5,c:'#e85768',fw:700});
+  g+=axes(380,32,290,150);
+  g+=series(good,380,32,290,150,'#2bb673',{lo:82,hi:104,w:2});
+  g+=T(384,46,'TCS · HDFC Bank · HUL · Sun Pharma · index',{fs:11,c:'#2bb673'});
+  g+=T(384,62,'same quarter  →  −3%',{fs:11.5,c:'#2bb673',fw:700});
+  g+=T(16,206,'Five names is not diversification. Five names that fall for the SAME REASON is one bet wearing five shirts.',{fs:11.5});
+  return svg(700,220,g)};
+
+FIG.feesdrag=()=>{const n=21,a=[],b=[];for(let i=0;i<n;i++){a.push(10*Math.pow(1.118,i));b.push(10*Math.pow(1.105,i))}
+  let g=T(16,18,'₹10 LAKH FOR 20 YEARS AT 12% — the only difference is the fee',
+    {fs:11,fw:700,ff:'-apple-system,sans-serif'});
+  g+=axes(50,32,560,180);
+  g+=series(a,50,32,560,180,'#2bb673',{lo:0,hi:100,w:2.2});
+  g+=series(b,50,32,560,180,'#e8b14a',{lo:0,hi:100,w:2.2});
+  g+=T(616,32+180-(93.1/100)*180,'₹93.1L',{fs:12,c:'#2bb673',fw:700});
+  g+=T(616,32+180-(73.4/100)*180+14,'₹73.4L',{fs:12,c:'#e8b14a',fw:700});
+  g+=T(60,52,'index fund, 0.2% fee',{fs:11.5,c:'#2bb673'});
+  g+=T(60,70,'active fund, 1.5% fee',{fs:11.5,c:'#e8b14a'});
+  g+=T(16,238,'₹19.7 lakh — 21% of the entire outcome — paid as fees. Charged whether the fund wins or loses.',{fs:12,c:'#e8eef5'});
+  g+=T(16,258,'Trading has the same shape: ₹200 of costs per round trip, once a day, is ₹50,000 a year on a ₹1L account.',{fs:11.5,c:'#e85768'});
+  return svg(700,272,g)};
+
+FIG.bonds=()=>{let g=T(16,18,'RATES AND BOND PRICES SIT ON A SEESAW',{fs:11,fw:700,ff:'-apple-system,sans-serif'});
+  g+=LN(80,150,620,96,'#5b9dff',{w:3});
+  g+=PT('M340 150 L320 190 L360 190 Z','#3a4654',{f:'#3a4654'});
+  g+=R(60,150,130,40,'#2a1c22',{s:'#e85768',r:8});
+  g+=T(78,175,'BOND PRICE ↓',{fs:13,c:'#e85768',fw:700});
+  g+=R(520,56,140,40,'#141c17',{s:'#2bb673',r:8});
+  g+=T(540,81,'NEW RATES ↑',{fs:13,c:'#2bb673',fw:700});
+  g+=T(16,222,'Your bond pays ₹70/yr on ₹1,000 (7%). New bonds pay 9%. Nobody pays ₹1,000 for your 7% bond —',{fs:12});
+  g+=T(16,242,'its price must fall to about ₹778 so its yield matches. You did nothing. The alternative changed.',{fs:12});
+  g+=T(16,268,'Why a stock investor cares: that same rate is the discount rate under EVERY valuation in the market.',{fs:12,c:'#e8b14a'});
+  return svg(700,284,g)};
+
+FIG.payoff=()=>{const K=24200,prem=100;let g=T(16,18,'BUYING A CALL — the payoff at expiry (Nifty, strike 24,200, premium ₹100)',
+    {fs:11,fw:700,ff:'-apple-system,sans-serif'});
+  const x0=60,y0=36,w=580,h=170, lo=23800,hi=24600, plo=-160,phi=320;
+  const X=p=>x0+((p-lo)/(hi-lo))*w, Y=v=>y0+h-((v-plo)/(phi-plo))*h;
+  g+=axes(x0,y0,w,h);
+  g+=LN(x0,Y(0),x0+w,Y(0),'#2a3542',{d:'4 4'});
+  g+=PT(`M${X(lo)} ${Y(-prem)} L${X(K)} ${Y(-prem)} L${X(hi)} ${Y(hi-K-prem)}`,'#5b9dff',{w:2.4});
+  g+=LN(X(K),y0,X(K),y0+h,'#e8b14a',{d:'3 3'});
+  g+=T(X(K)+6,y0+12,'strike 24,200',{fs:11,c:'#e8b14a'});
+  g+=T(X(K+prem)+4,Y(0)-8,'break-even 24,300',{fs:11,c:'#92a0b0'});
+  g+=T(x0+8,Y(-prem)-8,'max loss = the whole premium, ₹7,500',{fs:11.5,c:'#e85768'});
+  g+=T(x0+w-8,Y(260),'profit grows 1:1 above break-even',{fs:11.5,a:'end',c:'#2bb673'});
+  g+=T(16,y0+h+42,'Nifty 24,500 at expiry → ₹22,500 (you tripled).  Nifty 24,100 → ₹0 (you lost 100%, and the index went UP).',{fs:12,c:'#e8eef5'});
+  g+=T(16,y0+h+62,'Theta: every quiet day drains the premium. You can be right on direction, late on timing, and still lose everything.',{fs:11.5,c:'#e8b14a'});
+  g+=T(16,y0+h+86,'SEBI\'s own data: roughly 9 of 10 individual F&O traders lose money. That is a measurement, not a warning label.',{fs:12,c:'#e85768'});
+  return svg(700,y0+h+100,g)};
+
+/* ---------- interactive widgets ---------- */
+const W={};
+W.sizer=()=>`<div class="widget" data-w="sizer"><h4>Try it — position sizer</h4>
+<div class="ctl"><label>Capital ₹</label><input type="range" min="50000" max="2000000" step="10000" value="500000" id="w_cap"><output id="o_cap"></output></div>
+<div class="ctl"><label>Risk per trade %</label><input type="range" min="0.25" max="5" step="0.25" value="1" id="w_risk"><output id="o_risk"></output></div>
+<div class="ctl"><label>Entry price ₹</label><input type="range" min="50" max="1000" step="5" value="200" id="w_entry"><output id="o_entry"></output></div>
+<div class="ctl"><label>Stop price ₹</label><input type="range" min="40" max="990" step="5" value="180" id="w_stop"><output id="o_stop"></output></div>
+<div class="out" id="o_size"></div></div>`;
+W.fees=()=>`<div class="widget" data-w="fees"><h4>Try it — what a fee really costs</h4>
+<div class="ctl"><label>Invested ₹</label><input type="range" min="100000" max="5000000" step="100000" value="1000000" id="f_amt"><output id="o_amt"></output></div>
+<div class="ctl"><label>Years</label><input type="range" min="5" max="35" step="1" value="20" id="f_yrs"><output id="o_yrs"></output></div>
+<div class="ctl"><label>Gross return %</label><input type="range" min="6" max="18" step="0.5" value="12" id="f_ret"><output id="o_ret"></output></div>
+<div class="ctl"><label>Fee A (index) %</label><input type="range" min="0" max="1" step="0.05" value="0.2" id="f_a"><output id="o_a"></output></div>
+<div class="ctl"><label>Fee B (active) %</label><input type="range" min="0" max="3" step="0.05" value="1.5" id="f_b"><output id="o_b"></output></div>
+<div class="out" id="o_fee"></div></div>`;
+W.pe=()=>`<div class="widget" data-w="pe"><h4>Try it — what a P/E is telling you</h4>
+<div class="ctl"><label>Share price ₹</label><input type="range" min="50" max="5000" step="10" value="500" id="p_px"><output id="o_px"></output></div>
+<div class="ctl"><label>Earnings per share ₹</label><input type="range" min="1" max="200" step="1" value="25" id="p_eps"><output id="o_eps"></output></div>
+<div class="ctl"><label>10-yr bond yield %</label><input type="range" min="4" max="10" step="0.25" value="7" id="p_bond"><output id="o_bond"></output></div>
+<div class="out" id="o_pe"></div></div>`;
+const inr=x=>'₹'+Math.round(x).toLocaleString('en-IN');
+const lakh=x=>x>=10000000?'₹'+(x/10000000).toFixed(2)+' cr':'₹'+(x/100000).toFixed(1)+' L';
+function wireWidgets(){
+  const $=id=>document.getElementById(id);
+  const on=(ids,fn)=>{ids.forEach(i=>{const e=$(i);if(e)e.oninput=fn});fn()};
+  if($('w_cap')) on(['w_cap','w_risk','w_entry','w_stop'],()=>{
+    const cap=+$('w_cap').value,r=+$('w_risk').value,e=+$('w_entry').value,s=+$('w_stop').value;
+    $('o_cap').textContent=lakh(cap);$('o_risk').textContent=r+'%';
+    $('o_entry').textContent='₹'+e;$('o_stop').textContent='₹'+s;
+    const per=Math.abs(e-s), q=per?Math.floor(cap*r/100/per):0;
+    $('o_size').innerHTML=per?`Risk per share <b>₹${per}</b> · you may lose <b>${inr(cap*r/100)}</b> → buy <b>${q} shares</b>
+      (position <b>${inr(q*e)}</b>, that is <b>${(q*e/cap*100).toFixed(0)}%</b> of capital).<br>
+      ${q*e>cap?'<span class="dn">That position is bigger than your capital — the stop is too tight for this risk setting.</span>':
+      '20 losses in a row leaves you '+(100*Math.pow(1-r/100,20)).toFixed(0)+'% of capital.'}`
+      :'Stop must differ from entry.'});
+  if($('f_amt')) on(['f_amt','f_yrs','f_ret','f_a','f_b'],()=>{
+    const a=+$('f_amt').value,y=+$('f_yrs').value,r=+$('f_ret').value,fa=+$('f_a').value,fb=+$('f_b').value;
+    $('o_amt').textContent=lakh(a);$('o_yrs').textContent=y+' yr';$('o_ret').textContent=r+'%';
+    $('o_a').textContent=fa+'%';$('o_b').textContent=fb+'%';
+    const A=a*Math.pow(1+(r-fa)/100,y), B=a*Math.pow(1+(r-fb)/100,y);
+    $('o_fee').innerHTML=`At ${fa}% fee: <b class="up">${lakh(A)}</b> &nbsp;·&nbsp; at ${fb}% fee: <b class="warn">${lakh(B)}</b><br>
+      Difference: <b class="dn">${lakh(A-B)}</b> — that is <b>${((A-B)/A*100).toFixed(0)}%</b> of the better outcome, paid in fees.`});
+  if($('p_px')) on(['p_px','p_eps','p_bond'],()=>{
+    const p=+$('p_px').value,e=+$('p_eps').value,b=+$('p_bond').value;
+    $('o_px').textContent='₹'+p;$('o_eps').textContent='₹'+e;$('o_bond').textContent=b+'%';
+    const pe=p/e, ey=100*e/p;
+    $('o_pe').innerHTML=`P/E <b>${pe.toFixed(1)}</b> — you are paying <b>${pe.toFixed(1)} years</b> of today's earnings.<br>
+      Earnings yield <b>${ey.toFixed(2)}%</b> vs a risk-free bond at <b>${b}%</b>.
+      ${ey<b?'<span class="dn">You are being paid LESS than a government bond — every rupee of that gap is a bet on growth.</span>'
+             :'<span class="up">Above the bond yield: you are being paid something for taking equity risk.</span>'}`});
+}
+
+/* ---------- the course ---------- */
+const fig=(s,cap)=>`<div class="fig">${s}${cap?`<div class="figcap">${cap}</div>`:''}</div>`;
+const ex=h=>`<div class="ex"><h4>Example with real numbers</h4>${h}</div>`;
+const wr=h=>`<div class="wrong"><h4>How I'd get this wrong</h4>${h}</div>`;
+const key=(t,h)=>`<div class="key"><h4>${t}</h4>${h}</div>`;
+
+const SECTIONS=[
+{f:'01-what-it-is',t:'What the thing actually is',
+ lede:'Before any chart, any ratio, any trade. What are you buying, from whom, and through what plumbing.',
+ items:[
+{id:'share',t:'What a share actually is',file:'01-what-it-is/what-is-a-share.md',h:`
+<p>A share is a <b>slice of ownership in a business</b>. Not a betting slip. Not a number that
+wiggles. If a company is cut into 1,00,000 shares and you hold 100, you own 0.1% of everything it
+owns and 0.1% of every rupee it earns.</p>
+${fig(FIG.share(),'A company is not a price. It is a thing that earns money, cut into equal slices.')}
+<p>A company sells shares to raise money it <b>never has to repay</b>. A loan must be returned with
+interest. Equity is sold once, forever — in exchange for a slice of all future profits.</p>
+<p>You make money two ways: <b>dividends</b> (your cut of profit, paid in cash) and <b>capital
+gain</b> (the business grows, so your slice is worth more). Over a long horizon the second one does
+almost all the work — and it only happens if the business actually earns more over time.</p>
+${ex(`Ravi's tea stall is worth ₹10,00,000 and earns ₹2,00,000 a year. He cuts it into 1,000 shares,
+so each share = ₹1,000 of stall and ₹200 of yearly profit. You buy 10 shares for ₹10,000 → you own
+1% of the stall and have a claim on ₹2,000 of profit every year.`)}
+${wr(`Treating the ticker as the thing. The ticker is a <i>price for</i> the thing. If I cannot say in
+one sentence what the business sells and who pays for it, I am not investing — I am gambling on a symbol.`)}`},
+
+{id:'markets',t:'Primary vs secondary market — where your money goes',file:'01-what-it-is/primary-vs-secondary-market.md',h:`
+<p>There are two completely different markets, and people confuse them constantly.</p>
+${fig(FIG.markets(),'Top: an IPO. Your money goes to the company. Bottom: a normal trade. Your money goes to another investor.')}
+<p><b>Primary market</b> — the company sells new shares and keeps the cash (IPO, FPO, rights issue).
+<b>Secondary market</b> — you buy from another investor on the exchange. The company gets nothing.
+This is 99.9% of all trading.</p>
+${ex(`Zomato IPO: you buy 100 shares at ₹76 → ₹7,600 goes to Zomato. Next day you sell those shares to
+Meena at ₹110 → ₹11,000 goes from Meena to you. Zomato sees none of it. Its share price changed;
+its bank balance did not.`)}
+${key('The thing to remember about IPOs',`In an IPO you are buying at <b>the seller's chosen moment</b>.
+Promoters and early investors sell when they think the price is good. That is not automatically bad —
+but it is never an accident. "Oversubscribed 40x" measures demand for an allotment, not value.`)}
+${wr(`Thinking an IPO is cheap because it is new. New ≠ cheap. The IPO price is set by bankers to sell
+the entire book — usually the most optimistic price the market will accept that week.`)}`},
+
+{id:'plumbing',t:'Exchanges, brokers, demat, settlement',file:'01-what-it-is/exchanges-and-brokers.md',h:`
+<p>What actually happens between tapping Buy and owning the share:</p>
+${fig(FIG.plumbing(),'Five parties. Only one of them is allowed to lose your shares, and it is not the broker.')}
+<p><b>Settlement is T+1</b> in India: trade today, shares and cash officially change hands the next
+working day. Your shares sit in the <b>depository</b> (NSDL or CDSL) under your own demat ID — the
+broker is an agent, not the owner.</p>
+<p>What you pay on every single order: brokerage, exchange transaction charge, SEBI fee, stamp duty,
+GST, and STT. Tiny per trade. Enormous if you trade often — that is section 5.</p>
+${wr(`Assuming the broker holds my shares and could lose them. The real broker risk is a bad app,
+bad fills, and margin products I did not ask for — not the shares vanishing.`)}`},
+
+{id:'indices',t:'Indices — Nifty 50, Sensex, and what they hide',file:'01-what-it-is/indices.md',h:`
+<p>An index is a <b>basket of stocks reduced to one number</b>, so you can say "the market" in one
+word. Nifty 50 = 50 large NSE companies. Sensex = 30 large BSE companies. Both are
+<b>free-float market-cap weighted</b>: bigger company, bigger influence.</p>
+${fig(FIG.index(),'The biggest company has ten times the vote of the smallest. That is by design.')}
+<p>What it is good for: a <b>benchmark</b>. If your stock picks return 11% while the Nifty returned 15%,
+you lost to a fund you could have bought in one click. It is also the cheapest diversification
+available — one index fund buys all 50 in those weights.</p>
+${key('What the index number hides',`<b>Breadth</b> — the index can rise while most stocks fall, because a
+handful of heavyweights carry it. And <b>survivorship</b> — losers get dropped and replaced by winners,
+so the index quietly upgrades itself every year. Your own portfolio does not do that on its own.`)}
+${wr(`Using the index to judge my stock daily. A small-cap and the Nifty answer to different forces.
+"Nifty is green, why is my stock red" is a question with no useful answer.`)}`}]},
+
+{f:'02-how-price-moves',t:'How price happens',
+ lede:'Price is not a fact about a company. It is the last point two people agreed on. Here is the machinery underneath.',
+ items:[
+{id:'book',t:'The order book and order types',file:'02-how-price-moves/order-book-and-order-types.md',h:`
+<p>There is no single "price". There are two: the highest someone will <b>pay</b> (the bid) and the
+lowest someone will <b>accept</b> (the ask). The gap between them is the <b>spread</b>. The
+"last traded price" you see on screen is simply the last time those two met.</p>
+${fig(FIG.book(),'Every buy order you place is eating this ladder from the top. Every sell eats it from the bottom.')}
+<p><b>Market order</b> — fills instantly at whatever the book offers. You chose certainty, not price.<br>
+<b>Limit order</b> — fills only at your price or better. You chose price, not certainty.<br>
+<b>Stop-loss</b> — a sleeping order that wakes up into a market order when price hits your trigger.
+Protection, not a guarantee: in a gap down it fires at the next available price, which can be far below.</p>
+${key('Liquidity in one line',`A deep book with a tight spread means your order barely moves the price.
+A thin book means a ₹2 lakh order can move a small stock 3% — and you pay for all of it.`)}
+${wr(`Using market orders in illiquid small-caps and then blaming "manipulation" for the terrible fill.
+I ate the book myself. Limit orders exist for exactly this.`)}`},
+
+{id:'moves',t:'What actually moves a price',file:'02-how-price-moves/what-moves-price.md',h:`
+<p>In the moment, only one thing moves price: <b>order flow</b>. Price rises because buyers lift the
+ask; it falls because sellers hit the bid. Everything else is a reason people <i>decide</i> to do that.</p>
+${fig(FIG.priceEq(),'Earnings are knowable and slow. The multiple is a mood and fast. Both are in the price.')}
+<p>The reasons, from most durable to least: <b>earnings and cash flow</b> → <b>expectations vs reality</b>
+→ <b>interest rates</b> → <b>flows</b> (index inclusion, SIP money, FII buying) → <b>narrative</b>.
+The last one is the strongest over a week and the weakest over a decade.</p>
+${ex(`Infosys reports profit up 12%. Analysts expected 18%. The stock drops 6% on a good quarter.
+Nothing is broken. The price already contained the forecast, so what moved was the <b>surprise</b>.`)}
+${key('The one sentence to keep',`Most one-year returns are mood. Most ten-year returns are earnings.`)}
+${wr(`Reading the day's news as the cause of the day's move. The headline is usually written <i>after</i>
+the move, to explain it. Causation is assigned, not observed.`)}`},
+
+{id:'who',t:'Who is on the other side of your trade',file:'02-how-price-moves/market-participants.md',h:`
+<p>Every trade has someone taking the opposite side. Knowing <i>who</i> tells you how much to read
+into a move.</p>
+<table><tr><th>Participant</th><th>Behaviour</th><th>What their buying means</th></tr>
+<tr><td><b>Retail</b> (you)</td><td>small, slow information, emotional</td><td>little on its own, a lot in aggregate via SIPs</td></tr>
+<tr><td><b>DII</b> — Indian funds, insurers</td><td>steady, rule-bound</td><td>SIP money must be deployed monthly, price-insensitive</td></tr>
+<tr><td><b>FII / FPI</b> — foreign funds</td><td>big and fast</td><td>reacting to global rates and the rupee as much as to the company</td></tr>
+<tr><td><b>Promoters</b></td><td>the founding owners</td><td>the most informed signal available, and publicly disclosed</td></tr>
+<tr><td><b>Market makers</b></td><td>quote both sides, earn the spread</td><td>nothing — they have no opinion</td></tr>
+<tr><td><b>Operators</b></td><td>small-cap manipulation</td><td>manufactured volume; where "the stock that only goes up" lives</td></tr></table>
+${ex(`A stock jumps 4% on no news. If it is a ₹2 lakh crore company, large money repriced it.
+If it is a ₹200 crore company on ₹30 lakh of volume, <b>one buyer</b> did that — and one seller can undo it.`)}
+${wr(`Assuming the other side is dumber than me. Often it is someone who has read the annual report and
+is paid full-time to do this. My edge must be patience and horizon — never speed or information.`)}`}]},
+
+{f:'03-reading-a-company',t:'Reading a company',
+ lede:'The slow, boring section that decides what is actually worth owning. This is the part that compounds.',
+ items:[
+{id:'statements',t:'The three statements, and which one lies least',file:'03-reading-a-company/financial-statements.md',h:`
+<p>Every company publishes three statements. They answer three different questions, and one of them
+is much harder to fake than the others.</p>
+${fig(FIG.statements(),'Profit is an opinion. Cash is a fact. When they separate for two years, go and find out why.')}
+${ex(`A company sells ₹100 cr of goods on credit and collects nothing yet. <b>P&amp;L:</b> revenue
+₹100 cr — a great year. <b>Balance sheet:</b> receivables +₹100 cr — an IOU, not money.
+<b>Cash flow from operations:</b> ₹0.`)}
+${key('The 60-second read of any annual report',`1. Does <b>operating cash flow</b> roughly track
+<b>net profit</b> over 3-5 years?<br>2. Is debt rising faster than profit?<br>
+3. Are receivables and inventory growing faster than revenue?<br>
+4. Is the dividend being funded out of borrowings?<br>
+Any "no" is not a verdict. It is a question you now have to go answer.`)}
+${wr(`Reading only the headline profit number in a news app. The number I actually want is five years
+of operating cash flow, and it never appears in a headline.`)}`},
+
+{id:'ratios',t:'Key ratios — the question each one asks',file:'03-reading-a-company/key-ratios.md',h:`
+<p>A ratio is a question in compressed form. Learn the question, not the number.</p>
+<table><tr><th>Ratio</th><th>Formula</th><th>The question it asks</th></tr>
+<tr><td><b>P/E</b></td><td>price ÷ EPS</td><td>How many years of current earnings am I paying?</td></tr>
+<tr><td><b>P/B</b></td><td>price ÷ book value</td><td>What am I paying per ₹1 of net assets?</td></tr>
+<tr><td><b>ROE</b></td><td>profit ÷ equity</td><td>How well does it turn owners' money into profit?</td></tr>
+<tr><td><b>ROCE</b></td><td>EBIT ÷ (debt + equity)</td><td>Same, including borrowed money — harder to fake</td></tr>
+<tr><td><b>Debt / Equity</b></td><td>debt ÷ equity</td><td>How much of this is borrowed and fragile?</td></tr>
+<tr><td><b>Operating margin</b></td><td>op. profit ÷ revenue</td><td>How much of each ₹100 of sales survives?</td></tr>
+<tr><td><b>Interest coverage</b></td><td>EBIT ÷ interest</td><td>Can it even pay the interest? Under ~3 = watch</td></tr></table>
+${fig(FIG.pe(),'P/E 20 means twenty years of today\'s earnings, paid today, for one share.')}
+${W.pe()}
+${key('What each one hides',`<b>P/E</b> is meaningless for loss-makers and misleading for cyclicals —
+a commodity stock looks <i>cheapest</i> at peak profits, right before the cycle turns.
+<b>ROE</b> can be inflated purely by taking on debt, so always read it next to D/E, or use ROCE.
+<b>P/B</b> matters for banks and barely matters for an asset-light software firm.`)}
+${wr(`Screening for "P/E under 10" and calling it value. A cheap ratio usually means the market expects
+earnings to fall. My job is to work out whether the market is right.`)}`},
+
+{id:'valuation',t:'Valuation — price vs value',file:'03-reading-a-company/valuation.md',h:`
+<p><b>Price</b> is what the last two people agreed on. <b>Value</b> is the cash the business will hand
+its owners over its life, discounted back to today. They are related the way weather is related to climate.</p>
+${fig(FIG.dcf(),'Money in the future is worth less today — because you could have earned a safe return, and because the future is uncertain.')}
+${ex(`A shop reliably earns ₹1,00,000 a year forever, and a safe FD pays 7%.<br>
+Value ≈ 1,00,000 ÷ 0.07 = <b>₹14,28,571</b>.<br>
+Now the same shop growing 3% a year: 1,00,000 ÷ (0.07 − 0.03) = <b>₹25,00,000</b>.<br>
+Three percent of growth nearly doubled the value. And if rates rise 7% → 9%, the no-growth shop is
+worth ₹11.1 lakh. <b>The shop never changed.</b>`)}
+${key('Why this matters more than it looks',`This is the entire reason growth stocks carry huge multiples,
+why a small cut to expected growth destroys so much price, and why the whole market falls when bond
+yields rise. One formula, three headlines.`)}
+${wr(`Believing a DCF because it has decimals in it. Change growth by 2% and the answer moves 50%.
+A valuation makes your assumptions explicit. It is not a price target.`)}`},
+
+{id:'moat',t:'Moats — why some businesses keep earning',file:'03-reading-a-company/moats-and-business-quality.md',h:`
+<p>High profits attract competitors, and competition destroys profits. A <b>moat</b> is the specific
+reason that does not happen to a particular company.</p>
+${fig(FIG.moat(),'If you cannot name which of these five a company has, assume it has none.')}
+${ex(`Two paint companies. One has 70,000 dealers with mixing machines installed, and a brand customers
+ask for by name. The other has a better formula and a lower price. <b>The second one still loses</b> —
+because paint is bought from whoever the dealer stocks. Distribution was the moat, not chemistry.`)}
+${wr(`Confusing a great product with a great business. The product I personally love may be sold by a
+company with no pricing power, thin margins, and three identical competitors.`)}`}]},
+];
+
+SECTIONS.push(
+{f:'04-reading-a-chart',t:'Reading a chart',
+ lede:'Short on purpose, and deliberately placed after fundamentals. A chart tells you about other people — never about the business.',
+ items:[
+{id:'candle',t:'Candles, trend, support, volume',file:'04-reading-a-chart/charts-basics.md',h:`
+<p>A chart is a picture of <b>who was willing to transact, at what price, when</b>. That is all it is.
+Everything below is vocabulary for describing that picture.</p>
+${fig(FIG.candle(),'One candle, four numbers. Learn this and half of chart language is already readable.')}
+<p>Then there are exactly four things worth knowing:</p>
+<ol>
+<li><b>Trend</b> — higher highs and higher lows (up), lower highs and lower lows (down), or neither.
+Most of the time it is neither.</li>
+<li><b>Support and resistance</b> — levels where price repeatedly stopped. Not magic: it is memory.</li>
+<li><b>Volume</b> — conviction. A breakout on low volume is a rumour; on 3× average volume it is a decision.</li>
+<li><b>Moving average</b> — the average close of the last N periods. A 50-day MA is just "what the last
+50 days paid on average". Price above it means recent buyers are in profit.</li>
+</ol>
+${fig(FIG.trend(),'Higher highs, higher lows, a ceiling that holds three times, then a breakout that needs volume to be believed.')}
+${ex(`A stock stalls at ₹240 three times over two months, then closes at ₹252 on 4× volume. Reading:
+the sellers sitting at ₹240 are gone, and it took real money to clear them. If it drifts back under
+₹240 within days on fading volume, the reading was wrong — <b>and that is exactly where the stop belongs</b>.`)}
+${wr(`Finding patterns in noise. On a 5-minute chart everything looks like a signal. The fewer
+indicators on my screen, the better my decisions get.`)}`},
+
+{id:'noise',t:'Why technicals mislead beginners',file:'04-reading-a-chart/why-technicals-mislead-beginners.md',h:`
+<p>Technical analysis is not fake — order flow and crowd behaviour are real. The traps are in how a
+beginner uses it. Look at this chart and find the support, the resistance and the breakout:</p>
+${fig(FIG.noise(),'There is nothing in here. It is 120 coin flips. Your brain built the levels, not the market.')}
+<ol>
+<li><b>Hindsight teaches nothing.</b> Every chart in every tutorial is already resolved. Live, you
+are standing at the right edge, where the same shape precedes both outcomes.</li>
+<li><b>Patterns are found, not predicted.</b> The brain is a pattern engine and random data obliges.</li>
+<li><b>Indicators are derivatives of price.</b> RSI, MACD, Bollinger — all computed from the same OHLC.
+Six indicators is one piece of information wearing six hats, and their agreement feels like proof.</li>
+<li><b>Shorter timeframe = more noise, more trades, more fees.</b> Costs scale with activity. Edge does not.</li>
+</ol>
+${ex(`Backtest "buy when RSI &lt; 30" on 10 years of Nifty and it looks profitable. Add 0.1% cost per
+round trip and 0.05% slippage and the edge disappears. The strategy did not fail — it never cleared
+its own costs.`)}
+${key('The usable part',`Use charts for <b>timing and risk, not for deciding what to own</b>: where the
+thesis is proven wrong (the stop), whether the market agrees yet (trend and volume), and how much
+room there is to the next obstacle (sizing).`)}
+${wr(`Letting the chart pick the stock. The chart has no idea what the company sells.`)}`}]},
+
+{f:'05-not-losing-money',t:'Not losing money',
+ lede:'The section everyone skips, and the one that decides the outcome. You do not control returns. You control how much you lose when you are wrong.',
+ items:[
+{id:'risk',t:'Risk and position sizing',file:'05-not-losing-money/risk-and-position-sizing.md',h:`
+${fig(FIG.recovery(),'This table is the entire argument for caring about risk before caring about returns.')}
+<p>So the rule: risk at most <b>1% of capital per idea</b>. Not a 1% position — a 1% <i>loss</i> if
+the stop is hit.</p>
+${fig(FIG.sizing(),'One line of arithmetic that removes the single most expensive decision from your hands.')}
+${W.sizer()}
+${key('Where the stop goes',`At the price that <b>proves the reason for buying was wrong</b> — below the
+structure, the support, the level. Never at a round number of rupees you are emotionally willing to
+lose. The market has never heard of your pain threshold.`)}
+${wr(`Sizing by conviction: "I am very sure, so I will put 40% in." Conviction is the feeling you have
+right before you find out what you did not know. Size by the stop, every single time.`)}`},
+
+{id:'diversify',t:'Diversification and correlation',file:'05-not-losing-money/diversification-and-correlation.md',h:`
+<p>Diversification is the one free lunch in finance: less risk for the same expected return. But only
+if the things you hold <b>do not fall for the same reason</b>.</p>
+${fig(FIG.correlation(),'Ten stocks sounds diversified. Ten PSU banks is one bet on rates, wearing ten names.')}
+<p>Diversify across the thing that can actually go wrong: <b>sector</b>, <b>factor</b> (rate-sensitive
+vs commodity-linked vs domestic consumption), <b>currency</b> (IT earns in dollars, an importer pays
+in them), and <b>asset class</b> (equity, debt, gold, cash).</p>
+${key('How many is enough',`Roughly <b>12-20 genuinely different names</b> captures most of the benefit.
+Beyond ~25 you have built an expensive index fund by hand and can no longer follow any of them.
+Under 5 and one accounting fraud ends your year.`)}
+${wr(`"Diversifying" into five more stocks I like — all mid-cap, all domestic, all rate-sensitive,
+all bought in the same bullish month. That is concentration with extra steps.`)}`},
+
+{id:'behaviour',t:'Behavioural traps',file:'05-not-losing-money/behavioral-traps.md',h:`
+<p>Your brain is well built for the savannah and badly built for markets. Name these so you can catch
+yourself mid-act.</p>
+<table><tr><th>Trap</th><th>What it makes you do</th></tr>
+<tr><td><b>Loss aversion</b></td><td>A ₹10,000 loss hurts twice as much as a ₹10,000 gain feels good → you cut winners early and hold losers forever.</td></tr>
+<tr><td><b>Anchoring</b></td><td>Fixating on your buy price. The market does not know what you paid. The only question is: at today's price, would I buy it today?</td></tr>
+<tr><td><b>FOMO / herding</b></td><td>Risk feels <i>lowest</i> exactly when everyone is posting their gains — which is when it is highest.</td></tr>
+<tr><td><b>Recency bias</b></td><td>Three good months feel permanent. Bull markets make everyone feel skilled, and leverage shows up right before the correction.</td></tr>
+<tr><td><b>Confirmation bias</b></td><td>Reading only the bullish thread about the stock you already own.</td></tr>
+<tr><td><b>Overtrading</b></td><td>More trades feel like more control. They are more fees and more chances to be wrong.</td></tr>
+<tr><td><b>Revenge trading</b></td><td>Doubling down to "get back" what the market took. The market has no memory of your loss.</td></tr></table>
+${ex(`Bought at ₹300, now ₹210. "I will sell when it gets back to ₹300." That sentence contains zero
+information about the business — only about the anchor. Meanwhile ₹2,10,000 is stuck there instead
+of being in a better idea.`)}
+${key('The only defence that works',`<b>Write the thesis and the exit before buying.</b> Decisions made in
+advance, in writing, are the only ones that survive contact with a red screen.`)}
+${wr(`Reading this list, agreeing with all of it, and then doing every single one anyway — because
+knowing a bias exists does not disable it. Only a written rule does.`)}`},
+
+{id:'fees',t:'Fees, slippage and taxes',file:'05-not-losing-money/fees-slippage-and-taxes.md',h:`
+<p>Every round trip costs you, win or lose. Small per trade. Decisive in aggregate.</p>
+${fig(FIG.feesdrag(),'Same market, same 12% gross return, same 20 years. Only the fee differs.')}
+${W.fees()}
+${ex(`A ₹1,00,000 intraday round trip costs roughly ₹200 all-in with slippage. Nothing.
+Do it once a trading day for a year: 250 × ₹200 = <b>₹50,000 — half of a ₹1,00,000 account.</b>
+You now need a 50% gross return just to break even.`)}
+<p><b>Tax, equity, current regime:</b> short-term gains (held ≤12 months) 20%; long-term (&gt;12 months)
+12.5% with about ₹1.25 lakh a year exempt; dividends at your slab rate. Losses can be carried forward
+8 years — only if you file on time.</p>
+${key('The quiet bonus',`Holding past the 12-month line is a real, quantifiable bump in return.
+Churning is taxed at nearly double the rate <i>and</i> pays fees on every leg.`)}
+${wr(`Judging a strategy on gross returns. The only number that exists is net of fees, slippage and
+tax. A 15% gross strategy traded weekly can net less than an index fund held and ignored.`)}`}]},
+
+{f:'06-instruments',t:'Instruments beyond stocks',
+ lede:'What else exists, and which of it to leave alone.',
+ items:[
+{id:'funds',t:'Mutual funds, index funds, ETFs, SIP',file:'06-instruments/mutual-funds-and-etfs.md',h:`
+<p>A fund pools money from many people and buys a basket. You own <b>units</b> of that basket, priced
+at <b>NAV</b> (net asset value per unit).</p>
+<table><tr><th>Type</th><th>What it does</th><th>Typical fee</th></tr>
+<tr><td><b>Active fund</b></td><td>a manager picks stocks, tries to beat the index</td><td>1-2% a year</td></tr>
+<tr><td><b>Index fund</b></td><td>mechanically holds the index</td><td>0.1-0.2% a year</td></tr>
+<tr><td><b>ETF</b></td><td>an index fund that trades on the exchange like a share</td><td>0.05-0.2% a year</td></tr></table>
+<p>Most active funds do not beat the index after costs, and the ones that did last decade are not
+reliably the ones that will next decade. See the fee chart in the previous section — that gap is the
+whole argument.</p>
+${key('SIP, honestly',`A fixed amount, monthly, automatic. It does two useful things: it removes the
+timing decision (the one you are worst at), and it buys more units when prices are low. It is not
+magic — in a market that falls for a decade an SIP loses money too — but it beats the real
+alternative, which is waiting for a "good time" and never starting.`)}
+${wr(`Picking last year's number-one performing fund. Top-quartile performance is the least persistent
+statistic in finance. The expense ratio is the most predictive one.`)}`},
+
+{id:'bonds',t:'Bonds and interest rates',file:'06-instruments/bonds-and-fixed-income.md',h:`
+<p>A bond is a <b>loan you own</b>. You lend ₹1,000, collect a fixed coupon, get the ₹1,000 back at
+maturity. Equity is ownership with unlimited upside and last claim. Debt is a contract with capped
+upside and first claim.</p>
+${fig(FIG.bonds(),'The single most useful fact in finance for an equity investor who thinks bonds are boring.')}
+<p><b>Duration</b> measures how hard this hits: a 10-year bond falls much more than a 1-year bond for
+the same rate move, because more future payments get repriced.</p>
+${key('Why a stock investor must know this',`The government bond yield is the risk-free alternative and
+the discount rate under every stock valuation. When the 10-year goes from 6% to 8%, every valuation
+in the market is mechanically worth less — and no company did anything wrong. This is the usual
+answer to "the whole market fell and nothing happened".`)}
+${wr(`Treating a high-yield debt fund as a safe FD substitute. Extra yield is always payment for risk.
+There is no exception, and the risk arrives all at once.`)}`},
+
+{id:'fno',t:'Derivatives (F&amp;O) — read it, do not trade it',file:'06-instruments/derivatives-basics.md',h:`
+<p>A derivative takes its value from something else. <b>Futures</b> are an obligation to buy or sell at
+a set price on a set date, on ~15% margin — which is 6-7× leverage in both directions.
+<b>Options</b> are a right, not an obligation.</p>
+${fig(FIG.payoff(),'The buyer risks only the premium. The seller collects the premium and takes unlimited risk — that is the side that blows up accounts.')}
+${key('Theta — the part beginners never price in',`Options rot. Every day that nothing happens, the
+premium drains. You can be right on direction, late on timing, and still lose everything you put in.`)}
+<p>What F&amp;O is legitimately for: <b>hedging</b> (buying a put to protect a holding you cannot sell)
+and defined-risk expression of a view. Not leverage to make a small account big.</p>
+${wr(`Buying cheap weekly out-of-the-money options because the payoff table looks exciting. Cheap means
+the market thinks it will probably expire worthless — and the market is usually right.`)}`}]},
+
+{f:'07-before-real-money',t:'Before the first rupee',
+ lede:'Two documents. They are the gate between learning and investing.',
+ items:[
+{id:'thesis',t:'Your written thesis',file:'07-before-real-money/my-investing-thesis.md',h:`
+<p>This is the file that makes everything above enforceable. Written in advance, in your own words,
+and edited only on purpose — never in the middle of a drawdown.</p>
+${key('The gate before equity',`Emergency fund of 6 months expenses, in cash. High-interest debt cleared.
+Money you will not need for at least 5 years. Equity's only real edge is time, and the only way to
+lose that edge is to be forced to sell early.`)}
+<p>Then write down: the maximum per single stock, the maximum per sector, the risk per idea, and what
+you will flatly never buy. And the checklist you must pass before any purchase:</p>
+<ol>
+<li>What does this business sell, and who pays for it?</li>
+<li>Why will it earn more in 5 years than today?</li>
+<li>What is the moat, and does ROCE show it?</li>
+<li>Does operating cash flow track profit over 5 years?</li>
+<li>What am I paying for that, versus its own history and its peers?</li>
+<li><b>What would prove me wrong, and at what price do I admit it?</b></li>
+<li>Why is it available at this price — what does the seller believe?</li>
+</ol>
+<p>If you cannot answer 1, 2 and 6, you do not buy. No exceptions, no "small position just to track it".</p>
+${wr(`Writing this once and never opening it again. It gets read before every buy.`)}`},
+
+{id:'log',t:'Practising so it actually teaches you',file:'07-before-real-money/paper-trading-log.md',h:`
+<p>Simulated trades are worthless unless the <b>reason</b> is recorded before the outcome is known.
+Otherwise you just rewrite history to make yourself look smart.</p>
+<p>For every practice trade, write this <b>before</b> entering: setup, thesis, entry, size, stop (and
+why there), target (and why there), and your emotion right now. Afterwards, without editing any of
+that: exit, result in R, was the thesis right, was the <i>execution</i> right, one sentence learned.</p>
+<table><tr><th></th><th>Thesis right</th><th>Thesis wrong</th></tr>
+<tr><td><b>Followed my rules</b></td><td class="up">Good process, good outcome</td><td class="up">Good process, bad outcome — <b>this is fine</b></td></tr>
+<tr><td><b>Broke my rules</b></td><td class="dn">Lucky — <b>the most dangerous box</b></td><td class="dn">Bad process, deserved</td></tr></table>
+<p>Judge the process, never the single outcome. Twenty trades of good process beat twenty lucky ones,
+because the lucky box is where ruin gets learned as a habit.</p>
+${key('Minimum before real money',`<b>50 logged trades</b> with written theses, and an honest count of how
+many landed in each box. If "broke my rules" is more than about 10%, the problem is not the strategy.`)}
+<p><a class="lab" href="lab/trading-lab.html">▶ Open the practice lab →</a></p>
+${wr(`Paper trading with unlimited fake size and no fees, feeling great, then sizing real money the
+same way. Set the sim to my real capital and keep the fees on.`)}`}]}
+);
+
+/* ---------- render + progress ---------- */
+const KEY='sm-learn-done';
+let done=new Set(JSON.parse(localStorage.getItem(KEY)||'[]'));
+let N=0;
+const all=SECTIONS.flatMap(s=>s.items.map(i=>i.id));
+
+document.getElementById('content').innerHTML=SECTIONS.map((s,si)=>`
+<section id="sec-${si+1}"><div class="wrap">
+  <div class="secnum">Section ${si+1} · ${s.f}/</div>
+  <h2>${s.t}</h2><p class="lede">${s.lede}</p>
+</div>
+${s.items.map(it=>{N++;return `<article id="${it.id}"><div class="wrap">
+  <h3><span class="n">${String(N).padStart(2,'0')}</span>${it.t}</h3>
+  <div class="file">deep-dive note: ${it.file}</div>
+  ${it.h}
+  <button class="done-btn" data-id="${it.id}"></button>
+</div></article>`}).join('')}
+</section>`).join('');
+
+document.getElementById('toc').innerHTML=SECTIONS.map((s,si)=>
+  `<div class="sec">${si+1}. ${s.t}</div>`+
+  s.items.map(i=>`<a href="#${i.id}" data-id="${i.id}"><span class="tick">✓</span>${i.t}</a>`).join('')
+).join('');
+
+function paint(){
+  document.querySelectorAll('.done-btn').forEach(b=>{
+    const d=done.has(b.dataset.id);
+    b.classList.toggle('on',d);
+    b.textContent=d?'✓ Done — marked':'Mark this one as read';
+  });
+  document.querySelectorAll('#toc a').forEach(a=>a.classList.toggle('done',done.has(a.dataset.id)));
+  document.querySelector('#bar i').style.width=(done.size/all.length*100)+'%';
+  document.getElementById('progtxt').textContent=`${done.size} of ${all.length} read`;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.done-btn'); if(!b)return;
+  done.has(b.dataset.id)?done.delete(b.dataset.id):done.add(b.dataset.id);
+  localStorage.setItem(KEY,JSON.stringify([...done])); paint();
+});
+// highlight the article you are reading
+const obs=new IntersectionObserver(es=>{es.forEach(en=>{
+  if(en.isIntersecting){document.querySelectorAll('#toc a').forEach(a=>
+    a.classList.toggle('on',a.dataset.id===en.target.id))}})},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('article').forEach(a=>obs.observe(a));
+paint(); wireWidgets();
+</script>
+</body>
+</html>
